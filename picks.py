@@ -417,6 +417,10 @@ def persona_views(pick: dict) -> dict | None:
 
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    today_file = OUT_DIR / f"{datetime.now(TAIPEI).date().isoformat()}.json"
+    if today_file.exists() and os.environ.get("PICKS_FORCE") != "1":
+        print(f"今天的觀察標的已經產生過（{today_file.name}），同一天內不重新產生，避免內容一直變")
+        return 0
     picks = []
     for fn in (pick_tw, pick_us):
         try:
