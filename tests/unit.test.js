@@ -114,3 +114,20 @@ test("測試用 email 只在 localhost 生效", async () => {
   assert.equal(await accessEmail(req(null, "localhost:8788"), env), "dev@example.com");
   assert.equal(await accessEmail(req(null), env), null);
 });
+
+test("解析鉅亨網 RSS：標題、縮圖、關鍵字、只留鉅亨網連結", async () => {
+  const { parseRss } = await import("../functions/api/news.js");
+  const xml = `<rss><channel>
+<item><title><![CDATA[台積電 &amp; 英特爾]]></title><category>美股雷達</category><link>https://news.cnyes.com/news/id/1</link>
+<description><![CDATA[<p>摘要內容</p>]]></description><pubDate>Mon, 05 Oct 2026 22:30:07 +0800</pubDate>
+<media:thumbnail url="https://cimg.cnyes.cool/x.jpg" /><media:keywords><![CDATA[台積電,AI]]></media:keywords></item>
+<item><title>外部連結</title><link>https://evil.example/</link><pubDate>Mon, 05 Oct 2026 22:30:07 +0800</pubDate></item>
+</channel></rss>`;
+  const items = parseRss(xml, "tw_stock");
+  assert.equal(items.length, 1);
+  assert.equal(items[0].title, "台積電 & 英特爾");
+  assert.equal(items[0].thumb, "https://cimg.cnyes.cool/x.jpg");
+  assert.deepEqual(items[0].keywords, ["台積電", "AI"]);
+  assert.equal(items[0].summary, "摘要內容");
+  assert.equal(items[0].time, "2026-10-05T14:30:07.000Z");
+});

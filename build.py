@@ -23,6 +23,8 @@ from pathlib import Path
 import markdown
 
 import portfolio
+import visuals
+from visuals import funnel, monogram, news_cover, revenue_bars, score_bar
 
 ROOT = Path(__file__).parent
 SOURCES_DIR = Path(os.environ.get("SOURCES_DIR", ROOT / "sources"))
@@ -32,9 +34,13 @@ TAIPEI = timezone(timedelta(hours=8))
 DIGEST_DIR = SOURCES_DIR / "tim-lu" / "data" / "digests"
 REPORT_DIR = SOURCES_DIR / "investment-team" / "data" / "reports"
 STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
+PICKS_DIR = ROOT / "data" / "picks"
 
-NAV = [("index.html", "總覽"), ("portfolio/index.html", "投資"), ("daily/index.html", "每日總經"),
-       ("weekly/index.html", "每週研究"), ("sim/index.html", "模擬交易")]
+# (路徑, 標籤, 手機上的短標籤)
+NAV = [("index.html", "總覽", "總覽"), ("news/index.html", "即時快報", "快報"), ("portfolio/index.html", "投資", "投資"),
+       ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("sim/index.html", "模擬交易", "模擬")]
+# 太泛的關鍵字不當作新聞標籤
+GENERIC_KW = {"TOP", "headline", "台股", "美股", "國際股", "科技", "產業", "鉅亨速報", "大盤", "股市", "市場", "經濟", "投資", "個股"}
 WEEKDAYS = "一二三四五六日"
 STYLE_LABEL = {"value": ("價值型", "持有 5–10 年"), "growth": ("成長型", "持有約 1 年")}
 DISCLAIMER = "研究素材整理，不是買賣建議，也不預測股價。"
@@ -70,8 +76,8 @@ def signed_cls(x) -> str:
 def page(title: str, body: str, depth: int, active: str) -> str:
     prefix = "../" * depth
     nav = "".join(
-        f'<a href="{prefix}{href}"{" class=\"on\"" if href == active else ""}>{label}</a>'
-        for href, label in NAV
+        f'<a href="{prefix}{href}"{" class=\"on\"" if href == active else ""}><span class="l">{label}</span><span class="s">{short}</span></a>'
+        for href, label, short in NAV
     )
     built = datetime.now(TAIPEI).strftime("%Y-%m-%d %H:%M")
     return f"""<!doctype html>
@@ -93,6 +99,7 @@ def page(title: str, body: str, depth: int, active: str) -> str:
 </div></header>
 {body}
 <footer><div class="wrap">更新於 {built}（台北時間）・{DISCLAIMER}</div></footer>
+<script src="{prefix}site.js" defer></script>
 </body>
 </html>
 """
@@ -189,7 +196,7 @@ def fred_tiles(rows: list[dict]) -> str:
         unit_html = '<span class="unit">%</span>' if unit == "%" else ""
         tiles.append(
             f'<div class="stat"><div class="stat-label">{label_html}</div>'
-            f'<div class="stat-value">{value}{unit_html}</div>'
+            f'<div class="stat-value" data-count>{value}{unit_html}</div>'
             f'<div class="stat-foot">{change}<span>{e(r.get("latest_date") or "")}</span></div></div>'
         )
     return '<div class="stats">' + "".join(tiles) + "</div>"
@@ -208,7 +215,12 @@ def article_time(a: dict) -> str:
     return datetime.fromtimestamp(a["publishAt"], tz=TAIPEI).strftime("%m/%d %H:%M") if a.get("publishAt") else ""
 
 
-def render_article(a: dict) -> str:
+def keywords(a: dict, n: int = 3) -> str:
+    kws = [k for k in a.get("keywords") or [] if k not in GENERIC_KW and len(k) <= 8][:n]
+    return "".join(f"<span>#{e(k)}</span>" for k in kws)
+
+
+def render_article(a: dict, section_name: str, featured: bool = False) -> str:
     meta = " ・ ".join(x for x in [e(a.get("author")), article_time(a)] if x)
     lede = article_lede(a)
     full = ""
@@ -218,23 +230,41 @@ def render_article(a: dict) -> str:
             head = f"<h4>{e(sec['header'])}</h4>" if sec["header"] else ""
             parts += head + "<ul>" + "".join(f"<li>{e(it)}</li>" for it in sec["items"]) + "</ul>"
         full = f'<details class="more"><summary>完整摘要</summary><div class="more-body">{parts}</div></details>'
-    link = f'<a class="ext" href="{e(a["url"])}" target="_blank" rel="noopener">原文</a>' if a.get("url") else ""
-    return (f'<article class="news"><div class="news-meta">{meta}{link}</div>'
+    link = f'<a class="ext" href="{e(a["url"])}" target="_blank" rel="noopener">原文 ↗</a>' if a.get("url") else ""
+    kws = keywords(a)
+    return (f'<article class="news{" featured" if featured else ""}">{news_cover(a, section_name)}<div class="news-in">'
+            f'<div class="news-meta"><span>{meta}</span>{link}</div>'
             f'<h3>{e(a.get("title"))}</h3>'
             + (f'<p class="lede">{e(lede)}</p>' if lede else "")
-            + full + "</article>")
+            + (f'<div class="kws">{kws}</div>' if kws else "")
+            + full + "</div></article>")
+
+
+def digest_highlights(d: dict) -> str:
+    """主視覺裡的「今日三大重點」：每個分類第一則新聞的第一句重點。"""
+    items = []
+    for sec in d.get("news_sections", []):
+        for a in sec.get("articles", [])[:1]:
+            lede = article_lede(a)
+            if lede:
+                items.append((sec.get("name"), clip(lede, 60)))
+    if not items:
+        return ""
+    lis = "".join(f'<li><span class="hl-n">{i}</span><span class="hl-t"><small>{e(n)}</small>{e(t)}</span></li>'
+                  for i, (n, t) in enumerate(items[:3], 1))
+    return f'<ol class="digest-hero">{lis}</ol>'
 
 
 def render_digest_page(d: dict, prev_d, next_d) -> str:
     total = sum(len(s.get("articles", [])) for s in d.get("news_sections", []))
-    body = hero("每日總經", zh_date(d["date"]), f"{total} 則新聞・{len(d.get('fred', []))} 項美國總經數據")
+    body = hero("每日總經", zh_date(d["date"]), f"{total} 則新聞・{len(d.get('fred', []))} 項美國總經數據", digest_highlights(d))
     body += '<main class="wrap">'
     body += section("美國總經數據", fred_tiles(d.get("fred", [])), "FRED")
     for sec in d.get("news_sections", []):
         arts = sec.get("articles", [])
         if arts:
-            body += section(e(sec.get("name")), '<div class="news-list">' + "".join(render_article(a) for a in arts) + "</div>",
-                            f"{e(sec.get('source'))}・{len(arts)} 則")
+            cards = "".join(render_article(a, sec.get("name") or "", featured=(i == 0)) for i, a in enumerate(arts))
+            body += section(e(sec.get("name")), f'<div class="news-list">{cards}</div>', f"{e(sec.get('source'))}・{len(arts)} 則")
     body += pager(prev_d and f"{prev_d['date']}.html", prev_d and prev_d["date"],
                   next_d and f"{next_d['date']}.html", next_d and next_d["date"], "index.html")
     return body + "</main>"
@@ -334,7 +364,7 @@ def candidate_table(cands: list[dict], style: str, show_reason: bool = False) ->
             f'<details class="row"><summary>'
             f'<span class="name"><b>{e(c.get("name"))}</b><small>{e(c.get("code"))}・{e(c.get("industry"))}</small>{reason}</span>'
             f'{cells}<span class="num">{rev_dots(c)}</span>'
-            f'<span class="score">{c.get("n_pass")}/{c.get("n_total")}</span></summary>'
+            f'{score_bar(c.get("n_pass") or 0, c.get("n_total") or 0)}</summary>'
             f'<div class="row-body">{candidate_detail(c)}</div></details>'
         )
     head = (f'<div class="thead"><span class="name">公司</span>{heads}'
@@ -368,8 +398,11 @@ def company_card(c: dict) -> str:
         for s in sections
     )
     tag = '<span class="pill">篩選候選</span>' if c.get("from_screen") else ""
+    cover = revenue_bars(c.get("quarters"))
+    cover = (f'<div class="co-cover">{cover}<small>近 {min(6, len(c.get("quarters") or []))} 季營收</small></div>' if cover
+             else f'<div class="co-cover">{monogram(c.get("name"), c.get("ticker") or "")}</div>')
     return (
-        f'<article class="co"><div class="co-head"><div><b>{e(c.get("name"))}</b><small>{e(c.get("ticker"))}</small></div>{tag}</div>'
+        f'<article class="co">{cover}<div class="co-head"><div><b>{e(c.get("name"))}</b><small>{e(c.get("ticker"))}</small></div>{tag}</div>'
         f'<div class="co-stats"><div><small>股價（{cur}）</small>{num(price.get("price"), 2 if (price.get("price") or 0) < 1000 else 0)}</div>'
         f'<div><small>本益比</small>{num(val.get("pe_ttm"))}</div>'
         f'<div><small>FCF 殖利率</small>{pct(val.get("fcf_yield"))}</div></div>'
@@ -385,7 +418,10 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
     if s:
         counts = {st: bucket(s.get(st, [])) for st in STYLE_LABEL}
         n_full = sum(len(b["full"]) for b in counts.values())
-        sub = f'全市場 {s.get("n_market", "—")} 家 → 初篩 {sum((s.get("prefilter") or {}).values())} 家 → 完全符合 {n_full} 家'
+        n_pre = sum((s.get("prefilter") or {}).values())
+        sub = f'全市場 {s.get("n_market", "—")} 家 → 初篩 {n_pre} 家 → 完全符合 {n_full} 家'
+        extra = funnel([("全市場上市櫃公司", s.get("n_market") or 0), ("通過初篩", n_pre),
+                        ("完整檢查", sum(len(s.get(st, [])) for st in STYLE_LABEL)), ("完全符合", n_full)]) + extra
     else:
         sub = f"{len(r['companies'])} 家公司基本面分析"
     body = hero("每週研究", zh_date(r["date"]), sub, extra)
@@ -589,6 +625,8 @@ def main() -> int:
     shutil.copy(ROOT / "static" / "_headers", OUT_DIR / "_headers")
     shutil.copy(ROOT / "static" / "sim.js", OUT_DIR / "sim.js")
     sim_body = (ROOT / "static" / "sim_body.html").read_text(encoding="utf-8")
+    shutil.copy(ROOT / "static" / "site.js", OUT_DIR / "site.js")
+    write(OUT_DIR / "news" / "index.html", page("即時快報", (ROOT / "static" / "news_body.html").read_text(encoding="utf-8"), 1, "news/index.html"))
     write(OUT_DIR / "sim" / "index.html", page("模擬交易", sim_body, 1, "sim/index.html"))
 
     digests = load_digests()  # 新 → 舊
@@ -624,8 +662,13 @@ def main() -> int:
 
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
-    body = hero("總覽", zh_date(today), "今天的總經數據與頭條、本週研究候選，一頁看完。")
+    picks = visuals.load_latest_picks(PICKS_DIR)
+    body = hero("總覽", zh_date(today), "今日觀察標的、即時快報、總經數據與本週研究，一頁看完。")
     body += '<main class="wrap">'
+    body += section("今日觀察", visuals.observations(picks),
+                    f"四位模擬角色・{e(picks['date'])} 產生" if picks else "", ("weekly/index.html", "更多研究"))
+    body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
+                    '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/
     body += section("我的投資", home_link_card("portfolio/index.html", "🔒", "投資總覽需要密碼",
                                                "持股、損益與對帳結果只給站長本人看", "輸入密碼"))

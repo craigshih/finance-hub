@@ -5,6 +5,9 @@ on:
     - cron: "0 14 * * *"      # 每天 UTC 14:00 = 台北時間 22:00（kgi-trade-report 晚上 8～9 點把收盤價寫進 Notion 之後）
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: build-site
   cancel-in-progress: true
@@ -46,6 +49,23 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
+
+      # 今日觀察標的（台股收盤後的法人資料＋美股前一交易日）；失敗不影響建站
+      - name: Daily observation picks
+        continue-on-error: true
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python picks.py
+
+      - name: Commit picks
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/picks/ 2>/dev/null || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
+          git push
 
       - run: python build.py
         env:
