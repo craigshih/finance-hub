@@ -5,7 +5,7 @@
   document.documentElement.classList.add("js");
 
   // ---- 捲動進場：.sec、卡片、表格列依序淡入 ----
-  const targets = document.querySelectorAll(".sec, .stat, .pick, .news, .co, .date-card, .locked, .persona, .obs, .digest-hero li");
+  const targets = document.querySelectorAll(".sec, .stat, .pick, .news, .co, .date-card, .locked, .persona, .obs, .digest-hero li, .bubble, .inv, .rcard");
   targets.forEach((el, i) => {
     el.classList.add("reveal");
     el.style.setProperty("--d", `${(i % 6) * 60}ms`);

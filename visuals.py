@@ -114,16 +114,16 @@ KEY_METRICS = {
 
 def short_name(name: str) -> str:
     """Advanced Micro Devices, Inc. → Advanced Micro Devices"""
-    return re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Ltd\.?|plc|Co\.?|Company)$", "", name or "").strip()
+    return re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Ltd\.?|plc|Co\.?|Company|COM INC)$", "", name or "", flags=re.I).strip()
 
 
-def observation_card(p: dict) -> str:
+def observation_card(p: dict, prefix: str = "") -> str:
     m = p.get("metrics", {})
     chips = "".join(_metric_chip(k, m[k]) for k in KEY_METRICS[p["market"]] if m.get(k) is not None)
     v = p.get("views") or {}
     personas = "".join(
-        f'<div class="persona"><div class="ph"><span class="pi">{x["icon"]}</span><b>{e(x["name"])}</b>'
-        f'<span class="stance {STANCE_CLASS.get(x["stance"], "flat")}">{e(x["stance"])}</span></div><p>{e(x["text"])}</p></div>'
+        bubble(x["role"], prefix, f'<p>{e(x["text"])}</p>', x["stance"]) if x.get("role") in BY_ID else
+        f'<div class="persona"><b>{e(x["name"])}</b><p>{e(x["text"])}</p></div>'  # 舊格式（改版前的角色）
         for x in v.get("views", []))
     watch = "".join(f"<li>{e(w)}</li>" for w in v.get("watch", []))
     news = "".join(f'<li><a href="{e(n["url"])}" target="_blank" rel="noopener">{e(n["title"])}</a></li>' for n in p.get("news", []))
@@ -137,6 +137,7 @@ def observation_card(p: dict) -> str:
         f'<b>{f.get("net_value_100m", f.get("rel_20d_pct"))}</b></li>' for i, f in enumerate(flows))
     return f"""<article class="obs">
   <header class="obs-head">
+    {stock_logo(p['code'], p['name'], '上市' if p['market'] == '台股' else None, 'lg')}
     <div class="obs-title"><span class="mkt {'tw' if p['market'] == '台股' else 'us'}">{e(p['market'])}</span>
       <h3>{e(short_name(p['name']))}<small>{e(p['code'])}</small></h3><div class="obs-sub">{e(p['industry'])}・資料日 {e(p['data_date'])}</div></div>
     <div class="obs-price"><b data-count>{p['price']:,.2f}</b><small>{'新台幣' if p['market'] == '台股' else '美元'}</small></div>
@@ -144,7 +145,7 @@ def observation_card(p: dict) -> str:
   <div class="obs-chart">{sparkline(p.get('spark'), 520, 90, 'wide')}<small>近 60 個交易日收盤</small></div>
   {f'<p class="obs-summary">{e(v["summary"])}</p>' if v.get("summary") else ''}
   <ul class="chips">{chips}</ul>
-  <div class="personas">{personas or '<p class="empty">今天沒有產生角色觀點</p>'}</div>
+  <div class="bubbles">{personas or '<p class="empty">今天沒有產生投資人觀點</p>'}</div>
   <div class="obs-foot">
     <details class="fold"><summary>為什麼是它（選股規則與資金流）</summary>
       <p class="rule">{e(p.get('rule'))}</p><p class="flow-title">{flow_label}</p><ul class="flows">{flow_rows}</ul></details>
@@ -154,10 +155,127 @@ def observation_card(p: dict) -> str:
 </article>"""
 
 
-def observations(picks: dict | None) -> str:
+def observations(picks: dict | None, prefix: str = "") -> str:
     if not picks or not picks.get("picks"):
         return '<p class="empty">今天的觀察標的還沒產生</p>'
-    cards = "".join(observation_card(p) for p in picks["picks"])
+    cards = "".join(observation_card(p, prefix) for p in picks["picks"])
     return (f'<div class="obs-grid">{cards}</div>'
-            '<p class="obs-disclaimer">依公開的資金流與產業趨勢規則每天自動篩選，四位角色是模擬的研究框架，由 AI 依上面的數字撰寫，'
+            '<p class="obs-disclaimer">依公開的資金流與產業趨勢規則每天自動篩選。四位投資人的觀點是 AI 依他們公開的投資理念模擬、依上面的數字撰寫，不是本人發言，'
             '可能有誤。這是研究素材，不是買賣建議，也不預測股價；任何投資決定請自行判斷。</p>')
+
+
+# ---------- 企業 logo ----------
+
+def logo_urls(code: str, market: str | None) -> list[str]:
+    """Financial Modeling Prep 的公開 logo 圖；台股上市用 .TW、上櫃用 .TWO，不確定時兩個都試。"""
+    base = "https://financialmodelingprep.com/image-stock/"
+    code = (code or "").strip().upper()
+    if not code:
+        return []
+    if not re.fullmatch(r"[0-9]{4,6}[A-Z]?", code):
+        return [f"{base}{code}.png"]  # 美股
+    if market in ("上櫃", "tpex", "TWO"):
+        return [f"{base}{code}.TWO.png"]
+    if market in ("上市", "twse", "TW"):
+        return [f"{base}{code}.TW.png"]
+    return [f"{base}{code}.TW.png", f"{base}{code}.TWO.png"]
+
+
+def stock_logo(code: str, name: str = "", market: str | None = None, size: str = "") -> str:
+    """logo 圖蓋在首字圖示上面；圖片 404（例如 ETF）就移除，露出底下的首字圖示。"""
+    urls = logo_urls(code, market)
+    hue = sum(map(ord, code or "x")) % 360
+    initial = e((short_name(name) or code or "?")[:1])
+    img = ""
+    if urls:
+        fallback = f"this.onerror=function(){{this.remove()}};this.src='{urls[1]}'" if len(urls) > 1 else "this.remove()"
+        img = (f'<img src="{e(urls[0])}" alt="" loading="lazy" referrerpolicy="no-referrer" '
+               f'onerror="{e(fallback)}">')
+    return f'<span class="logo {size}" style="--h:{hue}"><b>{initial}</b>{img}</span>'
+
+
+# ---------- 四位投資人 ----------
+
+from investors import BY_ID, BY_NAME, INVESTORS  # noqa: E402
+
+STANCE_CLASS.update({"偏多": "bull", "中性": "flat", "保留": "bear"})
+
+
+def portrait(inv_id: str, prefix: str, cls: str = "") -> str:
+    inv = BY_ID[inv_id]
+    return f'<img class="portrait {cls}" src="{prefix}portraits/{inv_id}.svg" alt="{e(inv["name"])}素描插畫" loading="lazy">'
+
+
+def source_tags(text_html: str) -> str:
+    """把 [FinMind 2026Q2] 這類出處變成小標籤，「背景知識，未經本次資料驗證」變成提示標籤。"""
+    text_html = re.sub(r"[（(]背景知識[^）)]*[）)]", '<span class="bk" title="AI 的背景知識，未經本次資料驗證">背景知識</span>', text_html)
+    return re.sub(r"\[([^\]]{2,40})\]", r'<span class="src">\1</span>', text_html)
+
+
+def bubble(inv_id: str, prefix: str, body_html: str, stance: str | None = None) -> str:
+    inv = BY_ID[inv_id]
+    badge = f'<span class="stance {STANCE_CLASS.get(stance, "flat")}">{e(stance)}</span>' if stance else ""
+    return (f'<div class="bubble" style="--ac:{inv["accent"]}">{portrait(inv_id, prefix)}'
+            f'<div class="say"><div class="who"><b>{e(inv["name"])}</b><small>{e(inv["focus"])}</small>{badge}</div>'
+            f'{body_html}<div class="sim">依{e(inv["name"])}的投資框架模擬・AI 撰寫，非本人發言</div></div></div>')
+
+
+def persona_bubbles_from_text(personas_text: str, prefix: str) -> str:
+    """每週基本面報告的四位分析：【段永平｜...】+ 條列 → 對話泡泡。"""
+    out, current = [], None
+    for line in (personas_text or "").splitlines():
+        line = line.strip()
+        if m := re.match(r"^【(.+?)[｜|].*】$", line):
+            current = {"name": m.group(1).strip(), "items": []}
+            out.append(current)
+        elif line and current is not None:
+            current["items"].append(line[2:].strip() if line.startswith(("- ", "・")) else line)
+    html_parts = []
+    for sec in out:
+        inv = BY_NAME.get(sec["name"])
+        if not inv or not sec["items"]:
+            continue
+        items = "".join(f"<li>{source_tags(e(it.replace('**', '')))}</li>" for it in sec["items"])
+        html_parts.append(bubble(inv["id"], prefix, f"<ul>{items}</ul>"))
+    return f'<div class="bubbles">{"".join(html_parts)}</div>' if html_parts else ""
+
+
+def investors_section(prefix: str, compact: bool = False) -> str:
+    cards = []
+    for inv in INVESTORS:
+        bio = "".join(f"<li>{e(b)}</li>" for b in inv["bio"])
+        phil = "".join(f"<span>{e(p)}</span>" for p in inv["philosophy"])
+        cards.append(
+            f'<article class="inv" style="--ac:{inv["accent"]}">{portrait(inv["id"], prefix, "big")}'
+            f'<div class="inv-body"><div class="inv-name"><h3>{e(inv["name"])}</h3><small>{e(inv["en"])}</small></div>'
+            f'<p class="inv-tag">「{e(inv["tagline"])}」</p><p class="inv-focus">在本站負責：{e(inv["focus"])}</p>'
+            f'<div class="inv-phil">{phil}</div>'
+            + ("" if compact else f'<ul class="inv-bio">{bio}</ul><p class="inv-trust"><b>為什麼值得參考</b>{e(inv["trust"])}</p>')
+            + "</div></article>")
+    note = ('<p class="inv-note">本站的四位投資人觀點都是 AI 依照他們公開的投資理念「模擬」撰寫，不是本人發言，也可能理解錯誤。'
+            '他們的框架值得參考，但沒有人永遠是對的，巴菲特自己也在致股東信裡多次承認看錯。</p>')
+    return f'<div class="invs{" compact" if compact else ""}">{"".join(cards)}</div>{note}'
+
+
+# ---------- 每週研究目錄：生成式封面 ----------
+
+def report_art(seed: str, dots: int, accent_hue: int) -> str:
+    """依報告日期當種子畫的抽象封面：同心弧線＋每家公司一個圓點，每份報告都長得不一樣。"""
+    import random
+    rnd = random.Random(seed)
+    w, h = 360, 150
+    shapes = []
+    cx, cy = rnd.uniform(220, 320), rnd.uniform(40, 110)
+    for i in range(7):
+        r = 30 + i * 22 + rnd.uniform(-6, 6)
+        shapes.append(f'<circle cx="{cx:.0f}" cy="{cy:.0f}" r="{r:.0f}" fill="none" stroke="hsl({accent_hue} 60% 70%)" '
+                      f'stroke-opacity="{0.55 - i * 0.06:.2f}" stroke-width="1.2" style="--i:{i}" class="ring"/>')
+    for i in range(max(dots, 3)):
+        x, y = rnd.uniform(16, w - 16), rnd.uniform(16, h - 16)
+        r = rnd.uniform(3, 9)
+        hue = (accent_hue + rnd.choice([0, 30, 200])) % 360
+        shapes.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.1f}" fill="hsl({hue} 65% 62%)" fill-opacity=".85" class="dot-a" style="--i:{i}"/>')
+    pts = " ".join(f"{x},{h - 20 - rnd.uniform(0, 70) * (x / w):.0f}" for x in range(0, w + 1, 30))
+    shapes.append(f'<polyline points="{pts}" fill="none" stroke="hsl({accent_hue} 70% 75%)" stroke-width="2" class="draw"/>')
+    return (f'<svg class="art" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'
+            f'<rect width="{w}" height="{h}" fill="hsl({accent_hue} 45% 16%)"/>{"".join(shapes)}</svg>')

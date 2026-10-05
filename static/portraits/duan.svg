@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" role="img"><defs>
+  <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+    <line x1="0" y1="0" x2="0" y2="5" stroke="#3a3f47" stroke-width="0.7" opacity="0.55"/>
+  </pattern>
+  <pattern id="hatch2" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+    <line x1="0" y1="0" x2="0" y2="4" stroke="#3a3f47" stroke-width="0.6" opacity="0.5"/>
+  </pattern>
+  <pattern id="hair" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(60)">
+    <line x1="0" y1="0" x2="0" y2="3" stroke="#22252b" stroke-width="1.3" opacity="0.85"/>
+  </pattern>
+</defs><rect width="200" height="240" fill="#e9eff8"/><g filter="url(#pencil)">
+<!-- 臉型：圓潤 -->
+<path d="M62 96 C60 132 70 160 88 172 C96 178 104 178 112 172 C130 160 140 132 138 96" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/>
+<path d="M64 122 C66 146 76 162 90 170" fill="url(#hatch)" stroke="none" opacity=".45"/>
+<!-- 黑色短髮、旁分 -->
+<path d="M60 98 C54 62 74 40 102 40 C128 40 146 60 140 98 C136 82 130 72 118 66 C104 72 82 72 68 80 C64 86 62 92 60 98 Z" fill="url(#hair)" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+<path d="M118 66 C110 58 98 54 84 56" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+<path d="M70 64 C84 52 104 48 124 54" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"/>
+<!-- 耳朵 -->
+<path d="M62 106 C54 104 53 120 60 126 M138 106 C146 104 147 120 140 126" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+<!-- 眉毛與笑眼 -->
+<path d="M72 96 C79 92 87 92 92 95 M108 95 C113 92 121 92 128 96" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"/>
+<path d="M74 108 C79 104 85 104 90 108 M110 108 C115 104 121 104 126 108" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+<!-- 鼻子 -->
+<path d="M100 112 C98 122 95 130 97 134 C100 136 104 136 106 133" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+<!-- 溫和的笑 -->
+<path d="M84 148 C92 156 108 156 116 148" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+<!-- POLO 衫領 -->
+<path d="M36 240 C44 206 64 192 86 186 L100 200 L114 186 C136 192 156 206 164 240" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+<path d="M86 186 L80 204 L100 200 L120 204 L114 186" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+<path d="M100 200 L100 222 M100 208 L101 208 M100 216 L101 216" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></g></svg>

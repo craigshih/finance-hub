@@ -16,6 +16,21 @@
     return n;
   };
 
+  // 企業 logo（Financial Modeling Prep 公開圖）：上市 .TW、上櫃 .TWO；沒有圖就顯示首字
+  const logo = (code, name, market) => {
+    const base = "https://financialmodelingprep.com/image-stock/";
+    const urls = /^[0-9]{4,6}[A-Z]?$/.test(code)
+      ? (market === "上櫃" ? [`${base}${code}.TWO.png`] : market === "上市" ? [`${base}${code}.TW.png`] : [`${base}${code}.TW.png`, `${base}${code}.TWO.png`])
+      : [`${base}${code}.png`];
+    const hue = [...code].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+    const wrap = el("span", { class: "logo sm", style: `--h:${hue}` }, el("b", {}, (name || code)[0]));
+    const img = el("img", { src: urls[0], alt: "", loading: "lazy", referrerpolicy: "no-referrer" });
+    let i = 0;
+    img.addEventListener("error", () => { i += 1; if (urls[i]) img.src = urls[i]; else img.remove(); });
+    wrap.append(img);
+    return wrap;
+  };
+
   // 台股手續費／證交稅，跟伺服器 functions/_lib/market.js 同一套規則，只用於下單前預估
   const taxRate = (code) => (/^00\w*B$/.test(code) ? 0 : code.startsWith("00") ? 0.001 : 0.003);
   const estimate = (code, side, price, shares) => {
@@ -69,7 +84,7 @@
       hb.replaceChildren(el("p", { class: "empty" }, "還沒有持股，從右邊下第一張單吧。"));
     } else {
       const rows = me.holdings.map((h) => el("tr", { class: "clickable", title: "點一下帶入賣出", onclick: () => prefill(h.code, "sell", h.shares) },
-        el("td", {}, el("b", {}, h.name), el("small", {}, h.code)),
+        el("td", {}, el("span", { class: "name" }, logo(h.code, h.name), el("span", {}, el("b", {}, h.name), el("small", {}, h.code)))),
         el("td", { class: "num" }, fmt(h.shares)),
         el("td", { class: "num" }, fmt(h.avg_cost, 2)),
         el("td", { class: "num" }, fmt(h.price, 2)),
@@ -129,7 +144,7 @@
     if (!code) return;
     try {
       quote = await api(`quote?code=${encodeURIComponent(code)}`);
-      $("#sim-quote").replaceChildren(el("b", {}, `${quote.code} ${quote.name}`),
+      $("#sim-quote").replaceChildren(logo(quote.code, quote.name, quote.market), el("b", {}, `${quote.code} ${quote.name}`),
         el("span", {}, `${fmt(quote.price, 2)}`), el("small", {}, `${quote.market}・${quote.date} 收盤`));
     } catch (e) {
       quote = null;

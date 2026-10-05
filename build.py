@@ -24,7 +24,7 @@ import markdown
 
 import portfolio
 import visuals
-from visuals import funnel, monogram, news_cover, revenue_bars, score_bar
+from visuals import funnel, monogram, news_cover, revenue_bars, score_bar, short_name, stock_logo
 
 ROOT = Path(__file__).parent
 SOURCES_DIR = Path(os.environ.get("SOURCES_DIR", ROOT / "sources"))
@@ -362,7 +362,8 @@ def candidate_table(cands: list[dict], style: str, show_reason: bool = False) ->
             reason = f'<span class="why">{e("、".join(c.get("flags") or []) or "未通過：" + "、".join(missed))}</span>'
         rows.append(
             f'<details class="row"><summary>'
-            f'<span class="name"><b>{e(c.get("name"))}</b><small>{e(c.get("code"))}・{e(c.get("industry"))}</small>{reason}</span>'
+            f'<span class="name">{stock_logo(c.get("code"), c.get("name"), c.get("market"), "sm")}'
+            f'<span><b>{e(c.get("name"))}</b><small>{e(c.get("code"))}・{e(c.get("industry"))}</small>{reason}</span></span>'
             f'{cells}<span class="num">{rev_dots(c)}</span>'
             f'{score_bar(c.get("n_pass") or 0, c.get("n_total") or 0)}</summary>'
             f'<div class="row-body">{candidate_detail(c)}</div></details>'
@@ -376,7 +377,8 @@ def etf_table(etfs: list[dict]) -> str:
     if not etfs:
         return ""
     rows = "".join(
-        f'<tr><td><b>{e(x["id"])}</b> {e(x["name"])}</td><td class="muted">{e(x.get("theme"))}</td>'
+        f'<tr><td><span class="name">{stock_logo(x["id"], x["name"], None, "sm")}<span><b>{e(x["id"])}</b> {e(x["name"])}</span></span></td>'
+        f'<td class="muted">{e(x.get("theme"))}</td>'
         f'<td class="num {signed_cls(x.get("ret_1y"))}">{pct(x.get("ret_1y"))}</td>'
         f'<td class="num">{pct(x.get("yield_ttm"))}</td>'
         f'<td class="num">{"✓" if x.get("above200") else "—"}</td></tr>'
@@ -386,7 +388,7 @@ def etf_table(etfs: list[dict]) -> str:
             f'<th class="num">殖利率</th><th class="num">200 日線上</th></tr></thead><tbody>{rows}</tbody></table></div>')
 
 
-def company_card(c: dict) -> str:
+def company_card(c: dict, prefix: str = "../") -> str:
     price = c.get("price") or {}
     val = c.get("valuation") or {}
     cur = "新台幣" if c.get("currency") == "TWD" else "美元"
@@ -398,16 +400,19 @@ def company_card(c: dict) -> str:
         for s in sections
     )
     tag = '<span class="pill">篩選候選</span>' if c.get("from_screen") else ""
+    bubbles = visuals.persona_bubbles_from_text((c.get("analysis") or {}).get("personas"), prefix)
     cover = revenue_bars(c.get("quarters"))
     cover = (f'<div class="co-cover">{cover}<small>近 {min(6, len(c.get("quarters") or []))} 季營收</small></div>' if cover
-             else f'<div class="co-cover">{monogram(c.get("name"), c.get("ticker") or "")}</div>')
+             else f'<div class="co-cover big-logo">{stock_logo(c.get("ticker"), c.get("name"), c.get("market"), "xl")}</div>')
     return (
-        f'<article class="co">{cover}<div class="co-head"><div><b>{e(c.get("name"))}</b><small>{e(c.get("ticker"))}</small></div>{tag}</div>'
+        f'<article class="co">{cover}<div class="co-head">{stock_logo(c.get("ticker"), c.get("name"), c.get("market"), "sm")}'
+        f'<div><b>{e(short_name(c.get("name")))}</b><small>{e(c.get("ticker"))}</small></div>{tag}</div>'
         f'<div class="co-stats"><div><small>股價（{cur}）</small>{num(price.get("price"), 2 if (price.get("price") or 0) < 1000 else 0)}</div>'
         f'<div><small>本益比</small>{num(val.get("pe_ttm"))}</div>'
         f'<div><small>FCF 殖利率</small>{pct(val.get("fcf_yield"))}</div></div>'
         + (f'<p class="lede">{e(takeaway)}</p>' if takeaway else "")
-        + (f'<details class="more"><summary>綜合分析</summary><div class="more-body">{body}</div></details>' if body else "")
+        + (f'<details class="more"><summary>四位投資人怎麼看</summary><div class="more-body">{bubbles}</div></details>' if bubbles else "")
+        + (f'<details class="more"><summary>綜合分析（共識、分歧、三種情境）</summary><div class="more-body">{body}</div></details>' if body else "")
         + "</article>"
     )
 
@@ -415,7 +420,12 @@ def company_card(c: dict) -> str:
 def render_report_page(r: dict, prev_r, next_r) -> str:
     s = r["screen"]
     extra = f'<p class="hero-note">{DISCLAIMER}四位投資人角色為模擬框架。</p>'
-    if s:
+    legacy = bool(s and "stocks" in s and "value" not in s)
+    if legacy:
+        n_c = sum(1 for x in s["stocks"] if x.get("candidate"))
+        sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔 → {n_c} 檔符合多數條件"
+        extra = funnel([("供應鏈公司", len(s["stocks"])), ("符合多數條件", n_c)]) + extra
+    elif s:
         counts = {st: bucket(s.get(st, [])) for st in STYLE_LABEL}
         n_full = sum(len(b["full"]) for b in counts.values())
         n_pre = sum((s.get("prefilter") or {}).values())
@@ -427,7 +437,9 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
     body = hero("每週研究", zh_date(r["date"]), sub, extra)
     body += '<main class="wrap">'
 
-    if s:
+    if legacy:
+        body += section("台股研究候選：全球龍頭供應鏈", legacy_screen(s), "依通過條件的比例排序")
+    elif s:
         for st, (label, horizon) in STYLE_LABEL.items():
             b = counts[st]
             inner = candidate_table(b["full"], st)
@@ -468,7 +480,7 @@ def home_candidates(r: dict) -> str:
     for st, (label, horizon) in STYLE_LABEL.items():
         full = bucket(s.get(st, []))["full"]
         items = "".join(
-            f'<li><b>{e(c["name"])}</b><small>{e(c["code"])}・{e(c.get("industry"))}</small>'
+            f'<li>{stock_logo(c["code"], c["name"], c.get("market"), "sm")}<b>{e(c["name"])}</b><small>{e(c["code"])}・{e(c.get("industry"))}</small>'
             f'<span class="num">{metric_cells(c, st)[0]}</span></li>'
             for c in full
         ) or '<li class="empty">本週沒有</li>'
@@ -508,7 +520,7 @@ def allocation_bar(alloc: list[tuple[str, float]], total: float) -> str:
 
 def holdings_table(holdings: list[dict]) -> str:
     rows = "".join(
-        f'<tr><td><b>{e(h["name"])}</b><small>{e(h["code"])}</small></td>'
+        f'<tr><td><span class="name">{stock_logo(h["code"], h["name"], None, "sm")}<span><b>{e(h["name"])}</b><small>{e(h["code"])}</small></span></span></td>'
         f'<td class="num">{shares_fmt(h["shares"])}</td>'
         f'<td class="num">{num(h["avg_cost"], 2)}</td>'
         f'<td class="num">{num(h["price"], 2)}</td>'
@@ -602,6 +614,66 @@ def home_link_card(href: str, icon: str, title: str, sub: str, go: str) -> str:
             f'<span><b>{title}</b><small>{sub}</small></span><span class="go">{go} →</span></a>')
 
 
+def legacy_screen(s: dict) -> str:
+    """早期週報的「全球龍頭供應鏈」篩選：依通過比例排序的簡單清單。"""
+    rows = "".join(
+        f'<tr><td><span class="name">{stock_logo(x["id"], x["name"], None, "sm")}<span><b>{e(x["name"])}</b>'
+        f'<small>{e(x["id"])}・{e(x.get("role") or "")}</small></span></span></td>'
+        f'<td class="num">{score_bar(x.get("n_pass") or 0, x.get("n_total") or 0)}</td>'
+        f'<td class="num">{"✓ 研究候選" if x.get("candidate") else ""}</td></tr>'
+        for x in sorted(s.get("stocks", []), key=lambda x: -(x.get("ratio") or 0)))
+    return ('<div class="table-wrap"><table class="holdings"><thead><tr><th>公司</th><th class="num">符合條件</th><th class="num"></th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></div>')
+
+
+def report_headline(r: dict) -> tuple[str, str, list[dict]]:
+    """每週研究目錄卡的大標題、副標與要放 logo 的公司。"""
+    s = r["screen"]
+    companies = r["companies"]
+    if s and "stocks" in s and "value" not in s:  # 早期的「全球龍頭供應鏈」篩選格式
+        cands = [x for x in s["stocks"] if x.get("candidate")]
+        names = "、".join(x["name"] for x in cands[:3])
+        title = f"{names}等 {len(cands)} 檔供應鏈公司符合多數條件" if cands else "全球龍頭供應鏈篩選"
+        sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔篩選｜{len(companies)} 家個股深度分析"
+        logos = [{"code": x["id"], "name": x["name"], "market": None} for x in cands]
+    elif s:
+        full = [c for st in STYLE_LABEL for c in bucket(s.get(st, []))["full"]]
+        names = "、".join(c["name"] for c in full[:3])
+        title = f"{names}等 {len(full)} 檔通過全部篩選條件" if full else "本週沒有公司通過全部篩選條件"
+        counts = "・".join(f"{label} {len(bucket(s.get(st, []))['full'])} 檔" for st, (label, _) in STYLE_LABEL.items())
+        sub = f"全市場 {s.get('n_market', '—')} 家篩選｜{counts}｜{len(companies)} 家個股深度分析"
+        logos = [{"code": c["code"], "name": c["name"], "market": c.get("market")} for c in full]
+    else:
+        names = "、".join(short_name(c.get("name")) for c in companies[:2])
+        title = f"{names}等 {len(companies)} 家公司的基本面體檢"
+        sub = "四位投資人框架逐家分析財務品質、估值與風險"
+        logos = []
+    logos += [{"code": c.get("ticker"), "name": c.get("name"), "market": c.get("market")} for c in companies
+              if c.get("ticker") not in {x["code"] for x in logos}]
+    return title, sub, logos
+
+
+def weekly_index(reports: list[dict]) -> str:
+    body = hero("每週研究", "歷史報告", "每週三更新：台股全市場篩選＋四位投資人框架的個股分析")
+    body += '<main class="wrap">'
+    if not reports:
+        return body + '<p class="empty">尚無資料</p></main>'
+    cards = []
+    for i, r in enumerate(reports):
+        title, sub, logos = report_headline(r)
+        hue = (int(r["date"].replace("-", "")) * 37) % 360
+        logo_row = "".join(stock_logo(x["code"], x["name"], x["market"], "sm") for x in logos[:8])
+        more = f'<span class="more-n">+{len(logos) - 8}</span>' if len(logos) > 8 else ""
+        cards.append(
+            f'<a class="rcard{" latest" if i == 0 else ""}" href="{r["date"]}.html">'
+            f'<div class="rart">{visuals.report_art(r["date"], len(logos), hue)}'
+            f'<span class="rdate">{e(zh_date(r["date"]))}</span>{"<span class=rnew>最新</span>" if i == 0 else ""}</div>'
+            f'<div class="rbody"><h3>{e(title)}</h3><p>{e(sub)}</p><div class="logos">{logo_row}{more}</div></div></a>')
+    body += section("全部報告", f'<div class="rgrid">{"".join(cards)}</div>', f"{len(reports)} 份")
+    body += section("四位投資人", visuals.investors_section("../"), "每份報告都用他們的框架分析", ("../investors/index.html", "完整介紹"))
+    return body + "</main>"
+
+
 # ---------- 組裝 ----------
 
 def write(path: Path, content: str) -> None:
@@ -645,9 +717,12 @@ def main() -> int:
         write(OUT_DIR / "weekly" / f"{r['date']}.html", page(f"每週研究 {r['date']}", render_report_page(r, older, newer), 1, "weekly/index.html"))
         if r["md"]:
             write(OUT_DIR / "weekly" / f"{r['date']}-full.html", page(f"完整報告 {r['date']}", render_full_report(r), 1, "weekly/index.html"))
-    write(OUT_DIR / "weekly" / "index.html", page("每週研究", date_index("每週研究", "歷史報告", [
-        (f"{r['date']}.html", r["date"], f"{len(r['companies'])} 家個股分析" + ("・含台股篩選" if r["screen"] else ""))
-        for r in reports]), 1, "weekly/index.html"))
+    write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports), 1, "weekly/index.html"))
+    shutil.copytree(ROOT / "static" / "portraits", OUT_DIR / "portraits")
+    write(OUT_DIR / "investors" / "index.html", page("四位投資人", hero(
+        "四位投資人", "段永平・巴菲特・芒格・李錄",
+        "本站的每週研究與今日觀察，都用這四位投資人的框架從四個角度看同一家公司。")
+        + f'<main class="wrap">{section("他們是誰、為什麼值得參考", visuals.investors_section("../"))}</main>', 1, "weekly/index.html"))
 
     # 投資總覽：讀不到 Notion 時照樣產生其他頁面
     sm = rc = err = None
@@ -665,8 +740,8 @@ def main() -> int:
     picks = visuals.load_latest_picks(PICKS_DIR)
     body = hero("總覽", zh_date(today), "今日觀察標的、即時快報、總經數據與本週研究，一頁看完。")
     body += '<main class="wrap">'
-    body += section("今日觀察", visuals.observations(picks),
-                    f"四位模擬角色・{e(picks['date'])} 產生" if picks else "", ("weekly/index.html", "更多研究"))
+    body += section("今日觀察", visuals.observations(picks, ""),
+                    f"段永平・巴菲特・芒格・李錄的框架・{e(picks['date'])} 產生" if picks else "", ("investors/index.html", "認識四位投資人"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/

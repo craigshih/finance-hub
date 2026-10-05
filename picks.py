@@ -56,14 +56,14 @@ US_SECTORS = {
     "XLRE": ("不動產", ["PLD", "AMT", "EQIX", "WELL"]),
 }
 
-PERSONAS = [
-    ("flow", "📊", "資金流觀察家", "看法人與大戶的錢往哪裡去：買超是否連續、量能是否放大"),
-    ("trend", "🚀", "趨勢獵人", "看產業趨勢與成長動能：產業資金流向、營收或股價動能"),
-    ("value", "🛡️", "估值守門人", "看價格是否合理：本益比、殖利率、離高點多遠，避免追高"),
-    ("risk", "⚖️", "風險管理者", "專門找可能出錯的地方：籌碼反轉、漲多回檔、產業或個股風險"),
-]
+from investors import INVESTORS
+
+# 四位投資人的模擬框架（跟每週基本面分析同一套）：(id, 名字, 分析重點, 說話風格)
+PERSONAS = [(i["id"], i["name"], i["focus"], i["voice"]) for i in INVESTORS]
 # 叫讀者做交易的用語；「法人買進/賣出」這種描述資料的用法不算，所以不擋「買進」「賣出」本身
-BANNED_WORDS = ("目標價", "建議買", "建議賣", "逢低買", "可以買", "值得買", "應該買", "加碼", "減碼", "停損", "停利", "進場", "出場", "必漲", "保證")
+BANNED_WORDS = ("目標價", "建議買", "建議賣", "逢低買", "可以買", "值得買", "應該買", "加碼", "減碼", "停損", "停利", "進場", "出場", "必漲", "保證",
+                # 模擬角色不能假裝自己真的有部位
+                "我買了", "我持有", "我賣了", "我加碼", "我們持有", "我的部位")
 
 
 # 指標的中文名稱與解讀方式：給 AI 看（避免誤讀），也用在網頁顯示
@@ -326,7 +326,8 @@ def related_news(pick: dict, limit: int = 3) -> list[dict]:
 
 
 PROMPT = """你是一個財經網站的研究小組，今天用固定規則篩出一檔「觀察標的」：{name}（{code}，{market}，{industry}）。
-請用四個模擬投資角色，各寫一段 40～70 字的觀點。這是研究素材，不是投資建議。
+請用段永平、巴菲特、芒格、李錄四位投資人的「投資框架」各寫一段 50～80 字的觀點。
+這是 AI 依他們公開的投資理念做的模擬，不代表本人意見；這是研究素材，不是投資建議。
 
 為什麼今天篩到它（規則）：{rule}
 
@@ -336,16 +337,20 @@ PROMPT = """你是一個財經網站的研究小組，今天用固定規則篩�
 近期相關新聞標題（可能為空；只能引用標題，不可推測內文）：
 {news}
 
-四個角色：
+四位投資人（分析重點／說話風格）：
 {personas}
 
 規則：
-- 每個角色要給一個立場：「偏多」「中性」「保留」其中之一；風險管理者必須寫出至少一個具體風險。
+- 用各自的說話風格寫，可以用第一人稱「我會先看…」，但不可以假裝自己真的買了、持有或賣了這檔股票，也不可以編造他們說過的名言。
+- 他們都是長期價值投資者，「法人資金流」「股價動能」不是他們買股票的理由，最多只是讓他們注意到這家公司；立場必須由各自的分析重點決定：
+  段永平看商業模式與產品、巴菲特看現金流與估值（本益比很高、又沒有現金流資料時，他不會偏多）、芒格看會怎麼失敗、李錄看十年後的確定性與管理層。
+- 數字的意思照括號裡的說明，例如「月營收年增率」是跟去年同月比，不是月增。
+- 每個人要給一個立場：「偏多」「中性」「保留」其中之一；芒格必須寫出至少一個具體的失敗情境或風險。
 - 絕對不可以出現：目標價、加碼、減碼、停損、停利、進場、出場、建議買賣、逢低買、值得買、保證、必漲。不要叫讀者做任何交易，只描述數字與觀點。
 - 用繁體中文，口吻像研究筆記，具體引用上面的數字，照括號裡的解讀方式理解數字，不要寫出英文欄位名稱。
 
 只輸出 JSON，格式：
-{{"summary": "一句話（30 字內）說明今天為什麼注意到它", "views": [{{"role": "flow", "stance": "偏多", "text": "..."}}, ...四個...], "watch": ["接下來要追蹤的事（2～3 點，每點 25 字內）"]}}"""
+{{"summary": "一句話（30 字內）說明今天為什麼注意到它", "views": [{{"role": "duan", "stance": "中性", "text": "..."}}, ...四個，role 依序為 duan、buffett、munger、lilu...], "watch": ["接下來要追蹤的事（2～3 點，每點 25 字內）"]}}"""
 
 RULES_TEXT = {
     "台股": "最近 5 個交易日外資加投信淨買超金額，該產業排名前三、個股在產業中最高，5 天中至少 3 天買超，股價站上 20 日均線。",
@@ -368,10 +373,17 @@ def call_groq(prompt: str) -> str:
     raise RuntimeError("Groq 一直回 429")
 
 
+def has_banned(text: str) -> bool:
+    return any(w in text for w in BANNED_WORDS)
+
+
 def clean(text: str) -> str:
-    for w in BANNED_WORDS:
-        text = text.replace(w, "〔已移除交易用語〕")
-    return text.strip()
+    """最後一道保險：整個子句含交易用語就拿掉，而不是在句子中間留下記號。"""
+    if not has_banned(text):
+        return text.strip()
+    parts = re.split(r"(?<=[，。；！？])", text)
+    kept = "".join(p for p in parts if not has_banned(p)).rstrip("，；")
+    return (kept + ("。" if kept and not kept.endswith(("。", "！", "？")) else "")).strip()
 
 
 def persona_views(pick: dict) -> dict | None:
@@ -381,20 +393,23 @@ def persona_views(pick: dict) -> dict | None:
         name=pick["name"], code=pick["code"], market=pick["market"], industry=pick["industry"], rule=RULES_TEXT[pick["market"]],
         metrics=describe_metrics(pick["metrics"]),
         news="\n".join(f"- {n['title']}" for n in pick["news"]) or "（無）",
-        personas="\n".join(f"- {key}｜{name}：{desc}" for key, _, name, desc in PERSONAS))
-    for _ in range(2):
+        personas="\n".join(f"- {key}｜{name}｜{focus}｜風格：{voice}" for key, name, focus, voice in PERSONAS))
+    for attempt in range(3):
         try:
             out = json.loads(call_groq(prompt))
         except (json.JSONDecodeError, KeyError, RuntimeError, requests.RequestException) as exc:
             log(f"⚠️ 角色觀點產生失敗：{exc}")
             continue
         views = {v.get("role"): v for v in out.get("views", [])}
+        if attempt < 2 and has_banned(json.dumps(out, ensure_ascii=False)):
+            log("⚠️ 角色觀點出現交易用語，重新產生")
+            continue
         if all(k in views for k, *_ in PERSONAS):
             return {
                 "summary": clean(out.get("summary", "")),
-                "views": [{"role": k, "icon": icon, "name": name,
+                "views": [{"role": k, "name": name, "focus": focus,
                            "stance": views[k].get("stance") if views[k].get("stance") in ("偏多", "中性", "保留") else "中性",
-                           "text": clean(views[k].get("text", ""))} for k, icon, name, _ in PERSONAS],
+                           "text": clean(views[k].get("text", ""))} for k, name, focus, _ in PERSONAS],
                 "watch": [clean(w) for w in out.get("watch", [])][:3],
             }
     return None
