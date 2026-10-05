@@ -45,4 +45,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # 第一次執行時專案還不存在，先建立；已存在時這行會失敗但不影響
+          preCommands: npx wrangler pages project create craig-finance --production-branch=main || true
           command: pages deploy site --project-name=craig-finance --branch=main
