@@ -2,3 +2,6 @@
 __pycache__/
 site/
 sources/
+wrangler.toml
+.wrangler/
+node_modules/

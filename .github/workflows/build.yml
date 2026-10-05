@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -51,11 +51,73 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+      - uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 第一次執行時專案還不存在，先建立；已存在時這行會失敗但不影響
-          preCommands: npx wrangler pages project create craig-finance --production-branch=main || true
-          command: pages deploy site --project-name=craig-finance --branch=main
+          node-version: "20"
+
+      - name: Unit tests
+        run: npm test
+
+      - run: npm install -g wrangler@3
+
+      # 模擬交易用的 D1 資料庫：第一次執行時建立，之後沿用同一個
+      - name: Set up D1 and wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler pages project create craig-finance --production-branch=main >/dev/null 2>&1 || true
+          find_db() { wrangler d1 list --json | jq -r '.[] | select(.name=="craig-finance-sim") | .uuid'; }
+          id=$(find_db)
+          if [ -z "$id" ]; then wrangler d1 create craig-finance-sim; id=$(find_db); fi
+          [ -n "$id" ] || { echo "::error::找不到也建不了 D1 資料庫，請確認 Cloudflare token 有 D1 Edit 權限"; exit 1; }
+          cat > wrangler.toml <<EOF
+          name = "craig-finance"
+          pages_build_output_dir = "site"
+          compatibility_date = "2024-09-23"
+
+          [vars]
+          ACCESS_TEAM_DOMAIN = "quiet-cell-f81e.cloudflareaccess.com"
+          ACCESS_AUD = "ffa5bda759a9129271f6a0870ded4e0ebbf5b5396215e5c28818a72374bd3cbc"
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "craig-finance-sim"
+          database_id = "$id"
+          EOF
+          sed -i 's/^          //' wrangler.toml
+          wrangler d1 execute craig-finance-sim --remote --file schema.sql --yes
+
+      # 用本機 D1 跑一份完整的網站，模擬登入的使用者下單、測密碼鎖；失敗就不部署
+      - name: Smoke test
+        env:
+          SMOKE_PASSWORD: smoke-test-password
+        run: |
+          wrangler d1 execute craig-finance-sim --local --file schema.sql --yes
+          wrangler pages dev site --port 8788 \
+            --binding ACCESS_DEV_EMAIL=smoke@example.com \
+            --binding PORTFOLIO_PASSWORD=$SMOKE_PASSWORD \
+            --binding SESSION_SECRET=smoke-session-secret > /tmp/dev.log 2>&1 &
+          for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:8788/ && break; sleep 1; done
+          bash tests/smoke.sh || { echo "--- wrangler log ---"; tail -50 /tmp/dev.log; exit 1; }
+
+      # 投資頁密碼存在 Cloudflare（伺服器端），每次部署從 GitHub Secrets 同步
+      - name: Sync secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PORTFOLIO_PASSWORD: ${{ secrets.PORTFOLIO_PASSWORD }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        run: |
+          if [ -z "$PORTFOLIO_PASSWORD" ] || [ -z "$SESSION_SECRET" ]; then
+            echo "::warning::還沒設定 PORTFOLIO_PASSWORD，投資頁會維持鎖住"
+            exit 0
+          fi
+          printf '%s' "$PORTFOLIO_PASSWORD" | wrangler pages secret put PORTFOLIO_PASSWORD --project-name craig-finance
+          printf '%s' "$SESSION_SECRET" | wrangler pages secret put SESSION_SECRET --project-name craig-finance
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler pages deploy site --project-name=craig-finance --branch=main

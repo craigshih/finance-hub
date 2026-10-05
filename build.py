@@ -33,7 +33,8 @@ DIGEST_DIR = SOURCES_DIR / "tim-lu" / "data" / "digests"
 REPORT_DIR = SOURCES_DIR / "investment-team" / "data" / "reports"
 STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 
-NAV = [("index.html", "總覽"), ("portfolio/index.html", "投資"), ("daily/index.html", "每日總經"), ("weekly/index.html", "每週研究")]
+NAV = [("index.html", "總覽"), ("portfolio/index.html", "投資"), ("daily/index.html", "每日總經"),
+       ("weekly/index.html", "每週研究"), ("sim/index.html", "模擬交易")]
 WEEKDAYS = "一二三四五六日"
 STYLE_LABEL = {"value": ("價值型", "持有 5–10 年"), "growth": ("成長型", "持有約 1 年")}
 DISCLAIMER = "研究素材整理，不是買賣建議，也不預測股價。"
@@ -535,7 +536,7 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -
         return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
 
     sub = (f'未實現損益 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）'
-           f'・股價日期 {e(sm["price_date"] or "—")}')
+           f'・股價日期 {e(sm["price_date"] or "—")}・<a href="__logout">登出</a>')
     body = hero("投資總覽・市值（新台幣）", money(sm["total_value"]), sub)
     body += '<main class="wrap">'
     tiles = [("持有成本", money(sm["total_cost"]), "含手續費與稅"),
@@ -560,18 +561,9 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -
     return body + "</main>"
 
 
-def home_portfolio(sm: dict | None) -> str:
-    if sm is None:
-        return '<div class="soon">暫時讀不到 Notion 持股資料</div>'
-    top = "".join(f'<li><b>{e(h["name"])}</b><small>{e(h["code"])}</small><span class="num">{signed_pct(h["return"])}</span></li>'
-                  for h in sm["holdings"][:5])
-    return ('<div class="picks">'
-            f'<div class="pick"><div class="pick-head">總市值<small>股價日期 {e(sm["price_date"] or "—")}</small></div>'
-            f'<div class="big-num">{money(sm["total_value"])}</div>'
-            f'<div class="muted">未實現 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）・累計配息 {money(sm["dividends_total"])}</div>'
-            f'{allocation_bar(sm["allocation"], sm["total_value"])}</div>'
-            f'<div class="pick"><div class="pick-head">前五大持股<small>未實現報酬率</small></div><ul>{top}</ul></div>'
-            '</div>')
+def home_link_card(href: str, icon: str, title: str, sub: str, go: str) -> str:
+    return (f'<a class="locked" href="{href}"><span class="lock">{icon}</span>'
+            f'<span><b>{title}</b><small>{sub}</small></span><span class="go">{go} →</span></a>')
 
 
 # ---------- 組裝 ----------
@@ -595,6 +587,9 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True)
     shutil.copy(ROOT / "static" / "style.css", OUT_DIR / "style.css")
     shutil.copy(ROOT / "static" / "_headers", OUT_DIR / "_headers")
+    shutil.copy(ROOT / "static" / "sim.js", OUT_DIR / "sim.js")
+    sim_body = (ROOT / "static" / "sim_body.html").read_text(encoding="utf-8")
+    write(OUT_DIR / "sim" / "index.html", page("模擬交易", sim_body, 1, "sim/index.html"))
 
     digests = load_digests()  # 新 → 舊
     for i, d in enumerate(digests):
@@ -629,9 +624,11 @@ def main() -> int:
 
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
-    body = hero("總覽", zh_date(today), "我的投資、今天的總經數據與頭條、本週研究候選，一頁看完。")
+    body = hero("總覽", zh_date(today), "今天的總經數據與頭條、本週研究候選，一頁看完。")
     body += '<main class="wrap">'
-    body += section("我的投資", home_portfolio(sm), "", ("portfolio/index.html", "看持股明細"))
+    # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/
+    body += section("我的投資", home_link_card("portfolio/index.html", "🔒", "投資總覽需要密碼",
+                                               "持股、損益與對帳結果只給站長本人看", "輸入密碼"))
     if digests:
         d = digests[0]
         body += section("美國總經數據", fred_tiles(d.get("fred", [])), f"FRED・{d['date']}")
@@ -641,6 +638,8 @@ def main() -> int:
     if reports:
         r = reports[0]
         body += section("本週研究候選", home_candidates(r), f"{r['date']}・完全符合條件", (f"weekly/{r['date']}.html", "看完整研究"))
+    body += section("模擬交易", home_link_card("sim/index.html", "📈", "用 100 萬虛擬資金練習下單",
+                                               "台股上市櫃與 ETF，跟朋友比排行榜", "開始"))
     body += "</main>"
     write(OUT_DIR / "index.html", page("總覽", body, 0, "index.html"))
 

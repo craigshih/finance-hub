@@ -3,3 +3,8 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
+
+/portfolio/*
+  Cache-Control: private, no-store
+/api/*
+  Cache-Control: no-store

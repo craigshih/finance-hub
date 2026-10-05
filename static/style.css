@@ -29,7 +29,8 @@ small { color: var(--muted); font-size: 12px; font-weight: 400; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
 .brand { font: 700 17px var(--serif); text-decoration: none; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .mark { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 50%; font-size: 14px; }
-nav { display: flex; gap: 2px; }
+nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+nav::-webkit-scrollbar { display: none; }
 .top nav a { text-decoration: none; color: var(--hero-muted); padding: 6px 12px; font-size: 14px; border-bottom: 2px solid transparent; }
 .top nav a:hover { color: var(--hero-ink); }
 .top nav a.on { color: var(--hero-ink); border-bottom-color: var(--accent); }
@@ -184,6 +185,60 @@ td b { color: var(--ink); }
 .rc-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } .big-num { font-size: 28px; } }
+
+/* 首頁入口卡 */
+.locked { display: flex; align-items: center; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px 20px; text-decoration: none; }
+.locked:hover { border-color: var(--accent); }
+.locked .lock { font-size: 24px; }
+.locked b { display: block; font: 700 17px var(--serif); color: var(--ink); }
+.locked .go { margin-left: auto; color: var(--accent); font-size: 14px; white-space: nowrap; }
+
+/* 表單與按鈕 */
+.btn { font: 500 14px var(--sans); border-radius: 4px; padding: 10px 16px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.btn:disabled { opacity: .5; cursor: wait; }
+.btn.ghost { background: var(--surface); border-color: var(--line); color: var(--ink); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn.buy { background: var(--pos); color: #fff; }
+.btn.sell { background: var(--neg); color: #fff; }
+.btn.danger { background: none; border-color: var(--pos); color: var(--pos); margin-top: 12px; }
+.card-form { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px 20px; display: grid; gap: 8px; }
+.card-form label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.card-form input, .login input { font: 16px var(--sans); padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); width: 100%; min-width: 0; }
+.card-form input:focus, .login input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.row-input { display: flex; gap: 8px; }
+.seg-toggle { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg-toggle button { font: 600 15px var(--sans); padding: 10px; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; }
+.seg-toggle button.on[data-side="buy"] { background: var(--pos); color: #fff; }
+.seg-toggle button.on[data-side="sell"] { background: var(--neg); color: #fff; }
+.quote-line { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; min-height: 26px; }
+.quote-line b { color: var(--ink); }
+.quote-line span:not(.muted) { font: 700 20px var(--serif); color: var(--ink); }
+.quick { display: flex; gap: 6px; }
+.quick .btn { padding: 6px 12px; font-size: 13px; }
+.estimate { display: grid; gap: 2px; font-size: 14px; background: var(--bg); border-radius: 4px; padding: 10px 12px; min-height: 44px; }
+.estimate div { display: flex; justify-content: space-between; }
+.estimate b { font-variant-numeric: tabular-nums; color: var(--ink); }
+.estimate .est-total { border-top: 1px solid var(--line); padding-top: 4px; margin-top: 2px; font-weight: 600; }
+.sim-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 0 24px; align-items: start; }
+tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg); }
+.board tr.me td { background: var(--chip); }
+.board .rank { font: 700 16px var(--serif); color: var(--accent); width: 40px; }
+.board td small { margin-left: 6px; }
+.rules { margin: 0; padding-left: 20px; font-size: 14px; color: var(--text); }
+.rules li { margin: 4px 0; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--hero); color: var(--hero-ink); padding: 12px 18px; border-radius: 4px; font-size: 14px; transition: .2s; max-width: calc(100% - 32px); z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.bad { background: var(--pos); color: #fff; }
+
+/* 投資頁密碼 */
+.login { max-width: 380px; margin: 40px 0; display: grid; gap: 10px; }
+.login label { font-size: 13px; color: var(--muted); }
+.login button { font: 600 15px var(--sans); padding: 11px; border: 0; border-radius: 4px; background: var(--ink); color: var(--bg); cursor: pointer; }
+.login-msg { color: var(--pos); margin: 0; font-size: 14px; }
+.hero-sub a { color: var(--accent); }
+
+@media (max-width: 760px) { .sim-grid { grid-template-columns: 1fr; } .locked .go { display: none; } }
+@media (max-width: 640px) { .top nav a { padding: 6px 7px; font-size: 13px; } }
 
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }
 

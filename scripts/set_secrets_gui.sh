@@ -4,7 +4,7 @@
 #       scripts/set_secrets_gui.sh CLOUDFLARE_ACCOUNT_ID # 只設定指定的名稱
 # 輸入的內容不會印在任何地方，也不會存在本機；按「略過」可以跳過某一項。
 names=("$@")
-[ ${#names[@]} -eq 0 ] && names=(SOURCES_TOKEN CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID NOTION_TOKEN)
+[ ${#names[@]} -eq 0 ] && names=(SOURCES_TOKEN CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID NOTION_TOKEN PORTFOLIO_PASSWORD)
 
 prompt_for() {
   osascript - "$1" "$2" "$3" <<'APPLESCRIPT' 2>/dev/null
@@ -28,7 +28,8 @@ for n in "${names[@]}"; do
   case $n in
     SOURCES_TOKEN)         hint="請貼上 github_pat_ 開頭的 fine-grained token（只授權 Tim-Lu、investment-team、craig-stock-trade-report 的 Contents: Read-only）"; hidden=1 ;;
     NOTION_TOKEN)          hint="請貼上唯讀 Notion integration 的 Internal Integration Secret（ntn_ 開頭）"; hidden=1 ;;
-    CLOUDFLARE_API_TOKEN)  hint="請貼上 Cloudflare API token（權限：Account → Cloudflare Pages → Edit）"; hidden=1 ;;
+    PORTFOLIO_PASSWORD)    hint="設定投資頁的密碼（至少 10 個字元；網站對所有 email 開放，請不要用跟其他服務一樣的密碼）"; hidden=1 ;;
+    CLOUDFLARE_API_TOKEN)  hint="請貼上 Cloudflare API token（權限：Account → Cloudflare Pages → Edit、Account → D1 → Edit）"; hidden=1 ;;
     CLOUDFLARE_ACCOUNT_ID) hint="請貼上 Cloudflare 帳號 ID（32 碼英數字，Dashboard 右側欄）"; hidden=0 ;;
     *)                     hint="請貼上 $n 的值"; hidden=1 ;;
   esac
@@ -57,6 +58,15 @@ for n in "${names[@]}"; do
       esac
     done
     if [ $ok -eq 0 ]; then echo "$n：未儲存，請修正後重試"; unset value; continue; fi
+  fi
+  if [ "$n" = "PORTFOLIO_PASSWORD" ]; then
+    if [ ${#value} -lt 10 ]; then echo "$n：❌ 太短（${#value} 字元），至少 10 個字元；未儲存"; unset value; continue; fi
+    again="$(prompt_for "$n" "請再輸入一次確認" 1)"
+    again="${again#"${again%%[![:space:]]*}"}"; again="${again%"${again##*[![:space:]]}"}"
+    if [ "$value" != "$again" ]; then echo "$n：❌ 兩次輸入不一樣；未儲存"; unset value again; continue; fi
+    unset again
+    # 換密碼時一起換掉 cookie 簽章金鑰，所有已登入的裝置都要重新輸入密碼
+    openssl rand -hex 32 | tr -d '\n' | gh secret set SESSION_SECRET -R craigshih/finance-hub && echo "SESSION_SECRET：✅ 已自動產生"
   fi
   if [ "$n" = "NOTION_TOKEN" ]; then
     # 只印格式與長度，不印內容
