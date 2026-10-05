@@ -185,24 +185,57 @@ def load_statements(statement_dir: Path) -> list[dict]:
     return [json.loads(f.read_text(encoding="utf-8")) for f in sorted(statement_dir.glob("*.json"))]
 
 
-def reconcile(statements: list[dict], notion_trades: list[dict]) -> dict:
-    """在對帳單涵蓋的月份裡，逐筆比對券商與 Notion 的成交紀錄。
+def _signed(t: dict) -> float:
+    return (t["quantity"] or 0) * (1 if t["side"] == "買進" else -1)
 
-    比對鍵：交易日、代號、買賣別、股數，單價差 ≤ PRICE_TOLERANCE。
-    同一天同代號同方向但股數或單價不同 → 「數字不一致」；完全找不到 → 「只在一邊」。
-    Notion 裡標記「分割調整」的紀錄不是實際成交，不參與比對。
+
+def reconcile(statements: list[dict], notion_trades: list[dict], tickers: list[dict]) -> dict:
+    """兩層對帳。
+
+    Notion 的「股票交易紀錄」是從某一天開始記的：最早那天的紀錄是「期初持股」
+    （每檔一筆、股數＝當時庫存），之後才是逐筆成交；對帳單則是券商的完整成交歷史。
+
+    1. 持股：每檔「對帳單累計淨股數」vs「Notion 庫存股數 − 對帳單還沒涵蓋月份的 Notion 成交」。
+    2. 逐筆：只比 Notion 期初日之後、且對帳單有涵蓋的月份。比對鍵：交易日、代號、
+       買賣別、股數，單價差 ≤ PRICE_TOLERANCE。同日同代號同方向但數字不同 → 數字不一致；
+       找不到 → 只在一邊。Notion 標記「分割調整」的紀錄不是實際成交，兩層都不算。
     """
     months = sorted(s["month"] for s in statements)
+    empty = {"months": months, "positions": [], "opening": None,
+             "matched": 0, "mismatched": [], "broker_only": [], "notion_only": []}
     if not months:
-        return {"months": [], "matched": 0, "mismatched": [], "broker_only": [], "notion_only": []}
+        return empty
+    last_month = months[-1]
 
     broker = [t for s in statements for t in s["trades"]]
-    notion = [t for t in notion_trades
-              if t["status"] == "已成交" and t["note"] != "分割調整" and t["date"][:7] in months]
+    notion = [t for t in notion_trades if t["status"] == "已成交" and t["note"] != "分割調整" and t["date"]]
+    opening = min((t["date"] for t in notion), default=None)
 
-    unmatched_notion = list(notion)
+    # 1. 持股
+    broker_net, names = Counter(), {}
+    for t in broker:
+        broker_net[t["code"]] += _signed(t)
+        names.setdefault(t["code"], t.get("name"))
+    notion_after = Counter()
+    for t in notion:
+        if t["date"][:7] > last_month:
+            notion_after[t["code"]] += _signed(t)
+    notion_shares = {t["code"]: t["shares"] or 0 for t in tickers}
+    for t in tickers:
+        names[t["code"]] = t["name"]
+    positions = []
+    for code in sorted(set(broker_net) | set(notion_shares)):
+        b = broker_net.get(code, 0)
+        n = notion_shares.get(code, 0) - notion_after.get(code, 0)
+        if abs(b) < 0.5 and abs(n) < 0.5:
+            continue  # 兩邊都已出清
+        positions.append({"code": code, "name": names.get(code), "broker": b, "notion": n, "ok": abs(b - n) < 0.5})
+
+    # 2. 逐筆（期初之後）
+    in_scope = lambda t: opening and t["date"] > opening and t["date"][:7] in months  # noqa: E731
+    unmatched_notion = [t for t in notion if in_scope(t)]
     matched, mismatched, broker_only = 0, [], []
-    for b in broker:
+    for b in (t for t in broker if in_scope(t)):
         same = lambda n: n["date"] == b["date"] and n["code"] == b["code"] and n["side"] == b["side"]  # noqa: E731
         exact = next((n for n in unmatched_notion if same(n) and n["quantity"] == b["quantity"]
                       and n["price"] is not None and abs(n["price"] - b["price"]) <= PRICE_TOLERANCE), None)
@@ -217,5 +250,10 @@ def reconcile(statements: list[dict], notion_trades: list[dict]) -> dict:
         else:
             broker_only.append(b)
 
-    return {"months": months, "matched": matched, "mismatched": mismatched,
-            "broker_only": broker_only, "notion_only": unmatched_notion}
+    return {**empty, "positions": positions, "opening": opening, "matched": matched,
+            "mismatched": mismatched, "broker_only": broker_only, "notion_only": unmatched_notion}
+
+
+def issue_count(rc: dict) -> int:
+    return (sum(1 for p in rc["positions"] if not p["ok"])
+            + len(rc["mismatched"]) + len(rc["broker_only"]) + len(rc["notion_only"]))

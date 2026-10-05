@@ -495,12 +495,20 @@ def reconcile_block(rc: dict) -> str:
     if not rc["months"]:
         return ('<div class="soon">還沒有凱基對帳單資料。每月 6 日自動處理新對帳單；'
                 '要補過去的月份，到 craig-stock-trade-report 的 Actions 手動執行並勾選 include_read。</div>')
-    span = rc["months"][0] if len(rc["months"]) == 1 else f'{rc["months"][0]} – {rc["months"][-1]}'
-    issues = len(rc["mismatched"]) + len(rc["broker_only"]) + len(rc["notion_only"])
-    status = (f'<div class="rc-status ok"><b>✓ 一致</b>{span} 共 {rc["matched"]} 筆成交，Notion 與凱基對帳單完全相符</div>'
-              if not issues else
-              f'<div class="rc-status ng"><b>{issues} 筆不一致</b>{span}・相符 {rc["matched"]} 筆</div>')
-    items = ""
+    last = rc["months"][-1]
+    pos = rc["positions"]
+    bad_pos = [p for p in pos if not p["ok"]]
+    issues = portfolio.issue_count(rc)
+
+    if not issues:
+        status = (f'<div class="rc-status ok"><b>✓ 一致</b>{len(pos)} 檔持股股數與凱基對帳單相符'
+                  f'（對帳單 {rc["months"][0]} – {last}）</div>')
+    else:
+        status = f'<div class="rc-status ng"><b>{issues} 項不一致</b>對帳單 {rc["months"][0]} – {last}</div>'
+
+    items = "".join(
+        f'<li><span class="pill">股數不同</span>{e(p["code"])} {e(p["name"] or "")}：對帳單 {shares_fmt(p["broker"])} 股，'
+        f'Notion {shares_fmt(p["notion"])} 股</li>' for p in bad_pos)
     for m in rc["mismatched"]:
         items += (f'<li><span class="pill">數字不同</span>凱基：{trade_line(m["broker"])}'
                   f'<br><span class="muted">Notion：{trade_line(m["notion"])}</span></li>')
@@ -508,7 +516,17 @@ def reconcile_block(rc: dict) -> str:
         items += f'<li><span class="pill">Notion 漏記</span>{trade_line(b)}</li>'
     for n in rc["notion_only"]:
         items += f'<li><span class="pill">對帳單沒有</span>{trade_line(n)}</li>'
-    return status + (f'<ul class="rc-list">{items}</ul>' if items else "")
+
+    rows = "".join(
+        f'<tr><td><b>{e(p["name"] or "")}</b><small>{e(p["code"])}</small></td>'
+        f'<td class="num">{shares_fmt(p["broker"])}</td><td class="num">{shares_fmt(p["notion"])}</td>'
+        f'<td class="num {"" if p["ok"] else "pos"}">{"✓" if p["ok"] else "✕"}</td></tr>' for p in pos)
+    table = ('<details class="fold"><summary>各檔股數對照</summary><div class="table-wrap"><table class="holdings">'
+             '<thead><tr><th>標的</th><th class="num">對帳單累計</th><th class="num">Notion 庫存</th><th class="num"></th></tr></thead>'
+             f'<tbody>{rows}</tbody></table></div></details>')
+    trade_note = (f'<p class="rc-note">逐筆核對：Notion 從 {e(rc["opening"])} 開始記錄（該日為期初持股），'
+                  f'之後的成交已比對 {rc["matched"]} 筆相符。</p>' if rc["opening"] else "")
+    return status + (f'<ul class="rc-list">{items}</ul>' if items else "") + trade_note + table
 
 
 def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -> str:
@@ -603,7 +621,7 @@ def main() -> int:
     try:
         nd = portfolio.load_notion()
         sm = portfolio.summarize(nd)
-        rc = portfolio.reconcile(portfolio.load_statements(STATEMENT_DIR), nd["trades"])
+        rc = portfolio.reconcile(portfolio.load_statements(STATEMENT_DIR), nd["trades"], nd["tickers"])
     except portfolio.NotionUnavailable as exc:
         err = str(exc)
         print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
@@ -628,7 +646,7 @@ def main() -> int:
 
     # log 只印筆數，不印金額（Actions log 雖然是 private，也不放持股數字）
     pf = f"{len(sm['holdings'])} 檔持股" if sm else "投資總覽略過"
-    rcs = (f"對帳 {len(rc['months'])} 個月、不一致 {len(rc['mismatched']) + len(rc['broker_only']) + len(rc['notion_only'])} 筆"
+    rcs = (f"對帳 {len(rc['months'])} 個月、{len(rc['positions'])} 檔持股、不一致 {portfolio.issue_count(rc)} 項"
            if rc else "未對帳")
     print(f"✅ 產生 {len(digests)} 份每日總經、{len(reports)} 份每週研究、{pf}、{rcs} → {OUT_DIR}")
     return 0

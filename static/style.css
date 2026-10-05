@@ -181,6 +181,7 @@ td b { color: var(--ink); }
 .rc-list li:first-child, .feed li:first-child { border-top: 0; }
 .rc-list .pill, .feed .pill { margin-right: 8px; }
 .feed b { color: var(--ink); }
+.rc-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } .big-num { font-size: 28px; } }
 
