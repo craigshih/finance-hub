@@ -22,6 +22,8 @@ from pathlib import Path
 
 import markdown
 
+import portfolio
+
 ROOT = Path(__file__).parent
 SOURCES_DIR = Path(os.environ.get("SOURCES_DIR", ROOT / "sources"))
 OUT_DIR = Path(os.environ.get("OUT_DIR", ROOT / "site"))
@@ -29,8 +31,9 @@ TAIPEI = timezone(timedelta(hours=8))
 
 DIGEST_DIR = SOURCES_DIR / "tim-lu" / "data" / "digests"
 REPORT_DIR = SOURCES_DIR / "investment-team" / "data" / "reports"
+STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 
-NAV = [("index.html", "總覽"), ("daily/index.html", "每日總經"), ("weekly/index.html", "每週研究")]
+NAV = [("index.html", "總覽"), ("portfolio/index.html", "投資"), ("daily/index.html", "每日總經"), ("weekly/index.html", "每週研究")]
 WEEKDAYS = "一二三四五六日"
 STYLE_LABEL = {"value": ("價值型", "持有 5–10 年"), "growth": ("成長型", "持有約 1 年")}
 DISCLAIMER = "研究素材整理，不是買賣建議，也不預測股價。"
@@ -436,6 +439,123 @@ def home_candidates(r: dict) -> str:
     return f'<div class="picks">{"".join(cols)}</div>'
 
 
+# ---------- 投資總覽 ----------
+
+def money(x, signed=False) -> str:
+    if x is None:
+        return "—"
+    return f"{x:+,.0f}" if signed else f"{x:,.0f}"
+
+
+def signed_money(x) -> str:
+    return f'<span class="{signed_cls(x)}">{money(x, signed=True)}</span>'
+
+
+def signed_pct(x) -> str:
+    return "—" if x is None else f'<span class="{signed_cls(x)}">{x * 100:+.1f}%</span>'
+
+
+def shares_fmt(x) -> str:
+    return "—" if x is None else f"{x:,.0f}"
+
+
+def allocation_bar(alloc: list[tuple[str, float]], total: float) -> str:
+    if not total:
+        return ""
+    segs = "".join(f'<i class="seg s{i % 5}" style="width:{v / total * 100:.2f}%"></i>' for i, (_, v) in enumerate(alloc))
+    legend = "".join(
+        f'<li><i class="sw s{i % 5}"></i>{e(name)}<b>{v / total * 100:.1f}%</b></li>' for i, (name, v) in enumerate(alloc)
+    )
+    return f'<div class="alloc"><div class="bar">{segs}</div><ul class="legend">{legend}</ul></div>'
+
+
+def holdings_table(holdings: list[dict]) -> str:
+    rows = "".join(
+        f'<tr><td><b>{e(h["name"])}</b><small>{e(h["code"])}</small></td>'
+        f'<td class="num">{shares_fmt(h["shares"])}</td>'
+        f'<td class="num">{num(h["avg_cost"], 2)}</td>'
+        f'<td class="num">{num(h["price"], 2)}</td>'
+        f'<td class="num">{money(h["value"])}</td>'
+        f'<td class="num">{signed_money(h["unrealized"])}</td>'
+        f'<td class="num">{signed_pct(h["return"])}</td>'
+        f'<td class="num">{h["weight"] * 100:.1f}%</td></tr>'
+        for h in holdings
+    )
+    return ('<div class="table-wrap"><table class="holdings"><thead><tr><th>標的</th><th class="num">股數</th>'
+            '<th class="num">均價</th><th class="num">現價</th><th class="num">市值</th><th class="num">未實現損益</th>'
+            f'<th class="num">報酬率</th><th class="num">占比</th></tr></thead><tbody>{rows}</tbody></table></div>')
+
+
+def trade_line(t: dict) -> str:
+    return (f'{e(t["date"])} {e(t.get("code") or "")} {e(t.get("name") or "")} {e(t["side"])} '
+            f'{shares_fmt(t["quantity"])} 股 @ {num(t["price"], 2)}')
+
+
+def reconcile_block(rc: dict) -> str:
+    if not rc["months"]:
+        return ('<div class="soon">還沒有凱基對帳單資料。每月 6 日自動處理新對帳單；'
+                '要補過去的月份，到 craig-stock-trade-report 的 Actions 手動執行並勾選 include_read。</div>')
+    span = rc["months"][0] if len(rc["months"]) == 1 else f'{rc["months"][0]} – {rc["months"][-1]}'
+    issues = len(rc["mismatched"]) + len(rc["broker_only"]) + len(rc["notion_only"])
+    status = (f'<div class="rc-status ok"><b>✓ 一致</b>{span} 共 {rc["matched"]} 筆成交，Notion 與凱基對帳單完全相符</div>'
+              if not issues else
+              f'<div class="rc-status ng"><b>{issues} 筆不一致</b>{span}・相符 {rc["matched"]} 筆</div>')
+    items = ""
+    for m in rc["mismatched"]:
+        items += (f'<li><span class="pill">數字不同</span>凱基：{trade_line(m["broker"])}'
+                  f'<br><span class="muted">Notion：{trade_line(m["notion"])}</span></li>')
+    for b in rc["broker_only"]:
+        items += f'<li><span class="pill">Notion 漏記</span>{trade_line(b)}</li>'
+    for n in rc["notion_only"]:
+        items += f'<li><span class="pill">對帳單沒有</span>{trade_line(n)}</li>'
+    return status + (f'<ul class="rc-list">{items}</ul>' if items else "")
+
+
+def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -> str:
+    if sm is None:
+        body = hero("投資總覽", "暫時讀不到 Notion", e(error or ""))
+        return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
+
+    sub = (f'未實現損益 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）'
+           f'・股價日期 {e(sm["price_date"] or "—")}')
+    body = hero("投資總覽・市值（新台幣）", money(sm["total_value"]), sub)
+    body += '<main class="wrap">'
+    tiles = [("持有成本", money(sm["total_cost"]), "含手續費與稅"),
+             ("未實現損益", signed_money(sm["unrealized"]), signed_pct(sm["unrealized_pct"])),
+             ("已實現損益", signed_money(sm["realized"]), "含已出清標的"),
+             ("累計實領配息", money(sm["dividends_total"]), f'{len(sm["recent_dividends"]) and "最近：" + e(sm["recent_dividends"][0]["date"]) or ""}')]
+    body += section("損益概況", '<div class="stats">' + "".join(
+        f'<div class="stat"><div class="stat-label">{label}</div><div class="stat-value">{value}</div>'
+        f'<div class="stat-foot"><span>{foot}</span></div></div>' for label, value, foot in tiles) + "</div>")
+    body += section("資產配置", allocation_bar(sm["allocation"], sm["total_value"]), "依 Notion「市場」分類")
+    body += section("持股明細", holdings_table(sm["holdings"]) if sm["holdings"] else '<p class="empty">目前沒有持股</p>',
+                    f'{len(sm["holdings"])} 檔')
+    if rc is not None:
+        body += section("對帳", reconcile_block(rc), "Notion 交易紀錄 × 凱基對帳單")
+    recent = "".join(f'<li><span class="pill">{e(t["side"])}</span>{trade_line(t)}</li>' for t in sm["recent_trades"])
+    divs = "".join(f'<li><span class="pill">配息</span>{e(d["date"])} {e(d["name"] or "")}　<b>{money(d["amount"])}</b>'
+                   f'<small>（每股 {num(d["per_share"], 2)}）</small></li>' for d in sm["recent_dividends"])
+    body += ('<div class="two-col">'
+             + section("近期交易", f'<ul class="feed">{recent}</ul>' if recent else '<p class="empty">尚無</p>')
+             + section("近期配息", f'<ul class="feed">{divs}</ul>' if divs else '<p class="empty">尚無</p>')
+             + "</div>")
+    return body + "</main>"
+
+
+def home_portfolio(sm: dict | None) -> str:
+    if sm is None:
+        return '<div class="soon">暫時讀不到 Notion 持股資料</div>'
+    top = "".join(f'<li><b>{e(h["name"])}</b><small>{e(h["code"])}</small><span class="num">{signed_pct(h["return"])}</span></li>'
+                  for h in sm["holdings"][:5])
+    return ('<div class="picks">'
+            f'<div class="pick"><div class="pick-head">總市值<small>股價日期 {e(sm["price_date"] or "—")}</small></div>'
+            f'<div class="big-num">{money(sm["total_value"])}</div>'
+            f'<div class="muted">未實現 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）・累計配息 {money(sm["dividends_total"])}</div>'
+            f'{allocation_bar(sm["allocation"], sm["total_value"])}</div>'
+            f'<div class="pick"><div class="pick-head">前五大持股<small>未實現報酬率</small></div><ul>{top}</ul></div>'
+            '</div>')
+
+
 # ---------- 組裝 ----------
 
 def write(path: Path, content: str) -> None:
@@ -478,10 +598,22 @@ def main() -> int:
         (f"{r['date']}.html", r["date"], f"{len(r['companies'])} 家個股分析" + ("・含台股篩選" if r["screen"] else ""))
         for r in reports]), 1, "weekly/index.html"))
 
+    # 投資總覽：讀不到 Notion 時照樣產生其他頁面
+    sm = rc = err = None
+    try:
+        nd = portfolio.load_notion()
+        sm = portfolio.summarize(nd)
+        rc = portfolio.reconcile(portfolio.load_statements(STATEMENT_DIR), nd["trades"])
+    except portfolio.NotionUnavailable as exc:
+        err = str(exc)
+        print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
+    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err), 1, "portfolio/index.html"))
+
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
-    body = hero("總覽", zh_date(today), "今天的總經數據、頭條新聞與本週研究候選，一頁看完。")
+    body = hero("總覽", zh_date(today), "我的投資、今天的總經數據與頭條、本週研究候選，一頁看完。")
     body += '<main class="wrap">'
+    body += section("我的投資", home_portfolio(sm), "", ("portfolio/index.html", "看持股明細"))
     if digests:
         d = digests[0]
         body += section("美國總經數據", fred_tiles(d.get("fred", [])), f"FRED・{d['date']}")
@@ -491,11 +623,14 @@ def main() -> int:
     if reports:
         r = reports[0]
         body += section("本週研究候選", home_candidates(r), f"{r['date']}・完全符合條件", (f"weekly/{r['date']}.html", "看完整研究"))
-    body += section("投資總覽", '<div class="soon">Notion 交易紀錄 × 凱基對帳單　建置中</div>')
     body += "</main>"
     write(OUT_DIR / "index.html", page("總覽", body, 0, "index.html"))
 
-    print(f"✅ 產生 {len(digests)} 份每日總經、{len(reports)} 份每週研究 → {OUT_DIR}")
+    # log 只印筆數，不印金額（Actions log 雖然是 private，也不放持股數字）
+    pf = f"{len(sm['holdings'])} 檔持股" if sm else "投資總覽略過"
+    rcs = (f"對帳 {len(rc['months'])} 個月、不一致 {len(rc['mismatched']) + len(rc['broker_only']) + len(rc['notion_only'])} 筆"
+           if rc else "未對帳")
+    print(f"✅ 產生 {len(digests)} 份每日總經、{len(reports)} 份每週研究、{pf}、{rcs} → {OUT_DIR}")
     return 0
 
 

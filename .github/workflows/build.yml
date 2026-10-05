@@ -2,7 +2,7 @@ name: Build site
 
 on:
   schedule:
-    - cron: "0 7 * * *"       # 每天 UTC 07:00 = 台北時間 15:00（台股收盤後，每日總經早上 7 點已產生）
+    - cron: "0 14 * * *"      # 每天 UTC 14:00 = 台北時間 22:00（kgi-trade-report 晚上 8～9 點把收盤價寫進 Notion 之後）
   workflow_dispatch:
 
 concurrency:
@@ -31,6 +31,15 @@ jobs:
           path: sources/investment-team
           sparse-checkout: data/reports
 
+      # 對帳用；token 還沒授權這個 repo 時照樣建站，只是對帳區塊會顯示沒有資料
+      - uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: craigshih/craig-stock-trade-report
+          token: ${{ secrets.SOURCES_TOKEN }}
+          path: sources/kgi-trade-report
+          sparse-checkout: data/statements
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -39,6 +48,8 @@ jobs:
       - run: pip install -r requirements.txt
 
       - run: python build.py
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

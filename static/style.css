@@ -158,6 +158,32 @@ td b { color: var(--ink); }
 .prose blockquote { margin: 12px 0; padding: 4px 16px; border-left: 3px solid var(--accent); color: var(--muted); }
 .prose table { display: block; overflow-x: auto; }
 
+/* 投資總覽 */
+:root { --c0: #14213d; --c1: #a07c45; --c2: #5b7aa6; --c3: #8aa38b; --c4: #c9b99a; }
+@media (prefers-color-scheme: dark) { :root { --c0: #93a8d4; --c1: #d2b07a; --c2: #5f7fb3; --c3: #7fa98a; --c4: #6b6f7d; } }
+.s0 { background: var(--c0); } .s1 { background: var(--c1); } .s2 { background: var(--c2); } .s3 { background: var(--c3); } .s4 { background: var(--c4); }
+.alloc { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px 20px; }
+.pick .alloc { border: 0; padding: 14px 0 0; background: none; }
+.bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; gap: 2px; }
+.seg { display: block; height: 100%; }
+.legend { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend b { color: var(--ink); font-weight: 600; margin-left: 2px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.big-num { font: 700 34px/1.2 var(--serif); color: var(--ink); margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+.holdings td small { display: block; }
+.holdings td:first-child { white-space: normal; min-width: 120px; }
+.rc-status { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--neg); border-radius: 4px; padding: 14px 18px; font-size: 14px; }
+.rc-status b { font: 700 17px var(--serif); margin-right: 12px; color: var(--neg); }
+.rc-status.ng { border-left-color: var(--pos); } .rc-status.ng b { color: var(--pos); }
+.rc-list, .feed { list-style: none; margin: 8px 0 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; font-size: 14px; }
+.rc-list li, .feed li { padding: 10px 16px; border-top: 1px solid var(--line); }
+.rc-list li:first-child, .feed li:first-child { border-top: 0; }
+.rc-list .pill, .feed .pill { margin-right: 8px; }
+.feed b { color: var(--ink); }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+@media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } .big-num { font-size: 28px; } }
+
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }
 
 @media (max-width: 640px) {

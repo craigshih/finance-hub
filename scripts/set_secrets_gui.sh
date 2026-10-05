@@ -1,10 +1,10 @@
 #!/bin/bash
 # 用 macOS 彈出視窗輸入金鑰，直接存進 GitHub Secrets（craigshih/finance-hub），不需要在終端機打字。
-# 用法：scripts/set_secrets_gui.sh                       # 依序設定三個
+# 用法：scripts/set_secrets_gui.sh                       # 依序設定全部
 #       scripts/set_secrets_gui.sh CLOUDFLARE_ACCOUNT_ID # 只設定指定的名稱
 # 輸入的內容不會印在任何地方，也不會存在本機；按「略過」可以跳過某一項。
 names=("$@")
-[ ${#names[@]} -eq 0 ] && names=(SOURCES_TOKEN CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID)
+[ ${#names[@]} -eq 0 ] && names=(SOURCES_TOKEN CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID NOTION_TOKEN)
 
 prompt_for() {
   osascript - "$1" "$2" "$3" <<'APPLESCRIPT' 2>/dev/null
@@ -26,7 +26,8 @@ APPLESCRIPT
 
 for n in "${names[@]}"; do
   case $n in
-    SOURCES_TOKEN)         hint="請貼上 github_pat_ 開頭的 fine-grained token（只授權 Tim-Lu、investment-team 的 Contents: Read-only）"; hidden=1 ;;
+    SOURCES_TOKEN)         hint="請貼上 github_pat_ 開頭的 fine-grained token（只授權 Tim-Lu、investment-team、craig-stock-trade-report 的 Contents: Read-only）"; hidden=1 ;;
+    NOTION_TOKEN)          hint="請貼上唯讀 Notion integration 的 Internal Integration Secret（ntn_ 開頭）"; hidden=1 ;;
     CLOUDFLARE_API_TOKEN)  hint="請貼上 Cloudflare API token（權限：Account → Cloudflare Pages → Edit）"; hidden=1 ;;
     CLOUDFLARE_ACCOUNT_ID) hint="請貼上 Cloudflare 帳號 ID（32 碼英數字，Dashboard 右側欄）"; hidden=0 ;;
     *)                     hint="請貼上 $n 的值"; hidden=1 ;;
@@ -38,7 +39,7 @@ for n in "${names[@]}"; do
     continue
   fi
   if [ "$n" = "SOURCES_TOKEN" ]; then
-    # 只印格式與長度，不印內容；並實際試讀兩個來源 repo，失敗就不存
+    # 只印格式與長度，不印內容；並實際試讀三個來源 repo，失敗就不存
     case $value in
       github_pat_*) kind="fine-grained（github_pat_）" ;;
       ghp_*)        kind="classic（ghp_）" ;;
@@ -46,7 +47,7 @@ for n in "${names[@]}"; do
     esac
     echo "$n：格式 $kind，長度 ${#value} 字元"
     ok=1
-    for repo in Tim-Lu investment-team; do
+    for repo in Tim-Lu investment-team craig-stock-trade-report; do
       code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $value" "https://api.github.com/repos/craigshih/$repo")
       case $code in
         200) echo "  $repo：✅ 讀得到" ;;
@@ -56,6 +57,17 @@ for n in "${names[@]}"; do
       esac
     done
     if [ $ok -eq 0 ]; then echo "$n：未儲存，請修正後重試"; unset value; continue; fi
+  fi
+  if [ "$n" = "NOTION_TOKEN" ]; then
+    # 實際讀一次「股票代號」資料庫，確認 token 有效而且有分享到「股票交易管理」
+    code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $value" -H "Notion-Version: 2022-06-28" \
+      "https://api.notion.com/v1/databases/ebe40356-b27a-8346-ba19-816b30b76fdf")
+    case $code in
+      200) echo "$n：✅ 讀得到「股票代號」資料庫" ;;
+      401) echo "$n：❌ 401 token 無效（貼錯或不完整）"; echo "$n：未儲存"; unset value; continue ;;
+      404) echo "$n：❌ 404 token 有效，但「股票交易管理」頁面還沒分享給這個 integration"; echo "$n：未儲存"; unset value; continue ;;
+      *)   echo "$n：❌ HTTP $code"; echo "$n：未儲存"; unset value; continue ;;
+    esac
   fi
   printf '%s' "$value" | gh secret set "$n" -R craigshih/finance-hub && echo "$n：✅ 已存進 GitHub Secrets"
   unset value
