@@ -37,6 +37,26 @@ for n in "${names[@]}"; do
     echo "$n：略過"
     continue
   fi
+  if [ "$n" = "SOURCES_TOKEN" ]; then
+    # 只印格式與長度，不印內容；並實際試讀兩個來源 repo，失敗就不存
+    case $value in
+      github_pat_*) kind="fine-grained（github_pat_）" ;;
+      ghp_*)        kind="classic（ghp_）" ;;
+      *)            kind="不是 GitHub token 的格式（開頭應為 github_pat_）" ;;
+    esac
+    echo "$n：格式 $kind，長度 ${#value} 字元"
+    ok=1
+    for repo in Tim-Lu investment-team; do
+      code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $value" "https://api.github.com/repos/craigshih/$repo")
+      case $code in
+        200) echo "  $repo：✅ 讀得到" ;;
+        401) echo "  $repo：❌ 401 token 無效（貼錯、不完整、或已刪除）"; ok=0 ;;
+        404) echo "  $repo：❌ 404 token 有效但沒有授權這個 repo"; ok=0 ;;
+        *)   echo "  $repo：❌ HTTP $code"; ok=0 ;;
+      esac
+    done
+    if [ $ok -eq 0 ]; then echo "$n：未儲存，請修正後重試"; unset value; continue; fi
+  fi
   printf '%s' "$value" | gh secret set "$n" -R craigshih/finance-hub && echo "$n：✅ 已存進 GitHub Secrets"
   unset value
 done
