@@ -1,0 +1,48 @@
+name: Build site
+
+on:
+  schedule:
+    - cron: "0 7 * * *"       # 每天 UTC 07:00 = 台北時間 15:00（台股收盤後，每日總經早上 7 點已產生）
+  workflow_dispatch:
+
+concurrency:
+  group: build-site
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # 兩個來源都是 private repo，需要一組只有 read 權限的 fine-grained token
+      - uses: actions/checkout@v4
+        with:
+          repository: craigshih/Tim-Lu
+          token: ${{ secrets.SOURCES_TOKEN }}
+          path: sources/tim-lu
+          sparse-checkout: data/digests
+
+      - uses: actions/checkout@v4
+        with:
+          repository: craigshih/investment-team
+          token: ${{ secrets.SOURCES_TOKEN }}
+          path: sources/investment-team
+          sparse-checkout: data/reports
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - run: python build.py
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=craig-finance --branch=main
