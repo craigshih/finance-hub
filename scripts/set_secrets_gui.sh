@@ -59,6 +59,12 @@ for n in "${names[@]}"; do
     if [ $ok -eq 0 ]; then echo "$n：未儲存，請修正後重試"; unset value; continue; fi
   fi
   if [ "$n" = "NOTION_TOKEN" ]; then
+    # 只印格式與長度，不印內容
+    case $value in
+      ntn_*|secret_*) kind="Notion integration secret（${value%%_*}_）" ;;
+      *)              kind="不是 Notion integration secret 的格式（開頭應為 ntn_）" ;;
+    esac
+    echo "$n：格式 $kind，長度 ${#value} 字元"
     # 實際讀一次「股票代號」資料庫，確認 token 有效而且有分享到「股票交易管理」
     code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $value" -H "Notion-Version: 2022-06-28" \
       "https://api.notion.com/v1/databases/ebe40356-b27a-8346-ba19-816b30b76fdf")
