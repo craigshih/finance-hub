@@ -144,4 +144,34 @@
     refresh();
     setInterval(refresh, 180_000);
   }
+
+  // ---- 供應鏈地圖：切換龍頭、市場篩選 ----
+  const supply = document.querySelector("#supply-app");
+  if (supply) {
+    // 手機上關係圖比螢幕寬，捲到正中間讓龍頭在畫面中央
+    const center = (w) => { if (w) w.scrollLeft = (w.scrollWidth - w.clientWidth) / 2; };
+    const pick = (code, scroll) => {
+      supply.querySelectorAll(".lpanel").forEach((p) => {
+        const on = p.dataset.leader === code;
+        p.hidden = !on;
+        if (on) {
+          const svg = p.querySelector(".net"); svg.classList.remove("play"); void svg.getBBox(); svg.classList.add("play");
+          center(p.querySelector(".netwrap"));
+        }
+      });
+      supply.querySelectorAll(".lcard, .lchip").forEach((b) => b.classList.toggle("on", b.dataset.pick === code));
+      if (scroll) supply.querySelector(`.lpanel[data-leader="${CSS.escape(code)}"]`)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    };
+    supply.addEventListener("click", (ev) => {
+      const b = ev.target.closest("[data-pick]");
+      if (b) pick(b.dataset.pick, !b.classList.contains("lchip"));
+      const m = ev.target.closest("[data-market]");
+      if (m) {
+        supply.querySelectorAll("#mk-tabs button").forEach((x) => x.classList.toggle("on", x === m));
+        supply.querySelectorAll(".lchip").forEach((c) => { c.hidden = m.dataset.market !== "全部" && c.dataset.mk !== m.dataset.market; });
+      }
+    });
+    supply.querySelectorAll(".net").forEach((n) => n.classList.add("play"));
+    supply.querySelectorAll(".lpanel:not([hidden]) .netwrap").forEach(center);
+  }
 })();

@@ -31,7 +31,7 @@ small { color: var(--muted); font-size: 12px; font-weight: 400; }
 .mark { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 50%; font-size: 14px; }
 nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
 nav::-webkit-scrollbar { display: none; }
-.top nav a { text-decoration: none; color: var(--hero-muted); padding: 6px 12px; font-size: 14px; border-bottom: 2px solid transparent; }
+.top nav a { text-decoration: none; color: var(--hero-muted); padding: 6px 12px; font-size: 14px; border-bottom: 2px solid transparent; white-space: nowrap; flex: none; }
 .top nav a:hover { color: var(--hero-ink); }
 .top nav a.on { color: var(--hero-ink); border-bottom-color: var(--accent); }
 
@@ -241,7 +241,7 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
 .hero-sub a { color: var(--accent); }
 
 @media (max-width: 760px) { .sim-grid { grid-template-columns: 1fr; } .locked .go { display: none; } }
-@media (max-width: 640px) { .top nav a { padding: 6px 7px; font-size: 13px; } }
+@media (max-width: 640px) { .top nav a { padding: 6px 6px; font-size: 13px; } .top .wrap { gap: 8px; } }
 
 
 /* ================= 動畫與視覺 ================= */
@@ -474,6 +474,70 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
   .inv { flex-direction: column; align-items: flex-start; }
   .rcard.latest { grid-column: auto; }
   .portrait { width: 44px; height: 52px; }
+}
+
+
+/* ===== 供應鏈地圖 ===== */
+.lcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.lcard { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; gap: 6px 10px; align-items: center; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; font: inherit; color: inherit;
+  transition: transform .2s, border-color .2s, box-shadow .2s; }
+.lcard:hover { transform: translateY(-2px); }
+.lcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.lcard .spark { grid-column: 1 / -1; height: 30px; }
+.lc-name b { display: block; color: var(--ink); } .lc-name small { font-size: 11px; }
+.lc-chg { font: 700 18px var(--serif); }
+.lchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.lchip { display: inline-flex; align-items: center; gap: 6px; font: 500 13px var(--sans); color: var(--text); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 99px; padding: 4px 12px 4px 4px; cursor: pointer; }
+.lchip .logo.sm { width: 24px; height: 24px; border-radius: 99px; }
+.lchip.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.lchip[hidden], .lpanel[hidden] { display: none; }
+.lpanel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; }
+.lhead { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.lhead h3 { margin: 0; font: 700 24px var(--serif); color: var(--ink); } .lhead h3 small { margin-left: 8px; font-size: 13px; }
+.lhead p { margin: 4px 0 0; font-size: 13px; }
+.lspark { margin-left: auto; width: 220px; }
+.transmit { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: 14px; margin: 16px 0 6px; }
+.transmit b { color: var(--accent); margin-right: 8px; }
+.netwrap { overflow-x: auto; margin: 6px -4px; }
+.net { width: 100%; min-width: 560px; max-height: 460px; display: block; }
+.net .edge { stroke-width: 1.6; stroke-dasharray: 400; stroke-dashoffset: 0; }
+.net .edge.sup { stroke: var(--accent); } .net .edge.cus { stroke: var(--c2); stroke-dasharray: 6 5; }
+.net .edge.peer { stroke: var(--muted); stroke-dasharray: 2 5; } .net .edge.part { stroke: #8b5cf6; }
+.net.play .edge.sup, .net.play .edge.part { animation: drawEdge .9s ease calc(var(--i) * .04s) both; }
+@keyframes drawEdge { from { stroke-dashoffset: 400; } }
+.net .node circle { stroke: var(--surface); stroke-width: 3; }
+.net .node.pos circle { fill: color-mix(in srgb, var(--pos) calc(35% + var(--s) * 65%), var(--surface)); }
+.net .node.neg circle { fill: color-mix(in srgb, var(--neg) calc(35% + var(--s) * 65%), var(--surface)); }
+.net .node.flat circle { fill: var(--chip); }
+.net.play .node { animation: nodeIn .5s cubic-bezier(.3,1.5,.5,1) calc(.2s + var(--i) * .04s) both; }
+@keyframes nodeIn { from { opacity: 0; } }
+.net text { font: 600 12px var(--sans); fill: var(--ink); text-anchor: middle; }
+.net .nc { font-size: 10.5px; fill: #fff; }
+.net .nn { paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+.net .node.flat .nc { fill: var(--ink); }
+.net .center circle { fill: var(--hero); stroke: var(--accent); stroke-width: 3; }
+.net .center text { fill: var(--hero-ink); font: 700 14px var(--serif); }
+.net .center .cc { fill: var(--accent); font-size: 13px; }
+.rel-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--muted); margin: 4px 0 14px; }
+.rel-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ln { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--accent); }
+.ln.cus { border-top: 2px dashed var(--c2); } .ln.peer { border-top: 2px dotted var(--muted); } .ln.part { border-top-color: #8b5cf6; }
+.rel { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; white-space: nowrap; }
+.rel.sup { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.rel.cus { background: color-mix(in srgb, var(--c2) 18%, transparent); color: var(--c2); }
+.rel.peer { background: var(--chip); color: var(--muted); }
+.rel.part { background: color-mix(in srgb, #8b5cf6 16%, transparent); color: #8b5cf6; }
+.chain td.role { white-space: normal; min-width: 160px; font-size: 13px; color: var(--muted); }
+.flowc small { display: block; font-size: 10.5px; }
+.sparkc .spark { width: 100px; height: 28px; }
+.revlinks { display: flex; flex-wrap: wrap; gap: 6px; }
+.mini { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); background: var(--bg); border-radius: 99px; padding: 2px 8px 2px 2px; cursor: pointer; }
+.mini .logo.sm { width: 22px; height: 22px; border-radius: 99px; }
+@media (max-width: 760px) {
+  .lspark { width: 100%; margin-left: 0; }
+  .lpanel { padding: 14px; }
 }
 
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }

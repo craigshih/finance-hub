@@ -172,6 +172,8 @@ def logo_urls(code: str, market: str | None) -> list[str]:
     code = (code or "").strip().upper()
     if not code:
         return []
+    if "." in code:  # 已經是完整代號，例如日股 6758.T、韓股 005930.KS
+        return [f"{base}{code}.png"]
     if not re.fullmatch(r"[0-9]{4,6}[A-Z]?", code):
         return [f"{base}{code}.png"]  # 美股
     if market in ("上櫃", "tpex", "TWO"):

@@ -171,6 +171,15 @@ def pick_tw() -> dict | None:
             f["trust"] += trust
             f["buy_days"] += foreign + trust > 0
 
+    # 全部個股的 5 日法人買賣超另外存一份，給供應鏈地圖用（不必再打一次證交所）
+    flows_dir = ROOT / "data" / "flows"
+    flows_dir.mkdir(parents=True, exist_ok=True)
+    (flows_dir / "latest.json").write_text(json.dumps({
+        "date": trade_date.isoformat(), "days": len(days),
+        "codes": {c: {"foreign_lots": round(f["foreign"] / 1000), "trust_lots": round(f["trust"] / 1000), "buy_days": f["buy_days"]}
+                  for c, f in flows.items()},
+    }, ensure_ascii=False), encoding="utf-8")
+
     stocks = []
     for code, f in flows.items():
         q, rev = quotes.get(code), revenue.get(code)

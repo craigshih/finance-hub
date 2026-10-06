@@ -38,7 +38,8 @@ PICKS_DIR = ROOT / "data" / "picks"
 
 # (路徑, 標籤, 手機上的短標籤)
 NAV = [("index.html", "總覽", "總覽"), ("news/index.html", "即時快報", "快報"), ("portfolio/index.html", "投資", "投資"),
-       ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("sim/index.html", "模擬交易", "模擬")]
+       ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
+       ("sim/index.html", "模擬交易", "模擬")]
 # 太泛的關鍵字不當作新聞標籤
 GENERIC_KW = {"TOP", "headline", "台股", "美股", "國際股", "科技", "產業", "鉅亨速報", "大盤", "股市", "市場", "經濟", "投資", "個股"}
 WEEKDAYS = "一二三四五六日"
@@ -719,6 +720,9 @@ def main() -> int:
             write(OUT_DIR / "weekly" / f"{r['date']}-full.html", page(f"完整報告 {r['date']}", render_full_report(r), 1, "weekly/index.html"))
     write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports), 1, "weekly/index.html"))
     shutil.copytree(ROOT / "static" / "portraits", OUT_DIR / "portraits")
+    import supply_page
+    supply = supply_page.load(ROOT / "data" / "supply" / "latest.json")
+    write(OUT_DIR / "supply" / "index.html", page("供應鏈地圖", supply_page.render(supply), 1, "supply/index.html"))
     write(OUT_DIR / "investors" / "index.html", page("四位投資人", hero(
         "四位投資人", "段永平・巴菲特・芒格・李錄",
         "本站的每週研究與今日觀察，都用這四位投資人的框架從四個角度看同一家公司。")
@@ -742,6 +746,13 @@ def main() -> int:
     body += '<main class="wrap">'
     body += section("今日觀察", visuals.observations(picks, ""),
                     f"段永平・巴菲特・芒格・李錄的框架・{e(picks['date'])} 產生" if picks else "", ("investors/index.html", "認識四位投資人"))
+    if supply and supply.get("leaders"):
+        top = max(supply["leaders"], key=lambda l: l.get("chg_1d") or 0)
+        chain = sorted((t for t in supply["tw"] if top["code"] in t["links"]), key=lambda t: -(t.get("chg_1d") or 0))[:4]
+        names = "、".join(f'{t["name"]} {t["chg_1d"]:+.1f}%' for t in chain)
+        body += section("供應鏈連動", home_link_card("supply/index.html", "🔗",
+                        f'本日最強：{e(top["name"])}（{e(top["market"])}）{top["chg_1d"]:+.2f}%',
+                        f'台股相關：{e(names)}' if names else "看看台股供應鏈怎麼反應", "看供應鏈地圖"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/
