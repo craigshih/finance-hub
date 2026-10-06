@@ -1,36 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" role="img"><defs>
   <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%">
     <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="17" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="wash" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="17" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
   </filter>
   <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-    <line x1="0" y1="0" x2="0" y2="5" stroke="#3a3f47" stroke-width="0.7" opacity="0.55"/>
+    <line x1="0" y1="0" x2="0" y2="5" stroke="#3a3f47" stroke-width="0.7" opacity="0.5"/>
   </pattern>
-  <pattern id="hatch2" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
-    <line x1="0" y1="0" x2="0" y2="4" stroke="#3a3f47" stroke-width="0.6" opacity="0.5"/>
+  <pattern id="hair" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(65)">
+    <line x1="0" y1="0" x2="0" y2="3" stroke="#22252b" stroke-width="1.2" opacity="0.8"/>
   </pattern>
-  <pattern id="hair" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(60)">
-    <line x1="0" y1="0" x2="0" y2="3" stroke="#22252b" stroke-width="1.3" opacity="0.85"/>
+  <pattern id="dots" width="9" height="9" patternUnits="userSpaceOnUse">
+    <rect x="3" y="3" width="2.4" height="2.4" fill="#9aa3b5"/>
   </pattern>
-</defs><rect width="200" height="240" fill="#f1ecf7"/><g filter="url(#pencil)">
-<!-- 臉型：橢圓、較瘦 -->
-<path d="M64 92 C62 130 70 158 86 172 C95 179 105 179 114 172 C130 158 138 130 136 92" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/>
-<path d="M66 120 C68 146 78 162 90 170" fill="url(#hatch)" stroke="none" opacity=".45"/>
-<!-- 短髮、額頭略高 -->
-<path d="M62 96 C56 62 74 38 100 38 C126 38 144 62 138 96 C136 84 132 76 126 70 C116 64 102 62 88 64 C78 66 70 72 66 82 C64 86 63 90 62 96 Z" fill="url(#hair)" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-<path d="M76 66 C88 58 110 56 126 66" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"/>
-<!-- 耳朵 -->
-<path d="M64 102 C56 100 55 116 62 122 M136 102 C144 100 145 116 138 122" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
-<!-- 細框眼鏡（橢圓、無框感） -->
-<ellipse cx="83" cy="106" rx="13" ry="9.5" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"/>
-<ellipse cx="117" cy="106" rx="13" ry="9.5" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.3"/>
-<path d="M96 105 C98 103 102 103 104 105 M70 104 L64 102 M130 104 L136 102" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"/>
-<path d="M72 92 C78 89 86 89 92 92 M108 92 C114 89 122 89 128 92" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/>
-<circle cx="83" cy="107" r="2.2" fill="#2b2f36"/><circle cx="117" cy="107" r="2.2" fill="#2b2f36"/>
-<!-- 鼻子 -->
-<path d="M100 114 C98 124 96 132 98 136 C100 138 104 138 106 135" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
-<!-- 沉穩的淺笑 -->
-<path d="M86 150 C94 155 106 155 114 150" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"/>
-<!-- 西裝、開領襯衫不打領帶 -->
-<path d="M30 240 C40 205 62 192 84 186 L100 210 L116 186 C138 192 160 205 170 240" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-<path d="M84 186 L92 240 M116 186 L108 240 M100 210 L100 240" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/></g></svg>
+  <pattern id="stripe" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#e8d3b0" stroke-width="1.4"/>
+  </pattern>
+</defs><rect width="200" height="240" fill="#f1ecf7"/><g filter="url(#wash)" opacity=".75">
+<path d="M62 98 C60 136 72 166 92 177 C97 180 103 180 108 177 C128 166 140 136 138 98 C138 70 122 58 100 58 C78 58 62 70 62 98 Z" fill="#f2d9c2"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100 C136 84 130 72 116 66 C102 70 84 70 72 78 C66 84 62 92 60 100 Z" fill="#33353b"/>
+<path d="M60 100 C58 90 60 82 64 78 L66 98 Z M140 100 C142 90 140 82 136 78 L134 98 Z" fill="#9b9ea6"/>
+<path d="M86 149 C92.0 166 108.0 166 114 149 C108.0 155 92.0 155 86 149 Z" fill="#ffffff"/><path d="M24 240 C34 204 58 190 82 184 L100 216 L118 184 C142 190 166 204 176 240 Z" fill="#2f4b8a"/><path d="M82 184 L100 216 L118 184 L112 180 L100 190 L88 180 Z" fill="#ffffff"/></g><g filter="url(#pencil)">
+<path d="M62 98 C60 136 72 166 92 177 C97 180 103 180 108 177 C128 166 140 136 138 98" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100 C136 84 130 72 116 66 C102 70 84 70 72 78 C66 84 62 92 60 100 Z" fill="url(#hair)" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/>
+<path d="M76 70 C88 52 110 46 126 54 M84 64 C96 50 116 46 132 60" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1" opacity=".6"/>
+<path d="M62 104 C52 102 52 122 62 126 M138 104 C148 102 148 122 138 126" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9"/>
+<path d="M72 96 C79 92 87 92 93 95 M107 95 C113 92 121 92 128 96" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"/>
+<path d="M74 108 C78 104 86 104 90 108 C86 110 78 110 74 108 Z M110 108 C114 104 122 104 126 108 C122 110 114 110 110 108 Z" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+<circle cx="82" cy="107.5" r="2.2" fill="#2b2f36"/><circle cx="118" cy="107.5" r="2.2" fill="#2b2f36"/>
+<path d="M100 112 C98 122 95 130 97 134 C100 137 104 137 107 134" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+<path d="M80 136 C76 144 78 152 84 158 M120 136 C124 144 122 152 116 158" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" opacity=".7"/>
+<path d="M66 122 C68 146 78 164 92 174" fill="url(#hatch)" stroke="none" opacity=".45"/>
+<path d="M84 148 C92.0 155 108.0 155 116 148" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M86 149 C92.0 166 108.0 166 114 149" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/><path d="M88 152 C92.0 157 108.0 157 112 152" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width=".9" opacity=".7"/>
+<path d="M120 196 L120 214" stroke="#2b2f36" stroke-width="1.2" opacity=".6"/><circle cx="120" cy="196" r="2" fill="#2b2f36" opacity=".7"/>
+<path d="M24 240 C34 204 58 190 82 184 M118 184 C142 190 166 204 176 240" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><path d="M82 184 L96 236 M118 184 L104 236" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><path d="M88 180 L100 192 L112 180" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/><path d="M88 180 L94 202 L100 192 L106 202 L112 180" fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/></g></svg>

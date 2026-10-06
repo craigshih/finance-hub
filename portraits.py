@@ -1,8 +1,9 @@
 """
-四位投資人的素描風格頭像（SVG）。是依外型特徵畫的插畫，不是照片或寫實肖像。
-鉛筆質感：feTurbulence + feDisplacementMap 讓線條微微抖動，再疊一層淡淡的交叉排線當陰影。
+四位投資人的素描風格頭像（SVG）。依公開照片的外型特徵重新繪製的原創插畫，不是照片描摹，也不是寫實肖像。
+鉛筆質感：feTurbulence + feDisplacementMap 讓線條微微抖動；底下一層淡淡的水彩色塊，上面疊排線陰影。
 執行：python portraits.py → static/portraits/{id}.svg
 """
+import re
 from pathlib import Path
 
 OUT = Path(__file__).parent / "static" / "portraits"
@@ -10,130 +11,154 @@ OUT = Path(__file__).parent / "static" / "portraits"
 DEFS = """<defs>
   <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%">
     <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="{seed}" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="wash" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="{seed}" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
   </filter>
   <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-    <line x1="0" y1="0" x2="0" y2="5" stroke="#3a3f47" stroke-width="0.7" opacity="0.55"/>
+    <line x1="0" y1="0" x2="0" y2="5" stroke="#3a3f47" stroke-width="0.7" opacity="0.5"/>
   </pattern>
-  <pattern id="hatch2" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
-    <line x1="0" y1="0" x2="0" y2="4" stroke="#3a3f47" stroke-width="0.6" opacity="0.5"/>
+  <pattern id="hair" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(65)">
+    <line x1="0" y1="0" x2="0" y2="3" stroke="#22252b" stroke-width="1.2" opacity="0.8"/>
   </pattern>
-  <pattern id="hair" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(60)">
-    <line x1="0" y1="0" x2="0" y2="3" stroke="#22252b" stroke-width="1.3" opacity="0.85"/>
+  <pattern id="dots" width="9" height="9" patternUnits="userSpaceOnUse">
+    <rect x="3" y="3" width="2.4" height="2.4" fill="#9aa3b5"/>
+  </pattern>
+  <pattern id="stripe" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="#e8d3b0" stroke-width="1.4"/>
   </pattern>
 </defs>"""
 
-STROKE = 'fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round"'
+L = 'fill="none" stroke="#2b2f36" stroke-linecap="round" stroke-linejoin="round"'
+SKIN = "#f2d9c2"
 
 
-def svg(seed: int, bg: str, body: str) -> str:
-    import re
-    # 有排線填色的形狀，拿掉共用樣式裡的 fill="none"，避免重複屬性
-    body = re.sub(r'(<[^>]*fill="url\(#(?:hatch2?|hair)\)"[^>]*?) fill="none"', r"\1", body)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" role="img">'
-            f'{DEFS.format(seed=seed)}<rect width="200" height="240" fill="{bg}"/>'
-            f'<g filter="url(#pencil)">{body}</g></svg>')
+def svg(seed: int, bg: str, wash: str, lines: str) -> str:
+    """wash：水彩色塊（半透明、邊緣微暈）；lines：鉛筆線條。"""
+    lines = re.sub(r'(<[^>]*fill="url\(#\w+\)"[^>]*?) fill="none"', r"\1", lines)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" role="img">{DEFS.format(seed=seed)}'
+            f'<rect width="200" height="240" fill="{bg}"/>'
+            f'<g filter="url(#wash)" opacity=".75">{wash}</g>'
+            f'<g filter="url(#pencil)">{lines}</g></svg>')
 
 
-# 共用：西裝領口與領帶
-SUIT = f'''<path d="M30 240 C40 205 62 192 84 186 L100 214 L116 186 C138 192 160 205 170 240" {STROKE} stroke-width="2"/>
-<path d="M84 186 L92 240 M116 186 L108 240" {STROKE} stroke-width="1.4"/>
-<path d="M93 196 L100 214 L107 196 L103 192 L97 192 Z" fill="url(#hatch2)" {STROKE} stroke-width="1.3"/>
-<path d="M97 214 L94 240 M103 214 L106 240" {STROKE} stroke-width="1.2"/>'''
+def suit(jacket: str, shirt: str = "#ffffff", tie: str | None = None, tie_pattern: str = "") -> tuple[str, str]:
+    """西裝、襯衫與領帶：回傳 (色塊, 線條)。tie=None 代表開領不打領帶。"""
+    wash = (f'<path d="M24 240 C34 204 58 190 82 184 L100 216 L118 184 C142 190 166 204 176 240 Z" fill="{jacket}"/>'
+            f'<path d="M82 184 L100 216 L118 184 L112 180 L100 190 L88 180 Z" fill="{shirt}"/>')
+    lines = (f'<path d="M24 240 C34 204 58 190 82 184 M118 184 C142 190 166 204 176 240" {L} stroke-width="2"/>'
+             f'<path d="M82 184 L96 236 M118 184 L104 236" {L} stroke-width="1.5"/>'
+             f'<path d="M88 180 L100 192 L112 180" {L} stroke-width="1.4"/>')
+    if tie:
+        shape = "M95 194 L100 190 L105 194 L103 200 L108 236 L92 236 L97 200 Z"
+        wash += f'<path d="{shape}" fill="{tie}"/>'
+        if tie_pattern:
+            wash += f'<path d="{shape}" fill="url(#{tie_pattern})"/>'
+        lines += f'<path d="M95 194 L100 190 L105 194 L103 200 L108 236 M97 200 L92 236 M97 200 L103 200" {L} stroke-width="1.3"/>'
+    else:
+        lines += f'<path d="M88 180 L94 202 L100 192 L106 202 L112 180" {L} stroke-width="1.4"/>'
+    return wash, lines
 
-BUFFETT = svg(3, "#eef4ec", f'''
-<!-- 臉型：下顎較寬、臉頰飽滿 -->
-<path d="M60 92 C58 130 66 160 84 176 C94 184 106 184 116 176 C134 160 142 130 140 92" {STROKE} stroke-width="2.2"/>
-<path d="M62 120 C64 150 76 168 92 176" fill="url(#hatch)" stroke="none" opacity=".5"/>
-<!-- 白髮：往後梳、兩側蓬鬆有波浪 -->
-<path d="M58 100 C50 70 62 42 92 36 C118 31 142 44 146 70 C148 82 145 94 141 100" {STROKE} stroke-width="2.2"/>
-<path d="M62 78 C72 58 90 50 108 52 M70 66 C84 50 108 46 128 56 M112 54 C126 58 136 68 140 82" {STROKE} stroke-width="1.2" opacity=".8"/>
-<path d="M56 96 C50 104 52 112 58 116 M144 96 C150 104 148 112 142 116" {STROKE} stroke-width="1.6"/>
-<!-- 耳朵 -->
-<path d="M60 104 C52 102 50 118 58 124 M140 104 C148 102 150 118 142 124" {STROKE} stroke-width="1.8"/>
-<!-- 濃眉 -->
-<path d="M70 94 C78 88 88 88 94 92 M106 92 C112 88 122 88 130 94" {STROKE} stroke-width="3"/>
-<!-- 眼鏡：圓角方框 -->
-<rect x="68" y="98" width="28" height="20" rx="7" {STROKE} stroke-width="2"/>
-<rect x="104" y="98" width="28" height="20" rx="7" {STROKE} stroke-width="2"/>
-<path d="M96 106 C99 104 101 104 104 106 M68 104 L60 102 M132 104 L140 102" {STROKE} stroke-width="1.6"/>
-<path d="M76 109 C79 106 85 106 88 109 M112 109 C115 106 121 106 124 109" {STROKE} stroke-width="1.6"/>
-<!-- 鼻子 -->
-<path d="M100 112 C98 124 94 134 96 138 C99 141 104 140 106 137" {STROKE} stroke-width="1.6"/>
-<!-- 招牌笑容與法令紋 -->
-<path d="M82 150 C92 160 108 160 118 150" {STROKE} stroke-width="2"/>
-<path d="M86 152 C94 156 106 156 114 152" {STROKE} stroke-width="1.1"/>
-<path d="M80 134 C76 142 77 150 82 154 M120 134 C124 142 123 150 118 154" {STROKE} stroke-width="1.3" opacity=".8"/>
-{SUIT}''')
 
-MUNGER = svg(7, "#f6efe3", f'''
-<!-- 臉型：長、下垂的臉頰與雙下巴 -->
-<path d="M64 88 C60 128 66 158 80 172 C90 182 110 182 120 172 C134 158 140 128 136 88" {STROKE} stroke-width="2.2"/>
-<path d="M82 172 C90 184 110 184 118 172" {STROKE} stroke-width="1.4"/>
-<path d="M66 118 C68 146 76 162 88 170" fill="url(#hatch)" stroke="none" opacity=".55"/>
-<!-- 禿頂與兩側短髮 -->
-<path d="M64 92 C60 58 76 34 100 32 C124 34 140 58 136 92" {STROKE} stroke-width="2.2"/>
-<path d="M60 82 L64 74 M58 90 L63 84 M60 98 L64 92 M140 82 L136 74 M142 90 L137 84 M140 98 L136 92" {STROKE} stroke-width="1.6"/>
-<path d="M80 50 C92 44 108 44 120 50" {STROKE} stroke-width=".9" opacity=".5"/>
-<!-- 耳朵 -->
-<path d="M64 100 C55 98 54 116 62 122 M136 100 C145 98 146 116 138 122" {STROKE} stroke-width="1.8"/>
-<!-- 招牌粗框大眼鏡 -->
-<rect x="66" y="94" width="31" height="25" rx="5" fill="none" stroke="#1d2026" stroke-width="5"/>
-<rect x="103" y="94" width="31" height="25" rx="5" fill="none" stroke="#1d2026" stroke-width="5"/>
-<path d="M97 103 L103 103 M66 100 L60 98 M134 100 L140 98" stroke="#1d2026" stroke-width="4" stroke-linecap="round"/>
-<path d="M75 107 L88 107 M112 107 L125 107" {STROKE} stroke-width="1.8"/>
-<path d="M72 90 L90 88 M110 88 L128 90" {STROKE} stroke-width="2.4"/>
-<!-- 鼻子 -->
-<path d="M100 118 C98 130 95 138 97 142 C100 145 105 144 107 141" {STROKE} stroke-width="1.6"/>
-<!-- 嘴角微微下垂、表情嚴肅 -->
-<path d="M84 156 C92 153 108 153 116 156" {STROKE} stroke-width="2"/>
-<path d="M80 140 C76 150 78 158 84 162 M120 140 C124 150 122 158 116 162" {STROKE} stroke-width="1.3" opacity=".8"/>
-{SUIT}''')
+def grin(y: int, w: int = 20) -> str:
+    """露齒笑：上唇弧、下唇弧、牙齒線。"""
+    return (f'<path d="M{100 - w} {y} C{100 - w / 2} {y + 7} {100 + w / 2} {y + 7} {100 + w} {y}" {L} stroke-width="2"/>'
+            f'<path d="M{100 - w + 2} {y + 1} C{100 - w / 2} {y + 18} {100 + w / 2} {y + 18} {100 + w - 2} {y + 1}" {L} stroke-width="1.8"/>'
+            f'<path d="M{100 - w + 4} {y + 4} C{100 - w / 2} {y + 9} {100 + w / 2} {y + 9} {100 + w - 4} {y + 4}" {L} stroke-width=".9" opacity=".7"/>')
 
+
+def grin_wash(y: int, w: int = 20) -> str:
+    return (f'<path d="M{100 - w + 2} {y + 1} C{100 - w / 2} {y + 18} {100 + w / 2} {y + 18} {100 + w - 2} {y + 1} '
+            f'C{100 + w / 2} {y + 7} {100 - w / 2} {y + 7} {100 - w + 2} {y + 1} Z" fill="#ffffff"/>')
+
+
+# ---------- 段永平：圓臉、黑色短髮、瞇眼大笑、西裝深色點點領帶 ----------
+w, l = suit("#3b3f48", tie="#2d3550", tie_pattern="dots")
 DUAN = svg(11, "#e9eff8", f'''
-<!-- 臉型：圓潤 -->
-<path d="M62 96 C60 132 70 160 88 172 C96 178 104 178 112 172 C130 160 140 132 138 96" {STROKE} stroke-width="2.2"/>
-<path d="M64 122 C66 146 76 162 90 170" fill="url(#hatch)" stroke="none" opacity=".45"/>
-<!-- 黑色短髮、旁分 -->
-<path d="M60 98 C54 62 74 40 102 40 C128 40 146 60 140 98 C136 82 130 72 118 66 C104 72 82 72 68 80 C64 86 62 92 60 98 Z" fill="url(#hair)" {STROKE} stroke-width="2"/>
-<path d="M118 66 C110 58 98 54 84 56" {STROKE} stroke-width="1.6"/>
-<path d="M70 64 C84 52 104 48 124 54" {STROKE} stroke-width="1.2"/>
-<!-- 耳朵 -->
-<path d="M62 106 C54 104 53 120 60 126 M138 106 C146 104 147 120 140 126" {STROKE} stroke-width="1.8"/>
-<!-- 眉毛與笑眼 -->
-<path d="M72 96 C79 92 87 92 92 95 M108 95 C113 92 121 92 128 96" {STROKE} stroke-width="2.4"/>
-<path d="M74 108 C79 104 85 104 90 108 M110 108 C115 104 121 104 126 108" {STROKE} stroke-width="2"/>
-<!-- 鼻子 -->
-<path d="M100 112 C98 122 95 130 97 134 C100 136 104 136 106 133" {STROKE} stroke-width="1.6"/>
-<!-- 溫和的笑 -->
-<path d="M84 148 C92 156 108 156 116 148" {STROKE} stroke-width="2"/>
-<!-- POLO 衫領 -->
-<path d="M36 240 C44 206 64 192 86 186 L100 200 L114 186 C136 192 156 206 164 240" {STROKE} stroke-width="2"/>
-<path d="M86 186 L80 204 L100 200 L120 204 L114 186" {STROKE} stroke-width="1.6"/>
-<path d="M100 200 L100 222 M100 208 L101 208 M100 216 L101 216" {STROKE} stroke-width="1.6"/>''')
+<path d="M58 100 C56 138 72 170 100 176 C128 170 144 138 142 100 C142 70 124 56 100 56 C76 56 58 70 58 100 Z" fill="{SKIN}"/>
+<path d="M60 100 C56 66 74 44 100 44 C126 44 144 66 140 100 C136 82 126 72 100 72 C74 72 64 82 60 100 Z" fill="#2a2a2e"/>
+{grin_wash(142, 22)}{w}''', f'''
+<path d="M58 100 C56 138 72 170 100 176 C128 170 144 138 142 100" {L} stroke-width="2.2"/>
+<path d="M60 100 C56 66 74 44 100 44 C126 44 144 66 140 100" {L} stroke-width="2.2"/>
+<path d="M60 100 C64 84 74 74 100 72 C126 74 136 84 140 100 C140 70 124 48 100 48 C76 48 60 70 60 100 Z" fill="url(#hair)" {L} stroke-width="1.6"/>
+<path d="M58 104 C48 102 48 124 58 128 M142 104 C152 102 152 124 142 128" {L} stroke-width="1.9"/>
+<path d="M70 96 C78 91 88 91 93 94 M107 94 C112 91 122 91 130 96" {L} stroke-width="2.6"/>
+<path d="M72 108 C78 102 86 102 92 108 M108 108 C114 102 122 102 128 108" {L} stroke-width="2.2"/>
+<path d="M68 112 L64 116 M70 114 L67 119 M132 112 L136 116 M130 114 L133 119" {L} stroke-width="1" opacity=".7"/>
+<path d="M100 110 C99 120 93 128 95 133 C98 136 102 136 106 133 C108 129 104 126 103 122" {L} stroke-width="1.7"/>
+<path d="M76 132 C72 140 74 150 80 156 M124 132 C128 140 126 150 120 156" {L} stroke-width="1.3" opacity=".75"/>
+<path d="M64 124 C68 146 80 162 94 170" fill="url(#hatch)" stroke="none" opacity=".5"/>
+{grin(142, 22)}{l}''')
 
+# ---------- 巴菲特：往後梳的蓬鬆白髮、細金屬框眼鏡、露齒笑、紅領帶 ----------
+w, l = suit("#2c2f36", tie="#c0392b", tie_pattern="dots")
+BUFFETT = svg(3, "#eef4ec", f'''
+<path d="M58 98 C56 136 66 164 86 176 C94 181 106 181 114 176 C134 164 144 136 142 98 C142 70 124 58 100 58 C76 58 58 70 58 98 Z" fill="{SKIN}"/>
+<path d="M52 108 C42 70 60 30 100 28 C142 30 158 70 148 108 C146 90 140 70 104 60 C70 60 56 84 52 108 Z" fill="#e9e9ec"/>
+{grin_wash(148, 21)}{w}''', f'''
+<path d="M58 98 C56 136 66 164 86 176 C94 181 106 181 114 176 C134 164 144 136 142 98" {L} stroke-width="2.2"/>
+<path d="M52 108 C42 70 60 30 100 28 C142 30 158 70 148 108" {L} stroke-width="2"/>
+<path d="M58 92 C62 70 80 60 104 60 C126 60 140 72 142 92" {L} stroke-width="1.6"/>
+<path d="M66 70 C82 46 120 40 140 62 M72 60 C90 40 124 38 144 70 M62 82 C70 58 96 50 118 54" {L} stroke-width="1" opacity=".55"/>
+<path d="M56 106 C46 104 46 126 56 130 M144 106 C154 104 154 126 144 130" {L} stroke-width="1.9"/>
+<path d="M68 92 C76 86 88 86 94 91 M106 91 C112 86 124 86 132 92" {L} stroke-width="3.4"/>
+<path d="M76 74 C90 70 110 70 124 74 M80 80 C92 77 108 77 120 80" {L} stroke-width=".9" opacity=".55"/>
+<path d="M66 99 C66 96 69 94 74 94 L92 94 C96 94 97 97 97 100 L96 112 C95 117 92 119 86 119 L76 119 C70 119 67 116 66 111 Z" {L} stroke-width="1.2"/>
+<path d="M103 100 C103 97 104 94 108 94 L126 94 C131 94 134 96 134 99 L134 111 C133 116 130 119 124 119 L114 119 C108 119 105 117 104 112 Z" {L} stroke-width="1.2"/>
+<path d="M97 101 C99 99 101 99 103 101 M66 100 L57 98 M134 100 L143 98" {L} stroke-width="1.1"/>
+<path d="M74 108 C79 103 86 103 90 108 M110 108 C114 103 121 103 126 108" {L} stroke-width="1.9"/>
+<path d="M100 112 C98 124 93 132 95 137 C98 141 103 141 108 137 C110 133 106 129 104 126" {L} stroke-width="1.8"/>
+<path d="M74 130 C68 142 70 154 78 162 M126 130 C132 142 130 154 122 162" {L} stroke-width="1.4" opacity=".8"/>
+<path d="M66 122 C70 148 82 166 96 174" fill="url(#hatch)" stroke="none" opacity=".5"/>
+{grin(148, 21)}{l}''')
+
+# ---------- 芒格：側分灰白髮、粗的玳瑁色方框眼鏡、抿嘴淺笑、酒紅條紋領帶 ----------
+w, l = suit("#2a2c33", tie="#7a2e2e", tie_pattern="stripe")
+MUNGER = svg(7, "#f6efe3", f'''
+<path d="M62 94 C60 134 68 166 88 178 C95 182 105 182 112 178 C132 166 140 134 138 94 C138 66 122 54 100 54 C78 54 62 66 62 94 Z" fill="{SKIN}"/>
+<path d="M60 98 C54 62 74 38 102 38 C130 38 146 62 140 98 C138 80 132 68 120 62 C100 58 80 62 66 74 C62 82 61 90 60 98 Z" fill="#d6d6d9"/>
+<rect x="66" y="94" width="31" height="24" rx="4" fill="#cfe0e8" opacity=".55"/><rect x="103" y="94" width="31" height="24" rx="4" fill="#cfe0e8" opacity=".55"/>
+{w}''', f'''
+<path d="M62 94 C60 134 68 166 88 178 C95 182 105 182 112 178 C132 166 140 134 138 94" {L} stroke-width="2.2"/>
+<path d="M60 98 C54 62 74 38 102 38 C130 38 146 62 140 98" {L} stroke-width="2"/>
+<path d="M66 74 C80 62 100 58 120 62 C132 68 138 80 140 98" {L} stroke-width="1.5"/>
+<path d="M84 42 C84 50 82 58 78 66 M88 44 C104 46 122 52 134 66 M86 50 C102 52 118 58 130 70 M84 58 C98 58 112 62 124 70" {L} stroke-width="1" opacity=".6"/>
+<path d="M60 102 C50 100 50 120 60 124 M140 102 C150 100 150 120 140 124" {L} stroke-width="1.9"/>
+<rect x="66" y="94" width="31" height="24" rx="4" fill="none" stroke="#6b4426" stroke-width="5"/>
+<rect x="103" y="94" width="31" height="24" rx="4" fill="none" stroke="#6b4426" stroke-width="5"/>
+<path d="M97 102 L103 102 M66 99 L58 97 M134 99 L142 97" stroke="#6b4426" stroke-width="4" stroke-linecap="round"/>
+<path d="M70 88 C78 85 88 85 94 88 M106 88 C112 85 122 85 130 88" {L} stroke-width="2.4"/>
+<path d="M76 107 C80 104 86 104 89 107 M111 107 C114 104 120 104 124 107" {L} stroke-width="1.8"/>
+<circle cx="82.5" cy="107.5" r="1.8" fill="#2b2f36"/><circle cx="117.5" cy="107.5" r="1.8" fill="#2b2f36"/>
+<path d="M100 116 C98 128 94 136 96 141 C99 144 104 144 108 141 C110 137 106 134 104 130" {L} stroke-width="1.7"/>
+<path d="M84 156 C92 160 106 160 117 153" {L} stroke-width="2"/>
+<path d="M78 140 C74 150 76 160 82 166 M122 138 C126 148 124 158 118 164" {L} stroke-width="1.3" opacity=".8"/>
+<path d="M66 118 C68 146 78 166 92 176" fill="url(#hatch)" stroke="none" opacity=".55"/>
+{l}''')
+
+# ---------- 李錄：不戴眼鏡、往上梳的短髮兩鬢斑白、微笑、藍色西裝外套開領 ----------
+w, l = suit("#2f4b8a", shirt="#ffffff", tie=None)
 LILU = svg(17, "#f1ecf7", f'''
-<!-- 臉型：橢圓、較瘦 -->
-<path d="M64 92 C62 130 70 158 86 172 C95 179 105 179 114 172 C130 158 138 130 136 92" {STROKE} stroke-width="2.2"/>
-<path d="M66 120 C68 146 78 162 90 170" fill="url(#hatch)" stroke="none" opacity=".45"/>
-<!-- 短髮、額頭略高 -->
-<path d="M62 96 C56 62 74 38 100 38 C126 38 144 62 138 96 C136 84 132 76 126 70 C116 64 102 62 88 64 C78 66 70 72 66 82 C64 86 63 90 62 96 Z" fill="url(#hair)" {STROKE} stroke-width="2"/>
-<path d="M76 66 C88 58 110 56 126 66" {STROKE} stroke-width="1.2"/>
-<!-- 耳朵 -->
-<path d="M64 102 C56 100 55 116 62 122 M136 102 C144 100 145 116 138 122" {STROKE} stroke-width="1.8"/>
-<!-- 細框眼鏡（橢圓、無框感） -->
-<ellipse cx="83" cy="106" rx="13" ry="9.5" {STROKE} stroke-width="1.3"/>
-<ellipse cx="117" cy="106" rx="13" ry="9.5" {STROKE} stroke-width="1.3"/>
-<path d="M96 105 C98 103 102 103 104 105 M70 104 L64 102 M130 104 L136 102" {STROKE} stroke-width="1.2"/>
-<path d="M72 92 C78 89 86 89 92 92 M108 92 C114 89 122 89 128 92" {STROKE} stroke-width="2.2"/>
-<circle cx="83" cy="107" r="2.2" fill="#2b2f36"/><circle cx="117" cy="107" r="2.2" fill="#2b2f36"/>
-<!-- 鼻子 -->
-<path d="M100 114 C98 124 96 132 98 136 C100 138 104 138 106 135" {STROKE} stroke-width="1.6"/>
-<!-- 沉穩的淺笑 -->
-<path d="M86 150 C94 155 106 155 114 150" {STROKE} stroke-width="1.9"/>
-<!-- 西裝、開領襯衫不打領帶 -->
-<path d="M30 240 C40 205 62 192 84 186 L100 210 L116 186 C138 192 160 205 170 240" {STROKE} stroke-width="2"/>
-<path d="M84 186 L92 240 M116 186 L108 240 M100 210 L100 240" {STROKE} stroke-width="1.4"/>''')
+<path d="M62 98 C60 136 72 166 92 177 C97 180 103 180 108 177 C128 166 140 136 138 98 C138 70 122 58 100 58 C78 58 62 70 62 98 Z" fill="{SKIN}"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100 C136 84 130 72 116 66 C102 70 84 70 72 78 C66 84 62 92 60 100 Z" fill="#33353b"/>
+<path d="M60 100 C58 90 60 82 64 78 L66 98 Z M140 100 C142 90 140 82 136 78 L134 98 Z" fill="#9b9ea6"/>
+{grin_wash(148, 16)}{w}''', f'''
+<path d="M62 98 C60 136 72 166 92 177 C97 180 103 180 108 177 C128 166 140 136 138 98" {L} stroke-width="2.2"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100" {L} stroke-width="2"/>
+<path d="M60 100 C54 62 76 40 102 40 C128 40 146 62 140 100 C136 84 130 72 116 66 C102 70 84 70 72 78 C66 84 62 92 60 100 Z" fill="url(#hair)" {L} stroke-width="1.4"/>
+<path d="M76 70 C88 52 110 46 126 54 M84 64 C96 50 116 46 132 60" {L} stroke-width="1.1" opacity=".6"/>
+<path d="M62 104 C52 102 52 122 62 126 M138 104 C148 102 148 122 138 126" {L} stroke-width="1.9"/>
+<path d="M72 96 C79 92 87 92 93 95 M107 95 C113 92 121 92 128 96" {L} stroke-width="2.4"/>
+<path d="M74 108 C78 104 86 104 90 108 C86 110 78 110 74 108 Z M110 108 C114 104 122 104 126 108 C122 110 114 110 110 108 Z" {L} stroke-width="1.6"/>
+<circle cx="82" cy="107.5" r="2.2" fill="#2b2f36"/><circle cx="118" cy="107.5" r="2.2" fill="#2b2f36"/>
+<path d="M100 112 C98 122 95 130 97 134 C100 137 104 137 107 134" {L} stroke-width="1.7"/>
+<path d="M80 136 C76 144 78 152 84 158 M120 136 C124 144 122 152 116 158" {L} stroke-width="1.2" opacity=".7"/>
+<path d="M66 122 C68 146 78 164 92 174" fill="url(#hatch)" stroke="none" opacity=".45"/>
+{grin(148, 16)}
+<path d="M120 196 L120 214" stroke="#2b2f36" stroke-width="1.2" opacity=".6"/><circle cx="120" cy="196" r="2" fill="#2b2f36" opacity=".7"/>
+{l}''')
 
 PORTRAITS = {"duan": DUAN, "buffett": BUFFETT, "munger": MUNGER, "lilu": LILU}
 
