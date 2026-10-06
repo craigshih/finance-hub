@@ -145,3 +145,56 @@ def render(data: dict | None, prefix: str = "../") -> str:
              '訂單與合作會變動，可能已過時；要修正或增加公司，改 supply_map.py 即可。股價來自 Yahoo Finance，法人買賣超來自證交所。'
              '這是研究素材，不是買賣建議。</p>')
     return body + "</main>"
+
+
+# ---------- 我的持股 × 供應鏈（只放在有密碼的 /portfolio/） ----------
+
+def holdings_exposure(holdings: list[dict], data: dict | None) -> str:
+    """把投資頁的持股（Notion）對到供應鏈地圖：哪些海外龍頭跟我的持股連動、占多少市值。"""
+    if not data or not holdings:
+        return '<p class="empty">供應鏈資料或持股資料還沒準備好</p>'
+    tw = {t["code"]: t for t in data["tw"]}
+    leaders = {l["code"]: l for l in data["leaders"]}
+    linked, unlinked = [], []
+    for h in holdings:
+        t = tw.get(h["code"])
+        (linked if t and t["links"] else unlinked).append((h, t))
+
+    expo: dict[str, dict] = {}
+    for h, t in linked:
+        for ld, (rel, role) in t["links"].items():
+            if ld not in leaders:
+                continue
+            x = expo.setdefault(ld, {"weight": 0.0, "holdings": []})
+            x["weight"] += h["weight"]
+            x["holdings"].append((h, rel))
+    ranked = sorted(expo.items(), key=lambda kv: -kv[1]["weight"])
+    total_linked = sum(h["weight"] for h, _ in linked)
+
+    top = ranked[0] if ranked else None
+    summary = (f'<p class="transmit"><b>連動摘要</b>你持股市值的 {total_linked * 100:.0f}% 直接連到海外龍頭；'
+               + (f'連結最多的是 {e(leaders[top[0]]["name"])}（{top[1]["weight"] * 100:.0f}% 的持股市值），'
+                  f'它最新一個交易日 {pct_span(leaders[top[0]]["chg_1d"])}。' if top else "")
+               + "ETF 透過成分股間接連動，沒有計入。</p>")
+
+    wmax = max((x["weight"] for _, x in ranked), default=1) or 1
+    bars = "".join(
+        f'<li><a class="mini" href="../supply/index.html#{e(ld)}" title="看 {e(leaders[ld]["name"])} 的供應鏈">{leader_logo(leaders[ld])}</a>'
+        f'<span class="ex-name"><b>{e(leaders[ld]["name"])}</b><small>{e(leaders[ld]["market"])}・今日 {pct_span(leaders[ld]["chg_1d"])}</small></span>'
+        f'<span class="ex-bar"><i style="--w:{x["weight"] / wmax * 100:.0f}%"></i></span><b class="ex-w">{x["weight"] * 100:.1f}%</b>'
+        f'<span class="ex-h">{"、".join(e(h["name"]) + f"（{e(rel)}）" for h, rel in x["holdings"])}</span></li>'
+        for ld, x in ranked)
+    rows = "".join(
+        f'<tr><td><span class="name">{stock_logo(h["code"], h["name"], t["market"], "sm")}'
+        f'<span><b>{e(h["name"])}</b><small>{e(h["code"])}・占 {h["weight"] * 100:.1f}%</small></span></span></td>'
+        f'<td class="num">{pct_span(t.get("chg_1d"))}</td><td><div class="revlinks">'
+        + "".join(f'<span class="mini" title="{e(rel)}：{e(role)}">{leader_logo(leaders[ld])}{pct_span(leaders[ld]["chg_1d"], 1)}'
+                  f'<span class="rel {REL_CLASS.get(rel, "sup")}">{e(rel)}</span></span>'
+                  for ld, (rel, role) in t["links"].items() if ld in leaders)
+        + "</div></td></tr>" for h, t in sorted(linked, key=lambda p: -p[0]["weight"]))
+    others = "、".join(f'{e(h["name"])}（{h["weight"] * 100:.1f}%）' for h, _ in unlinked)
+    return (summary + f'<ul class="expo">{bars}</ul>'
+            + '<div class="table-wrap"><table class="holdings"><thead><tr><th>我的持股</th><th class="num">今日</th>'
+            + f'<th>連到的海外龍頭（今日漲跌）</th></tr></thead><tbody>{rows}</tbody></table></div>'
+            + (f'<p class="rc-note">沒有直接連結的持股：{others}。ETF 透過成分股間接連動；個股如果你知道它的海外連結，'
+               '告訴我或加進 supply_map.py 就會出現在這裡。</p>' if others else ""))

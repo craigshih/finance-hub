@@ -540,6 +540,33 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
   .lpanel { padding: 14px; }
 }
 
+
+/* 我的持股 × 供應鏈 */
+.expo { list-style: none; margin: 12px 0 16px; padding: 0; display: grid; gap: 8px; }
+.expo li { display: grid; grid-template-columns: auto 9em 1fr 4em; grid-template-areas: "logo name bar w" "logo h h h"; gap: 2px 12px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+.expo .mini { grid-area: logo; padding: 2px; }
+.ex-name { grid-area: name; } .ex-name b { display: block; color: var(--ink); } .ex-name small { font-size: 11px; }
+.ex-bar { grid-area: bar; height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.ex-bar i { display: block; height: 100%; width: var(--w); background: linear-gradient(90deg, var(--accent), var(--c2)); border-radius: inherit; transform-origin: left; animation: grow 1s ease both; }
+.ex-w { grid-area: w; text-align: right; font: 700 16px var(--serif); color: var(--ink); }
+.ex-h { grid-area: h; font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) { .expo li { grid-template-columns: auto 1fr 3.5em; grid-template-areas: "logo name w" "bar bar bar" "h h h"; } }
+
+
+/* 每日總經封面拼貼 */
+.collage { display: grid; width: 100%; height: 100%; gap: 2px; background: var(--hero); position: relative; }
+.collage img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; transition: transform 6s ease; }
+.collage.n2 { grid-template-columns: 2fr 1fr; }
+.collage.n3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; } .collage.n3 .c0 { grid-row: span 2; }
+.collage.n4 { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; } .collage.n4 .c0 { grid-row: span 2; } .collage.n4 .c3 { grid-column: span 2; }
+.collage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(10,15,28,.75)); pointer-events: none; }
+.rcard:hover .collage img { transform: scale(1.06); }
+.rcard .rart { overflow: hidden; }
+.rcount { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: #fff; background: rgba(0,0,0,.3); padding: 3px 10px; border-radius: 99px; backdrop-filter: blur(4px); z-index: 1; }
+.rdate, .rnew { z-index: 1; }
+.rbody .kws { margin-top: auto; padding-top: 6px; }
+
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }
 
 @media (max-width: 640px) {

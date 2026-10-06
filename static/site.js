@@ -173,5 +173,8 @@
     });
     supply.querySelectorAll(".net").forEach((n) => n.classList.add("play"));
     supply.querySelectorAll(".lpanel:not([hidden]) .netwrap").forEach(center);
+    // 從投資頁點過來時網址帶 #龍頭代號，直接打開那一家
+    const want = decodeURIComponent(location.hash.slice(1));
+    if (want && supply.querySelector(`.lpanel[data-leader="${CSS.escape(want)}"]`)) pick(want, true);
   }
 })();

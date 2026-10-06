@@ -579,7 +579,7 @@ def reconcile_block(rc: dict) -> str:
     return status + (f'<ul class="rc-list">{items}</ul>' if items else "") + trade_note + table
 
 
-def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -> str:
+def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None) -> str:
     if sm is None:
         body = hero("投資總覽", "暫時讀不到 Notion", e(error or ""))
         return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
@@ -598,6 +598,10 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None) -
     body += section("資產配置", allocation_bar(sm["allocation"], sm["total_value"]), "依 Notion「市場」分類")
     body += section("持股明細", holdings_table(sm["holdings"]) if sm["holdings"] else '<p class="empty">目前沒有持股</p>',
                     f'{len(sm["holdings"])} 檔')
+    if supply:
+        import supply_page
+        body += section("我的持股 × 供應鏈", supply_page.holdings_exposure(sm["holdings"], supply),
+                        "只有你看得到（在密碼保護的投資頁裡）", ("../supply/index.html", "看完整供應鏈地圖"))
     if rc is not None:
         body += section("對帳", reconcile_block(rc), "Notion 交易紀錄 × 凱基對帳單")
     recent = "".join(f'<li><span class="pill">{e(t["side"])}</span>{trade_line(t)}</li>' for t in sm["recent_trades"])
@@ -654,6 +658,66 @@ def report_headline(r: dict) -> tuple[str, str, list[dict]]:
     return title, sub, logos
 
 
+def digest_cover(d: dict) -> str:
+    """每日總經封面：當天新聞照片拼貼（1 大 3 小）＋深色漸層；沒照片時改用生成式圖案。"""
+    thumbs = []
+    for sec in d.get("news_sections", []):
+        for a in sec.get("articles", []):
+            t = a.get("thumb")
+            if t and t not in thumbs:
+                thumbs.append(t)
+    # 真的新聞照片排前面，鉅亨網的預設圖庫照片排後面
+    thumbs.sort(key=lambda u: "/static/rss/default/" in u)
+    if len(thumbs) < 2:
+        hue = (int(d["date"].replace("-", "")) * 53) % 360
+        return visuals.report_art(d["date"], 12, hue)
+    imgs = "".join(f'<img src="{e(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" class="c{i}">' for i, u in enumerate(thumbs[:4]))
+    return f'<div class="collage n{min(len(thumbs), 4)}">{imgs}</div>'
+
+
+def fred_highlight(d: dict) -> str:
+    """當天變動最大的一項 FRED 數據（依變動百分比）。"""
+    best = None
+    for r in d.get("fred", []):
+        try:
+            a, b = float(r["latest_value"]), float(r["previous_value"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        ch = (a - b) / b if b else 0
+        if best is None or abs(ch) > abs(best[2]):
+            best = (re.sub(r"\s*\(.*\)$", "", r["label"]), a, ch, a - b)
+    if not best:
+        return ""
+    label, a, ch, diff = best
+    arrow = "▲" if diff > 0 else "▼" if diff < 0 else "–"
+    return f"{label} {a:,.2f}（{arrow}{abs(diff):,.2f}）"
+
+
+def daily_index(digests: list[dict]) -> str:
+    body = hero("每日總經", "歷史摘要", "每天早上 7 點更新：台股、國際頭條、工商時報摘要與美國總經數據")
+    body += '<main class="wrap">'
+    if not digests:
+        return body + '<p class="empty">尚無資料</p></main>'
+    cards = []
+    for i, d in enumerate(digests):
+        t_file = ROOT / "data" / "digest_titles" / f'{d["date"]}.json'
+        title = json.loads(t_file.read_text(encoding="utf-8")) if t_file.exists() else {}
+        secs = [(s.get("name"), len(s.get("articles", []))) for s in d.get("news_sections", []) if s.get("articles")]
+        total = sum(n for _, n in secs)
+        headline = title.get("headline") or next((a.get("title") for s in d.get("news_sections", []) for a in s.get("articles", [])), "每日總經摘要")
+        sub = "・".join(f"{e(n)} {c}" for n, c in secs)
+        fh = fred_highlight(d)
+        tags = "".join(f'<span>#{e(t)}</span>' for t in title.get("tags", []))
+        cards.append(
+            f'<a class="rcard{" latest" if i == 0 else ""}" href="{d["date"]}.html">'
+            f'<div class="rart">{digest_cover(d)}<span class="rdate">{e(zh_date(d["date"]))}</span>'
+            f'<span class="rcount">{total} 則</span>{"<span class=rnew>最新</span>" if i == 0 else ""}</div>'
+            f'<div class="rbody"><h3>{e(headline)}</h3><p>{sub}{"｜" + e(fh) if fh else ""}</p>'
+            f'{f"<div class=kws>{tags}</div>" if tags else ""}</div></a>')
+    body += section("全部摘要", f'<div class="rgrid">{"".join(cards)}</div>', f"{len(digests)} 天")
+    return body + "</main>"
+
+
 def weekly_index(reports: list[dict]) -> str:
     body = hero("每週研究", "歷史報告", "每週三更新：台股全市場篩選＋四位投資人框架的個股分析")
     body += '<main class="wrap">'
@@ -702,14 +766,15 @@ def main() -> int:
     write(OUT_DIR / "news" / "index.html", page("即時快報", (ROOT / "static" / "news_body.html").read_text(encoding="utf-8"), 1, "news/index.html"))
     write(OUT_DIR / "sim" / "index.html", page("模擬交易", sim_body, 1, "sim/index.html"))
 
+    import supply_page
+    supply = supply_page.load(ROOT / "data" / "supply" / "latest.json")
+
     digests = load_digests()  # 新 → 舊
     for i, d in enumerate(digests):
         older = digests[i + 1] if i + 1 < len(digests) else None
         newer = digests[i - 1] if i > 0 else None
         write(OUT_DIR / "daily" / f"{d['date']}.html", page(f"每日總經 {d['date']}", render_digest_page(d, older, newer), 1, "daily/index.html"))
-    write(OUT_DIR / "daily" / "index.html", page("每日總經", date_index("每日總經", "歷史摘要", [
-        (f"{d['date']}.html", d["date"], f"{sum(len(s.get('articles', [])) for s in d.get('news_sections', []))} 則新聞")
-        for d in digests]), 1, "daily/index.html"))
+    write(OUT_DIR / "daily" / "index.html", page("每日總經", daily_index(digests), 1, "daily/index.html"))
 
     reports = load_reports()
     for i, r in enumerate(reports):
@@ -720,8 +785,6 @@ def main() -> int:
             write(OUT_DIR / "weekly" / f"{r['date']}-full.html", page(f"完整報告 {r['date']}", render_full_report(r), 1, "weekly/index.html"))
     write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports), 1, "weekly/index.html"))
     shutil.copytree(ROOT / "static" / "portraits", OUT_DIR / "portraits")
-    import supply_page
-    supply = supply_page.load(ROOT / "data" / "supply" / "latest.json")
     write(OUT_DIR / "supply" / "index.html", page("供應鏈地圖", supply_page.render(supply), 1, "supply/index.html"))
     write(OUT_DIR / "investors" / "index.html", page("四位投資人", hero(
         "四位投資人", "段永平・巴菲特・芒格・李錄",
@@ -737,7 +800,7 @@ def main() -> int:
     except portfolio.NotionUnavailable as exc:
         err = str(exc)
         print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
-    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err), 1, "portfolio/index.html"))
+    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply), 1, "portfolio/index.html"))
 
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
