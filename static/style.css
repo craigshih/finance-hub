@@ -567,6 +567,18 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
 .rdate, .rnew { z-index: 1; }
 .rbody .kws { margin-top: auto; padding-top: 6px; }
 
+
+/* 供應鏈：出處、反向排行 */
+.src-link { font-size: 12px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.src-link:hover { text-decoration: underline; }
+.src-peer { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.ev { display: block; font-size: 10.5px; color: var(--muted); cursor: help; }
+.srcc { min-width: 120px; }
+.lc-logos { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.lc-logos .logo.sm { width: 22px; height: 22px; border-radius: 6px; }
+.lchip .cnt { font: 700 12px var(--serif); color: var(--accent); margin-left: 2px; }
+.chips-note { display: block; margin: 16px 0 6px; }
+
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }
 
 @media (max-width: 640px) {

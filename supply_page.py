@@ -1,5 +1,8 @@
 """
-/supply/ 供應鏈地圖頁面：本日最強龍頭 → 點選龍頭 → 關係圖＋台股供應鏈清單；以及台股反查。
+/supply/ 供應鏈地圖頁面：
+  1. 本日最強龍頭 → 點選龍頭 → 以龍頭為中心的關係圖＋台股清單
+  2. 被最多美國龍頭採用的台股 → 點選台股 → 以台股為中心的關係圖＋它供應的龍頭
+每條關係都附出處（supply_map.SOURCES）；另有每天從鉅亨網 RSS 自動收集的近期新聞佐證。
 資料：data/supply/latest.json（supply.py 產生）。切換龍頭由 static/site.js 處理，不用重新載入頁面。
 """
 
@@ -7,7 +10,7 @@ import json
 import math
 from pathlib import Path
 
-from supply_map import LEADERS
+from supply_map import LEADERS, SOURCES
 from visuals import e, sparkline, stock_logo
 
 REL_CLASS = {"供應商": "sup", "客戶": "cus", "同業": "peer", "合作": "part"}
@@ -15,8 +18,47 @@ REL_NOTE = {
     "供應商": "台廠賣產品或代工給它：它的需求好，台廠訂單可能跟著好",
     "客戶": "台廠向它買設備：台廠擴產時它受惠，方向相反",
     "同業": "同產業、景氣連動（例如記憶體報價）",
-    "合作": "合資、代理或策略合作",
+    "合作": "合資、代理或共同開發",
 }
+REL_ORDER = {"供應商": 0, "合作": 1, "客戶": 2, "同業": 3}
+
+
+def source_link(src: str | None, news: list[dict] | None = None) -> str:
+    """出處連結：滑過去看媒體、日期、標題與原文摘錄；另外列出自動收集的近期新聞數。"""
+    if not src:
+        return '<span class="src-peer" title="同業依產品線分類，不是供應關係">產業分類</span>'
+    pub, date, title, url, quote = SOURCES[src]
+    tip = "　".join(x for x in [f"{pub} {date}".strip(), title, f"原文：「{quote}」" if quote else ""] if x)
+    more = (f'<span class="ev" title="{e(chr(10).join(n["date"] + " " + n["title"] for n in news))}">＋{len(news)} 則近期新聞</span>'
+            if news else "")
+    return f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}">📰 {e(pub)}{" " + e(date[:7]) if date else ""}</a>{more}'
+
+
+def network(center: str, center_chg, nodes: list[dict], label: str) -> str:
+    """關係圖：中心是一家公司，周圍一圈是跟它有關係的公司；線的樣式代表關係，圓點顏色代表今天漲跌。
+    nodes: [{"name", "chg", "rel"}]"""
+    w, h, cx, cy = 640, 440, 320, 220
+    n = len(nodes)
+    r = 165 if n > 8 else 140
+    edges, circles = [], []
+    for i, nd in enumerate(nodes):
+        a = -math.pi / 2 + 2 * math.pi * i / n
+        x, y = cx + r * math.cos(a) * 1.25, cy + r * math.sin(a)
+        chg = nd.get("chg") or 0
+        tone = "pos" if chg > 0 else "neg" if chg < 0 else "flat"
+        edges.append(f'<line class="edge {REL_CLASS.get(nd["rel"], "sup")}" x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" style="--i:{i}"/>')
+        circles.append(
+            f'<g class="node {tone}" style="--i:{i};--s:{min(abs(chg) / 4, 1):.2f}" transform="translate({x:.0f} {y:.0f})">'
+            f'<circle r="21"/><text class="nn" y="-28">{e(nd["name"].replace("*", ""))}</text>'
+            f'<text class="nc" y="5">{chg:+.1f}%</text></g>')
+    c = (f'<g class="center" transform="translate({cx} {cy})"><circle r="44"/>'
+         f'<text y="-4">{e(center.replace("*", ""))}</text><text class="cc" y="16">{(center_chg or 0):+.2f}%</text></g>')
+    return f'<svg class="net" viewBox="0 0 {w} {h}" role="img" aria-label="{e(label)}">{"".join(edges)}{"".join(circles)}{c}</svg>'
+
+
+def legend() -> str:
+    return '<div class="legend rel-legend">' + "".join(
+        f'<span><i class="ln {c}"></i>{e(k)}：{e(REL_NOTE[k])}</span>' for k, c in REL_CLASS.items()) + "</div>"
 
 
 def load(path: Path) -> dict | None:
@@ -34,30 +76,6 @@ def leader_logo(ld: dict, size: str = "sm") -> str:
     return stock_logo(LEADERS[ld["code"]][2], ld["name"], None, size)
 
 
-def network(ld: dict, rows: list[dict]) -> str:
-    """關係圖：龍頭在中間，台股公司圍成一圈；線的樣式代表關係，圓點顏色代表今天漲跌。"""
-    w, h, cx, cy = 640, 440, 320, 220
-    n = len(rows)
-    r = 165 if n > 8 else 140
-    edges, nodes = [], []
-    for i, t in enumerate(rows):
-        a = -math.pi / 2 + 2 * math.pi * i / n
-        x, y = cx + r * math.cos(a) * 1.25, cy + r * math.sin(a)
-        rel = t["links"][ld["code"]][0]
-        chg = t.get("chg_1d") or 0
-        tone = "pos" if chg > 0 else "neg" if chg < 0 else "flat"
-        strength = min(abs(chg) / 4, 1)
-        edges.append(f'<line class="edge {REL_CLASS.get(rel, "sup")}" x1="{cx}" y1="{cy}" x2="{x:.0f}" y2="{y:.0f}" style="--i:{i}"/>')
-        nodes.append(
-            f'<g class="node {tone}" style="--i:{i};--s:{strength:.2f}" transform="translate({x:.0f} {y:.0f})">'
-            f'<circle r="21"/><text class="nn" y="-28">{e(t["name"].replace("*", ""))}</text>'
-            f'<text class="nc" y="5">{chg:+.1f}%</text></g>')
-    center = (f'<g class="center" transform="translate({cx} {cy})"><circle r="44"/>'
-              f'<text y="-4">{e(ld["name"])}</text><text class="cc" y="16">{ld["chg_1d"]:+.2f}%</text></g>')
-    return (f'<svg class="net" viewBox="0 0 {w} {h}" role="img" aria-label="{e(ld["name"])}的台股供應鏈關係圖">'
-            f'{"".join(edges)}{"".join(nodes)}{center}</svg>')
-
-
 def flow_cell(f: dict | None) -> str:
     if not f:
         return '<span class="muted">—</span>'
@@ -66,7 +84,7 @@ def flow_cell(f: dict | None) -> str:
     return f'<span class="{cls}">{net:+,}</span><small>張・{f.get("buy_days", 0)}/5 天買超</small>'
 
 
-def leader_panel(ld: dict, rows: list[dict], selected: bool) -> str:
+def leader_panel(ld: dict, rows: list[dict], selected: bool, evidence: dict) -> str:
     if not rows:
         return ""
     ups = sum(1 for t in rows if (t.get("chg_1d") or 0) > 0)
@@ -74,8 +92,7 @@ def leader_panel(ld: dict, rows: list[dict], selected: bool) -> str:
     us = ld["market"] == "美股"
     timing = ("美股收盤在台股開盤之前，可以對照「龍頭上一個交易日」與「台股今天」的反應。" if us
               else "日股、韓股和台股交易時間大致重疊，漲跌通常是同一天的反應。")
-    order = {"供應商": 0, "合作": 1, "客戶": 2, "同業": 3}
-    rows = sorted(rows, key=lambda t: (order.get(t["links"][ld["code"]][0], 9), -(t.get("chg_1d") or 0)))
+    rows = sorted(rows, key=lambda t: (REL_ORDER.get(t["links"][ld["code"]][0], 9), -(t.get("chg_1d") or 0)))
     trs = "".join(
         f'<tr><td><span class="name">{stock_logo(t["code"], t["name"], t["market"], "sm")}'
         f'<span><b>{e(t["name"])}</b><small>{e(t["code"])}・{e(t["market"])}</small></span></span></td>'
@@ -83,18 +100,56 @@ def leader_panel(ld: dict, rows: list[dict], selected: bool) -> str:
         f'<td class="role">{e(t["links"][ld["code"]][1])}</td>'
         f'<td class="num">{pct_span(t.get("chg_1d"))}</td><td class="num">{pct_span(t.get("chg_5d"))}</td>'
         f'<td class="num flowc">{flow_cell(t.get("flows"))}</td>'
-        f'<td class="sparkc">{sparkline(t.get("spark"), 100, 28)}</td></tr>'
+        f'<td class="sparkc">{sparkline(t.get("spark"), 100, 28)}</td>'
+        f'<td class="srcc">{source_link(t["links"][ld["code"]][2], evidence.get(t["code"] + "|" + ld["code"]))}</td></tr>'
         for t in rows)
+    net = network(ld["name"], ld["chg_1d"], [{"name": t["name"], "chg": t.get("chg_1d"), "rel": t["links"][ld["code"]][0]} for t in rows],
+                  f'{ld["name"]}的台股供應鏈關係圖')
     return f"""<div class="lpanel" data-leader="{e(ld['code'])}"{'' if selected else ' hidden'}>
   <div class="lhead">{leader_logo(ld, 'lg')}
     <div><h3>{e(ld['name'])}<small>{e(ld['market'])}・{e(ld['industry'])}</small></h3>
     <p class="muted">最新收盤 {ld['price']:,.2f}（{e(ld['date'])}）・單日 {pct_span(ld['chg_1d'])}・5 日 {pct_span(ld['chg_5d'])}</p></div>
     <div class="lspark">{sparkline(ld.get('spark'), 220, 56)}</div></div>
   <p class="transmit"><b>傳導觀察</b>{len(rows)} 家台股相關公司今天平均 {pct_span(avg)}，{ups} 家上漲、{len(rows) - ups} 家下跌或平盤。{timing}</p>
-  <div class="netwrap">{network(ld, rows)}</div>
-  <div class="legend rel-legend">{''.join(f'<span><i class="ln {c}"></i>{e(k)}：{e(REL_NOTE[k])}</span>' for k, c in REL_CLASS.items())}</div>
+  <div class="netwrap">{net}</div>
+  {legend()}
   <div class="table-wrap"><table class="holdings chain"><thead><tr><th>台股公司</th><th>關係</th><th>角色</th><th class="num">今日</th><th class="num">5 日</th>
-  <th class="num">法人 5 日（外資＋投信）</th><th>20 日走勢</th></tr></thead><tbody>{trs}</tbody></table></div>
+  <th class="num">法人 5 日（外資＋投信）</th><th>20 日走勢</th><th>出處</th></tr></thead><tbody>{trs}</tbody></table></div>
+</div>"""
+
+
+US_SUPPLY = ("供應商", "合作")
+
+
+def us_links(t: dict, leaders: dict) -> list[str]:
+    return [ld for ld, (rel, *_) in t["links"].items() if ld in leaders and leaders[ld]["market"] == "美股" and rel in US_SUPPLY]
+
+
+def tw_panel(t: dict, leaders: dict, selected: bool, evidence: dict) -> str:
+    links = sorted(((ld, *t["links"][ld]) for ld in t["links"] if ld in leaders),
+                   key=lambda x: (REL_ORDER.get(x[1], 9), leaders[x[0]]["market"] != "美股", -(leaders[x[0]].get("chg_1d") or 0)))
+    n_us = len(us_links(t, leaders))
+    avg = sum(leaders[ld]["chg_1d"] or 0 for ld, *_ in links) / len(links)
+    net = network(t["name"], t.get("chg_1d"), [{"name": leaders[ld]["name"], "chg": leaders[ld]["chg_1d"], "rel": rel} for ld, rel, *_ in links],
+                  f'{t["name"]}連到的海外龍頭關係圖')
+    trs = "".join(
+        f'<tr><td><span class="name">{stock_logo(LEADERS[ld][2], leaders[ld]["name"], None, "sm")}'
+        f'<span><b>{e(leaders[ld]["name"])}</b><small>{e(leaders[ld]["market"])}・{e(leaders[ld]["industry"])}</small></span></span></td>'
+        f'<td><span class="rel {REL_CLASS.get(rel, "sup")}">{e(rel)}</span></td><td class="role">{e(role)}</td>'
+        f'<td class="num">{pct_span(leaders[ld]["chg_1d"])}</td><td class="num">{pct_span(leaders[ld]["chg_5d"])}</td>'
+        f'<td class="srcc">{source_link(src, evidence.get(t["code"] + "|" + ld))}</td></tr>'
+        for ld, rel, role, src in links)
+    return f"""<div class="lpanel tpanel" data-tw="{e(t['code'])}"{'' if selected else ' hidden'}>
+  <div class="lhead">{stock_logo(t['code'], t['name'], t['market'], 'lg')}
+    <div><h3>{e(t['name'])}<small>{e(t['code'])}・{e(t['market'])}</small></h3>
+    <p class="muted">最新收盤 {t['price']:,.2f}（{e(t['date'])}）・單日 {pct_span(t.get('chg_1d'))}・5 日 {pct_span(t.get('chg_5d'))}</p></div>
+    <div class="lspark">{sparkline(t.get('spark'), 220, 56)}</div></div>
+  <p class="transmit"><b>連結摘要</b>出現在 {n_us} 家美國龍頭的供應鏈（供應或合作），總共連到 {len(links)} 家海外公司；
+  這些龍頭最新一個交易日平均 {pct_span(avg)}，{e(t['name'])} 今天 {pct_span(t.get('chg_1d'))}。</p>
+  <div class="netwrap">{net}</div>
+  {legend()}
+  <div class="table-wrap"><table class="holdings chain"><thead><tr><th>海外龍頭</th><th>關係</th><th>{e(t['name'])}的角色</th>
+  <th class="num">龍頭今日</th><th class="num">龍頭 5 日</th><th>出處</th></tr></thead><tbody>{trs}</tbody></table></div>
 </div>"""
 
 
@@ -123,27 +178,37 @@ def render(data: dict | None, prefix: str = "../") -> str:
         f'<button class="lchip{" on" if l["code"] == top else ""}" data-pick="{e(l["code"])}" data-mk="{e(l["market"])}">'
         f'{leader_logo(l)}<span>{e(l["name"])}</span>{pct_span(l["chg_1d"], 1)}</button>'
         for l in sorted(leaders, key=lambda l: (markets.index(l["market"]), -(l.get("chg_1d") or 0))))
-    panels = "".join(leader_panel(l, by_leader[l["code"]], l["code"] == top) for l in leaders)
+    evidence = data.get("evidence") or {}
+    panels = "".join(leader_panel(l, by_leader[l["code"]], l["code"] == top, evidence) for l in leaders)
     body += section("選一家龍頭", f'<div class="news-tabs" id="mk-tabs">{tabs}</div><div class="lchips">{chips}</div>{panels}',
                     f'法人資料 {e(data.get("flows_date") or "—")}（只涵蓋上市公司）')
 
-    # 台股反查
-    rev = sorted(data["tw"], key=lambda t: -len(t["links"]))
+    # 反向：被最多美國龍頭採用的台股
     names = {l["code"]: l for l in data["leaders"]}
-    rows = "".join(
-        f'<tr><td><span class="name">{stock_logo(t["code"], t["name"], t["market"], "sm")}'
-        f'<span><b>{e(t["name"])}</b><small>{e(t["code"])}</small></span></span></td>'
-        f'<td class="num">{pct_span(t.get("chg_1d"))}</td><td><div class="revlinks">'
-        + "".join(f'<button class="mini" data-pick="{e(ld)}" title="{e(rel)}：{e(role)}">{leader_logo(names[ld])}'
-                  f'<span class="rel {REL_CLASS.get(rel, "sup")}">{e(rel)}</span></button>'
-                  for ld, (rel, role) in t["links"].items() if ld in names)
-        + "</div></td></tr>" for t in rev)
-    body += section("台股反查", '<div class="table-wrap"><table class="holdings"><thead><tr><th>台股公司</th><th class="num">今日</th>'
-                    f'<th>連結到哪些海外龍頭（點 logo 跳過去）</th></tr></thead><tbody>{rows}</tbody></table></div>',
-                    "連結越多的公司排越前面")
-    body += ('<p class="obs-disclaimer">供應鏈關係依公開報導整理（美股部分與每週基本面分析同一份清單），屬背景知識，'
-             '訂單與合作會變動，可能已過時；要修正或增加公司，改 supply_map.py 即可。股價來自 Yahoo Finance，法人買賣超來自證交所。'
-             '這是研究素材，不是買賣建議。</p>')
+    ranked = sorted((t for t in data["tw"] if us_links(t, names)),
+                    key=lambda t: (-len(us_links(t, names)), -len(t["links"]), -(t.get("chg_1d") or 0)))
+    if ranked:
+        first = ranked[0]["code"]
+        cards = "".join(
+            f'<button class="lcard{" on" if t["code"] == first else ""}" data-tpick="{e(t["code"])}">'
+            f'{stock_logo(t["code"], t["name"], t["market"], "sm")}'
+            f'<span class="lc-name"><b>{e(t["name"])}</b><small>{len(us_links(t, names))} 家美國龍頭・{e(t["code"])}</small></span>'
+            f'<span class="lc-chg">{pct_span(t.get("chg_1d"))}</span>'
+            f'<span class="lc-logos">{"".join(stock_logo(LEADERS[ld][2], names[ld]["name"], None, "sm") for ld in us_links(t, names))}</span></button>'
+            for t in ranked[:6])
+        chips = "".join(
+            f'<button class="lchip{" on" if t["code"] == first else ""}" data-tpick="{e(t["code"])}">'
+            f'{stock_logo(t["code"], t["name"], t["market"], "sm")}<span>{e(t["name"])}</span><b class="cnt">{len(us_links(t, names))}</b></button>'
+            for t in ranked)
+        tpanels = "".join(tw_panel(t, names, t["code"] == first, evidence) for t in ranked)
+        body += section("被最多美國龍頭採用的台股",
+                        f'<div class="lcards">{cards}</div><p class="sec-note chips-note">全部 {len(ranked)} 檔（數字＝連到幾家美國龍頭）：</p>'
+                        f'<div class="lchips">{chips}</div>{tpanels}',
+                        "反過來看：以台股為中心，看它供應哪些美國龍頭")
+    body += ('<p class="obs-disclaimer">每一條供應、客戶、合作關係都附有新聞或公司公告出處（點「📰」看原文），'
+             '找不到出處的關係一律不放；「同業」是依產品線分類，不是供應關係。訂單與合作會變動，請留意出處日期。'
+             '「近期新聞」是每天從鉅亨網 RSS 自動收集、標題同時點名雙方的新聞，只用來補充既有關係。'
+             '股價來自 Yahoo Finance，法人買賣超來自證交所。這是研究素材，不是買賣建議。</p>')
     return body + "</main>"
 
 
@@ -162,7 +227,7 @@ def holdings_exposure(holdings: list[dict], data: dict | None) -> str:
 
     expo: dict[str, dict] = {}
     for h, t in linked:
-        for ld, (rel, role) in t["links"].items():
+        for ld, (rel, role, *_) in t["links"].items():
             if ld not in leaders:
                 continue
             x = expo.setdefault(ld, {"weight": 0.0, "holdings": []})
@@ -190,7 +255,7 @@ def holdings_exposure(holdings: list[dict], data: dict | None) -> str:
         f'<td class="num">{pct_span(t.get("chg_1d"))}</td><td><div class="revlinks">'
         + "".join(f'<span class="mini" title="{e(rel)}：{e(role)}">{leader_logo(leaders[ld])}{pct_span(leaders[ld]["chg_1d"], 1)}'
                   f'<span class="rel {REL_CLASS.get(rel, "sup")}">{e(rel)}</span></span>'
-                  for ld, (rel, role) in t["links"].items() if ld in leaders)
+                  for ld, (rel, role, *_) in t["links"].items() if ld in leaders)
         + "</div></td></tr>" for h, t in sorted(linked, key=lambda p: -p[0]["weight"]))
     others = "、".join(f'{e(h["name"])}（{h["weight"] * 100:.1f}%）' for h, _ in unlinked)
     return (summary + f'<ul class="expo">{bars}</ul>'
