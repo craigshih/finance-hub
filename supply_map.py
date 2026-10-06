@@ -105,6 +105,35 @@ SOURCES = {
              ""),
     "hotai": ("優分析", "2026-01-02", "〈車市〉和泰車旗下二大品牌拿下37%市占創16年來新高 連24年稱霸",
               "https://uanalyze.com.tw/articles/3220744051", "和泰車代理的 TOYOTA 和 LEXUS 品牌"),
+    # ---- 台股同業族群的出處（標題或原文把同組公司放在一起比較）----
+    "peer-foundry": ("優分析", "2026-03-12", "研調：前十大晶圓代工廠去年Q4產值季增2.6% 台積電市占率7成",
+                     "https://uanalyze.com.tw/articles/2939548893", "台積電市占率達 70.4%；聯電…營收季增 0.9%；世界先進…營收季減 1.6%；力積電…"),
+    "peer-osat": ("財報狗", "", "AI 晶片競賽推升先進封裝需求 日月光投控、力成、京元電資本支出衝 3700 億元",
+                  "https://statementdog.com/news/16363", ""),
+    "peer-asic": ("Smart 智富", "2025-12-18", "世芯、創意本益比不低，現在還能入手？分析師：「ASIC超級週期」才剛要啟動",
+                  "https://smart.businessweekly.com.tw/Reading/IndepArticle.aspx?ID=6021190", ""),
+    "peer-ems-1": ("經濟日報", "", "電子五哥4月營收比拚 鴻海穩居龍頭寶座", "https://money.udn.com/money/amp/story/5607/9494360", ""),
+    "peer-ems-2": ("優分析", "", "AI伺服器帶旺廣達、緯創、英業達同創最佳9月 電子五哥Q4展望一次看",
+                   "https://uanalyze.com.tw/articles/3251134873", ""),
+    "peer-probe": ("優分析", "", "AI測試大升級 測試介面三雄營運爆發", "https://uanalyze.com.tw/articles/4964334510",
+                   ""),
+    "peer-power": ("理財周刊", "", "", "https://www.moneyweekly.com.tw/_Article?AID=200598",
+                   "AI時代推升電源供應器地位…光寶科、台達電同受惠"),
+    "peer-memory": ("今周刊", "2026-04-07", "記憶體股要滿血復活？南亞科、旺宏、華邦電…我該買誰才會漲得快？",
+                    "https://www.businesstoday.com.tw/article/category/183008/post/202604070027/", ""),
+    "peer-passive": ("聯合報", "", "國巨股價漲破千元 華新科、禾伸堂近3個月翻倍噴…被動元件漲價潮 誰真正抓住成長商機?",
+                     "https://udn.com/news/story/6839/9599753", ""),
+    "peer-lens": ("科技新報", "2022-08-30", "", "https://technews.tw/2022/08/30/optical-lens-q3/",
+                  "光學鏡頭大廠大立光、玉晶光今年 7 月營收同步加溫"),
+    "peer-pa": ("鉅亨網", "", "PA三雄 穩懋 宏捷科 全新營收止穩 砷化鎵族群AI時代應用大", "https://news.cnyes.com/news/id/5365801", ""),
+    "peer-panel": ("優分析", "", "面板雙虎8月營收走勢不同調 友達月增17% 群創繳年增", "https://uanalyze.com.tw/articles/3224433108", ""),
+    "peer-board": ("Yahoo股市", "", "板卡三雄6月業績 華碩月增逾3成最強 技嘉AI伺服器潛力足股價再創高",
+                   "https://tw.stock.yahoo.com/news/%E6%9D%BF%E5%8D%A1%E4%B8%89%E9%9B%846%E6%9C%88%E6%A5%AD%E7%B8%BE-%E8%8F%AF%E7%A2%A9%E6%9C%88%E5%A2%9E%E9%80%BE3%E6%88%90%E6%9C%80%E5%BC%B7-%E6%8A%80%E5%98%89ai%E4%BC%BA%E6%9C%8D%E5%99%A8%E6%BD%9B%E5%8A%9B%E8%B6%B3%E8%82%A1%E5%83%B9%E5%86%8D%E5%89%B5%E9%AB%98-040939241.html", ""),
+    "peer-switch": ("優分析", "", "資料中心交換器迎800G技術換代 智邦、明泰、啓碁搶攻2026年升級商機",
+                    "https://uanalyze.com.tw/articles/5857443265", ""),
+    "peer-pcb": ("經濟日報", "2026-07-22", "GPU、ASIC 雙火點燃 PCB！欣興、南電亮燈 臻鼎、景碩大漲逾8%",
+                 "https://money.udn.com/money/amp/story/5607/9643480", ""),
+    "peer-serverpcb": ("經濟日報", "", "伺服板龍頭金像電重返600元以上 健鼎高技再掀比價", "https://money.udn.com/money/amp/story/5607/9213240", ""),
 }
 
 # (台股代號, 名稱, 龍頭, 關係, 角色, 出處 key；同業為 None)
@@ -185,3 +214,43 @@ def build_map() -> dict:
 
 
 TW_MAP = build_map()
+
+# 台股同業／競爭者：(族群名稱, [(代號, 名稱)], [出處 key])。
+# 每一組都要有一篇新聞的標題或原文把這些公司放在一起比較，才算同業。
+PEER_GROUPS = [
+    ("晶圓代工", [("2330", "台積電"), ("2303", "聯電"), ("5347", "世界先進"), ("6770", "力積電")], ["peer-foundry"]),
+    ("封裝測試", [("3711", "日月光投控"), ("6239", "力成"), ("2449", "京元電子")], ["peer-osat"]),
+    ("ASIC 設計服務", [("3661", "世芯-KY"), ("3443", "創意")], ["peer-asic"]),
+    ("伺服器組裝代工（電子五哥）", [("2317", "鴻海"), ("2382", "廣達"), ("3231", "緯創"), ("2356", "英業達")], ["peer-ems-1", "peer-ems-2"]),
+    ("iPhone 組裝", [("2317", "鴻海"), ("4938", "和碩")], ["pegatron"]),
+    ("測試介面三雄", [("6515", "穎崴"), ("6223", "旺矽"), ("6510", "精測")], ["peer-probe"]),
+    ("電源雙雄", [("2308", "台達電"), ("2301", "光寶科")], ["peer-power"]),
+    ("記憶體", [("2408", "南亞科"), ("2344", "華邦電"), ("2337", "旺宏")], ["peer-memory"]),
+    ("被動元件", [("2327", "國巨*"), ("2492", "華新科"), ("3026", "禾伸堂")], ["peer-passive"]),
+    ("光學鏡頭", [("3008", "大立光"), ("3406", "玉晶光")], ["peer-lens"]),
+    ("PA 三雄（砷化鎵）", [("3105", "穩懋"), ("8086", "宏捷科"), ("2455", "全新")], ["peer-pa"]),
+    ("面板雙虎", [("2409", "友達"), ("3481", "群創")], ["peer-panel"]),
+    ("板卡三雄", [("2357", "華碩"), ("2376", "技嘉"), ("2377", "微星")], ["peer-board"]),
+    ("資料中心交換器", [("2345", "智邦"), ("3380", "明泰"), ("6285", "啟碁")], ["peer-switch"]),
+    ("ABF 載板三雄", [("3037", "欣興"), ("3189", "景碩"), ("8046", "南電")], ["unimicron"]),
+    ("PCB／載板", [("4958", "臻鼎-KY"), ("3037", "欣興"), ("8046", "南電"), ("3189", "景碩")], ["peer-pcb"]),
+    ("伺服器 PCB", [("2368", "金像電"), ("3044", "健鼎"), ("5439", "高技")], ["peer-serverpcb"]),
+    ("伺服器滑軌", [("2059", "川湖"), ("6584", "南俊國際"), ("6805", "富世達")], ["kingslide"]),
+]
+
+
+def build_peers() -> dict:
+    """{台股代號: [{"code", "name", "group", "sources"}]}（不含自己）"""
+    out: dict[str, list] = {}
+    for group, members, srcs in PEER_GROUPS:
+        assert srcs and all(k in SOURCES for k in srcs), group
+        for code, _ in members:
+            for other, oname in members:
+                if other != code:
+                    out.setdefault(code, []).append({"code": other, "name": oname, "group": group, "sources": srcs})
+    return out
+
+
+TW_PEERS = build_peers()
+# 所有會出現在網站上的台股代號與名稱（供應鏈＋同業），給 supply.py 抓股價
+ALL_TW = {**{c: n for _, members, _ in PEER_GROUPS for c, n in members}, **{c: t["name"] for c, t in TW_MAP.items()}}

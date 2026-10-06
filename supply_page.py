@@ -10,17 +10,66 @@ import json
 import math
 from pathlib import Path
 
-from supply_map import LEADERS, SOURCES
+from supply_map import LEADERS, PEER_GROUPS, SOURCES
 from visuals import e, sparkline, stock_logo
 
-REL_CLASS = {"供應商": "sup", "客戶": "cus", "同業": "peer", "合作": "part"}
+REL_CLASS = {"供應商": "sup", "客戶": "cus", "同業": "peer", "合作": "part", "台股同業": "twp"}
 REL_NOTE = {
     "供應商": "台廠賣產品或代工給它：它的需求好，台廠訂單可能跟著好",
     "客戶": "台廠向它買設備：台廠擴產時它受惠，方向相反",
     "同業": "同產業、景氣連動（例如記憶體報價）",
     "合作": "合資、代理或共同開發",
+    "台股同業": "同一族群的台灣競爭者（新聞把它們放在一起比較）",
 }
 REL_ORDER = {"供應商": 0, "合作": 1, "客戶": 2, "同業": 3}
+
+
+def sources_links(keys: list[str]) -> str:
+    out = []
+    for k in keys:
+        pub, date, title, url, quote = SOURCES[k]
+        tip = "　".join(x for x in [f"{pub} {date}".strip(), title, f"原文：「{quote}」" if quote else ""] if x)
+        out.append(f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}">📰 {e(pub)}{" " + e(date[:7]) if date else ""}</a>')
+    return " ".join(out)
+
+
+def peer_compare(t: dict, tw_by_code: dict) -> str:
+    """同業比較：依族群分組，今天漲跌的長條（自己加粗），附族群出處。"""
+    blocks = []
+    for group, members, srcs in PEER_GROUPS:
+        if t["code"] not in {c for c, _ in members}:
+            continue
+        rows = sorted((tw_by_code[c] for c, _ in members if c in tw_by_code), key=lambda x: -(x.get("chg_1d") or 0))
+        top = max((abs(x.get("chg_1d") or 0) for x in rows), default=1) or 1
+        lis = "".join(
+            f'<li class="{"me" if x["code"] == t["code"] else ""}">{stock_logo(x["code"], x["name"], x["market"], "sm")}'
+            f'<span class="pc-name">{e(x["name"])}<small>{e(x["code"])}</small></span>'
+            f'<span class="pc-bar"><i class="{"pos" if (x.get("chg_1d") or 0) > 0 else "neg"}" style="--w:{abs(x.get("chg_1d") or 0) / top * 100:.0f}%"></i></span>'
+            f'<span class="num">{pct_span(x.get("chg_1d"))}</span><span class="num muted">5 日 {pct_span(x.get("chg_5d"), 1)}</span></li>'
+            for x in rows)
+        blocks.append(f'<div class="pgroup"><div class="pg-head"><b>{e(group)}</b>{sources_links(srcs)}</div><ul class="pcomp">{lis}</ul></div>')
+    if not blocks:
+        return ""
+    return f'<h4 class="sub-h">台股同業／競爭者</h4><div class="pgroups">{"".join(blocks)}</div>'
+
+
+def group_overview(tw_by_code: dict) -> str:
+    """每個族群今天的表現：平均漲跌＋成員長條。"""
+    cards = []
+    for group, members, srcs in PEER_GROUPS:
+        rows = sorted((tw_by_code[c] for c, _ in members if c in tw_by_code), key=lambda x: -(x.get("chg_1d") or 0))
+        if not rows:
+            continue
+        avg = sum(x.get("chg_1d") or 0 for x in rows) / len(rows)
+        top = max((abs(x.get("chg_1d") or 0) for x in rows), default=1) or 1
+        lis = "".join(
+            f'<li>{stock_logo(x["code"], x["name"], x["market"], "sm")}<span class="pc-name">{e(x["name"])}</span>'
+            f'<span class="pc-bar"><i class="{"pos" if (x.get("chg_1d") or 0) > 0 else "neg"}" style="--w:{abs(x.get("chg_1d") or 0) / top * 100:.0f}%"></i></span>'
+            f'<span class="num">{pct_span(x.get("chg_1d"), 1)}</span></li>' for x in rows)
+        cards.append((avg, f'<div class="gcard"><div class="pg-head"><b>{e(group)}</b><span class="gavg">平均 {pct_span(avg)}</span></div>'
+                           f'<ul class="pcomp">{lis}</ul><div class="g-src">{sources_links(srcs)}</div></div>'))
+    cards.sort(key=lambda x: -x[0])
+    return f'<div class="gcards">{"".join(c for _, c in cards)}</div>'
 
 
 def source_link(src: str | None, news: list[dict] | None = None) -> str:
@@ -125,13 +174,16 @@ def us_links(t: dict, leaders: dict) -> list[str]:
     return [ld for ld, (rel, *_) in t["links"].items() if ld in leaders and leaders[ld]["market"] == "美股" and rel in US_SUPPLY]
 
 
-def tw_panel(t: dict, leaders: dict, selected: bool, evidence: dict) -> str:
+def tw_panel(t: dict, leaders: dict, selected: bool, evidence: dict, tw_by_code: dict) -> str:
     links = sorted(((ld, *t["links"][ld]) for ld in t["links"] if ld in leaders),
                    key=lambda x: (REL_ORDER.get(x[1], 9), leaders[x[0]]["market"] != "美股", -(leaders[x[0]].get("chg_1d") or 0)))
     n_us = len(us_links(t, leaders))
     avg = sum(leaders[ld]["chg_1d"] or 0 for ld, *_ in links) / len(links)
-    net = network(t["name"], t.get("chg_1d"), [{"name": leaders[ld]["name"], "chg": leaders[ld]["chg_1d"], "rel": rel} for ld, rel, *_ in links],
-                  f'{t["name"]}連到的海外龍頭關係圖')
+    peer_codes = list(dict.fromkeys(p["code"] for p in t.get("peers", []) if p["code"] in tw_by_code))
+    net = network(t["name"], t.get("chg_1d"),
+                  [{"name": leaders[ld]["name"], "chg": leaders[ld]["chg_1d"], "rel": rel} for ld, rel, *_ in links]
+                  + [{"name": tw_by_code[c]["name"], "chg": tw_by_code[c].get("chg_1d"), "rel": "台股同業"} for c in peer_codes],
+                  f'{t["name"]}連到的海外龍頭與台股同業關係圖')
     trs = "".join(
         f'<tr><td><span class="name">{stock_logo(LEADERS[ld][2], leaders[ld]["name"], None, "sm")}'
         f'<span><b>{e(leaders[ld]["name"])}</b><small>{e(leaders[ld]["market"])}・{e(leaders[ld]["industry"])}</small></span></span></td>'
@@ -150,6 +202,7 @@ def tw_panel(t: dict, leaders: dict, selected: bool, evidence: dict) -> str:
   {legend()}
   <div class="table-wrap"><table class="holdings chain"><thead><tr><th>海外龍頭</th><th>關係</th><th>{e(t['name'])}的角色</th>
   <th class="num">龍頭今日</th><th class="num">龍頭 5 日</th><th>出處</th></tr></thead><tbody>{trs}</tbody></table></div>
+  {peer_compare(t, tw_by_code)}
 </div>"""
 
 
@@ -162,7 +215,7 @@ def render(data: dict | None, prefix: str = "../") -> str:
     if not data or not data.get("leaders"):
         return body + '<p class="empty">供應鏈資料還沒產生</p></main>'
     leaders = sorted(data["leaders"], key=lambda l: -(l.get("chg_1d") or 0))
-    by_leader = {l["code"]: [t for t in data["tw"] if l["code"] in t["links"]] for l in leaders}
+    by_leader = {l["code"]: [t for t in data["tw"] if l["code"] in (t.get("links") or {})] for l in leaders}
     top = leaders[0]["code"]
 
     strong = "".join(
@@ -200,11 +253,13 @@ def render(data: dict | None, prefix: str = "../") -> str:
             f'<button class="lchip{" on" if t["code"] == first else ""}" data-tpick="{e(t["code"])}">'
             f'{stock_logo(t["code"], t["name"], t["market"], "sm")}<span>{e(t["name"])}</span><b class="cnt">{len(us_links(t, names))}</b></button>'
             for t in ranked)
-        tpanels = "".join(tw_panel(t, names, t["code"] == first, evidence) for t in ranked)
+        tw_by_code = {x["code"]: x for x in data["tw"]}
+        tpanels = "".join(tw_panel(t, names, t["code"] == first, evidence, tw_by_code) for t in ranked)
         body += section("被最多美國龍頭採用的台股",
                         f'<div class="lcards">{cards}</div><p class="sec-note chips-note">全部 {len(ranked)} 檔（數字＝連到幾家美國龍頭）：</p>'
                         f'<div class="lchips">{chips}</div>{tpanels}',
-                        "反過來看：以台股為中心，看它供應哪些美國龍頭")
+                        "反過來看：以台股為中心，看它供應哪些美國龍頭，以及台灣的同業")
+        body += section("台股族群今日表現", group_overview(tw_by_code), "同一族群的台灣競爭者，依族群平均漲幅排序")
     body += ('<p class="obs-disclaimer">每一條供應、客戶、合作關係都附有新聞或公司公告出處（點「📰」看原文），'
              '找不到出處的關係一律不放；「同業」是依產品線分類，不是供應關係。訂單與合作會變動，請留意出處日期。'
              '「近期新聞」是每天從鉅亨網 RSS 自動收集、標題同時點名雙方的新聞，只用來補充既有關係。'

@@ -20,7 +20,7 @@ from pathlib import Path
 
 import requests
 
-from supply_map import LEADERS, TW_MAP
+from supply_map import ALL_TW, LEADERS, TW_MAP, TW_PEERS
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "data" / "supply" / "latest.json"
@@ -91,7 +91,7 @@ def main() -> int:
     import yfinance as yf
 
     listing = tw_listing()
-    tw_ticker = {code: f"{code}.TWO" if listing.get(code) == "上櫃" else f"{code}.TW" for code in TW_MAP}
+    tw_ticker = {code: f"{code}.TWO" if listing.get(code) == "上櫃" else f"{code}.TW" for code in ALL_TW}
     tickers = [v[2] for v in LEADERS.values()] + list(tw_ticker.values())
     evidence = collect_evidence()
     data = yf.download(tickers, period="3mo", progress=False, auto_adjust=True, group_by="ticker", threads=True)
@@ -111,14 +111,15 @@ def main() -> int:
         else:
             print(f"⚠️ {name}（{yft}）沒有報價", file=sys.stderr)
     tw = []
-    for code, s in TW_MAP.items():
+    for code, name in ALL_TW.items():
         st = stats(tw_ticker[code])
         if not st:
-            print(f"⚠️ {s['name']}（{tw_ticker[code]}）沒有報價", file=sys.stderr)
+            print(f"⚠️ {name}（{tw_ticker[code]}）沒有報價", file=sys.stderr)
             continue
-        f = flows["codes"].get(code)
-        tw.append({"code": code, "name": s["name"], "market": listing.get(code, "上市"), **st,
-                   "flows": f, "links": {ld: list(v) for ld, v in s["links"].items()}})
+        links = TW_MAP.get(code, {}).get("links", {})
+        tw.append({"code": code, "name": name, "market": listing.get(code, "上市"), **st,
+                   "flows": flows["codes"].get(code), "links": {ld: list(v) for ld, v in links.items()},
+                   "peers": TW_PEERS.get(code, [])})
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({

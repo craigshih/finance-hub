@@ -579,6 +579,28 @@ tr.clickable { cursor: pointer; } tr.clickable:hover td { background: var(--bg);
 .lchip .cnt { font: 700 12px var(--serif); color: var(--accent); margin-left: 2px; }
 .chips-note { display: block; margin: 16px 0 6px; }
 
+
+/* 台股同業 */
+.net .edge.twp { stroke: #0d9488; stroke-dasharray: 1 6; stroke-width: 2.2; stroke-linecap: round; }
+.ln.twp { border-top: 2.5px dotted #0d9488; }
+.sub-h { font: 700 17px var(--serif); color: var(--ink); margin: 22px 0 10px; }
+.pgroups, .gcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.pgroup, .gcard { background: var(--bg); border-radius: 8px; padding: 12px 14px; }
+.gcard { background: var(--surface); border: 1px solid var(--line); }
+.pg-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.pg-head b { color: var(--ink); font: 700 15px var(--serif); margin-right: auto; }
+.gavg { font-size: 12px; color: var(--muted); }
+.g-src { margin-top: 6px; }
+.pcomp { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pcomp li { display: grid; grid-template-columns: auto 6.5em 1fr auto auto; gap: 8px; align-items: center; font-size: 13px; padding: 2px 4px; border-radius: 6px; }
+.gcard .pcomp li { grid-template-columns: auto 6em 1fr auto; }
+.pcomp li.me { background: color-mix(in srgb, var(--accent) 14%, transparent); font-weight: 700; }
+.pc-name { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-name small { margin-left: 4px; }
+.pc-bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.pc-bar i { display: block; height: 100%; width: var(--w); border-radius: inherit; transform-origin: left; animation: grow .9s ease both; }
+.pc-bar i.pos { background: var(--pos); } .pc-bar i.neg { background: var(--neg); }
+
 footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top: 1px solid var(--line); margin-top: 24px; }
 
 @media (max-width: 640px) {
