@@ -3,6 +3,8 @@ name: Build site
 on:
   schedule:
     - cron: "0 14 * * *"      # 每天 UTC 14:00 = 台北時間 22:00（kgi-trade-report 晚上 8～9 點把收盤價寫進 Notion 之後）
+    # 台北 07:00–12:30 每 30 分鐘：Tim-Lu 的每日總經有新檔或更新（例如補上朋友的工商時報摘要）才重建
+    - cron: "*/30 23,0-4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -10,10 +12,38 @@ permissions:
 
 concurrency:
   group: build-site
-  cancel-in-progress: true
+  cancel-in-progress: false   # 排隊而不是取消，避免早上的檢查把晚上的完整重建取消掉
 
 jobs:
+  # 很輕的檢查：只問 GitHub API「Tim-Lu 的 data/digests 最後一次變動是哪個 commit」，跟上次建站時記下的比
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+      digest_sha: ${{ steps.check.outputs.sha }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ secrets.SOURCES_TOKEN }}
+          OWN_TOKEN: ${{ github.token }}
+          POLL: ${{ github.event.schedule == '*/30 23,0-4 * * *' }}
+        run: |
+          sha=$(gh api "repos/craigshih/Tim-Lu/commits?path=data/digests&per_page=1" --jq '.[0].sha' || echo "")
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          if [ "$POLL" != "true" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          last=$(GH_TOKEN=$OWN_TOKEN gh api "repos/${{ github.repository }}/contents/data/state/digest_sha.txt" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo "")
+          if [ -n "$sha" ] && [ "$sha" = "$last" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "⏭️ 每日總經沒有變動，略過重建" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "🆕 每日總經有更新（$sha），重建網站" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   build:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -74,7 +104,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/picks/ data/flows/ data/supply/ data/digest_titles/ 2>/dev/null || exit 0
+          mkdir -p data/state && printf '%s' "${{ needs.gate.outputs.digest_sha }}" > data/state/digest_sha.txt
+          git add data/picks/ data/flows/ data/supply/ data/digest_titles/ data/state/ 2>/dev/null || exit 0
           git diff --cached --quiet && exit 0
           git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
           git push

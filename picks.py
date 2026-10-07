@@ -150,6 +150,37 @@ def finmind_prices(code: str, start: date) -> list[dict]:
     return r.json().get("data", [])
 
 
+def sum_flows(days: list[tuple[date, list]]) -> dict[str, dict]:
+    flows: dict[str, dict] = {}
+    for _, rows in days:
+        for r in rows:
+            code = r[0].strip()
+            f = flows.setdefault(code, {"code": code, "name": r[1].strip(), "foreign": 0, "trust": 0, "buy_days": 0})
+            foreign, trust = _num(r[4]) or 0, _num(r[10]) or 0
+            f["foreign"] += foreign
+            f["trust"] += trust
+            f["buy_days"] += foreign + trust > 0
+    return flows
+
+
+def save_flows(trade_date: date, days: list, flows: dict) -> None:
+    """全部個股的 5 日法人買賣超另外存一份，給供應鏈地圖用（不必再打一次證交所）。"""
+    flows_dir = ROOT / "data" / "flows"
+    flows_dir.mkdir(parents=True, exist_ok=True)
+    (flows_dir / "latest.json").write_text(json.dumps({
+        "date": trade_date.isoformat(), "days": len(days),
+        "codes": {c: {"foreign_lots": round(f["foreign"] / 1000), "trust_lots": round(f["trust"] / 1000), "buy_days": f["buy_days"]}
+                  for c, f in flows.items()},
+    }, ensure_ascii=False), encoding="utf-8")
+
+
+def refresh_flows() -> None:
+    days = recent_t86()
+    if days:
+        save_flows(days[0][0], days, sum_flows(days))
+        print(f"✅ 法人資料更新到 {days[0][0]}")
+
+
 def pick_tw() -> dict | None:
     days = recent_t86()
     if len(days) < 3:
@@ -161,24 +192,8 @@ def pick_tw() -> dict | None:
     revenue = {r["公司代號"]: r for r in requests.get(f"{TWSE_OPEN}/opendata/t187ap05_L", headers={"User-Agent": UA}, timeout=30).json()}
     valuation = {r["Code"]: r for r in requests.get(f"{TWSE_OPEN}/exchangeReport/BWIBBU_ALL", headers={"User-Agent": UA}, timeout=30).json()}
 
-    flows: dict[str, dict] = {}
-    for _, rows in days:
-        for r in rows:
-            code = r[0].strip()
-            f = flows.setdefault(code, {"code": code, "name": r[1].strip(), "foreign": 0, "trust": 0, "buy_days": 0})
-            foreign, trust = _num(r[4]) or 0, _num(r[10]) or 0
-            f["foreign"] += foreign
-            f["trust"] += trust
-            f["buy_days"] += foreign + trust > 0
-
-    # 全部個股的 5 日法人買賣超另外存一份，給供應鏈地圖用（不必再打一次證交所）
-    flows_dir = ROOT / "data" / "flows"
-    flows_dir.mkdir(parents=True, exist_ok=True)
-    (flows_dir / "latest.json").write_text(json.dumps({
-        "date": trade_date.isoformat(), "days": len(days),
-        "codes": {c: {"foreign_lots": round(f["foreign"] / 1000), "trust_lots": round(f["trust"] / 1000), "buy_days": f["buy_days"]}
-                  for c, f in flows.items()},
-    }, ensure_ascii=False), encoding="utf-8")
+    flows = sum_flows(days)
+    save_flows(trade_date, days, flows)
 
     stocks = []
     for code, f in flows.items():
@@ -429,6 +444,10 @@ def main() -> int:
     today_file = OUT_DIR / f"{datetime.now(TAIPEI).date().isoformat()}.json"
     if today_file.exists() and os.environ.get("PICKS_FORCE") != "1":
         print(f"今天的觀察標的已經產生過（{today_file.name}），同一天內不重新產生，避免內容一直變")
+        try:
+            refresh_flows()  # 觀察標的不變，但供應鏈地圖用的法人資料要更新
+        except Exception as exc:  # noqa: BLE001
+            log(f"⚠️ 法人資料更新失敗：{exc}")
         return 0
     picks = []
     for fn in (pick_tw, pick_us):
