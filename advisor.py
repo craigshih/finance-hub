@@ -329,10 +329,14 @@ def ptt_titles() -> list[dict]:
     titles, url = [], "https://www.ptt.cc/bbs/Stock/index.html"
     for _ in range(PTT_PAGES):
         try:
-            page = requests.get(url, headers={"User-Agent": UA}, timeout=20).text
+            resp = requests.get(url, headers={"User-Agent": UA}, timeout=20)
         except requests.RequestException as exc:
             log(f"⚠️ PTT 讀取失敗：{exc}")
             break
+        if resp.status_code != 200:
+            log(f"⚠️ PTT 回 {resp.status_code}（雲端主機的 IP 常被擋），改由顧問頁即時抓取")
+            break
+        page = resp.text
         for href, title in re.findall(r'<div class="title">\s*<a href="([^"]+)">([^<]+)</a>', page):
             titles.append({"title": html.unescape(title).strip(), "url": "https://www.ptt.cc" + href})
         prev = re.search(r'<a class="btn wide" href="([^"]+)">&lsaquo; 上頁</a>', page)
@@ -424,7 +428,7 @@ def main() -> int:
     for code in codes:
         s = stocks[code]
         s.update(prices.get(code, {}))
-        s["ptt"] = ptt_for(code, s["name"], titles)
+        s["ptt"] = ptt_for(code, s["name"], titles) if titles else None
         if code in weekly:
             s["weekly"] = {"date": weekly_date, **weekly[code]}
         links = TW_MAP.get(code, {}).get("links", {})

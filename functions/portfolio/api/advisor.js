@@ -3,7 +3,8 @@
 // 資料：build 時產生的 /portfolio/advisor/stocks.json（每日）、holdings.json（持股權重），加上鉅亨網即時新聞。
 
 import {
-  MAX_QUESTION, MAX_STOCKS, buildMessages, collectNumbers, compactStock, findStocks, sanitizeAnswer, unverifiedNumbers,
+  MAX_QUESTION, MAX_STOCKS, buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer,
+  unverifiedNumbers,
 } from "../../_lib/advisor.js";
 import { parseRss } from "../../api/news.js";
 
@@ -49,6 +50,27 @@ async function relatedNews(stocks) {
       .slice(0, 4).map((i) => ({ title: i.title, url: i.url, time: i.time }));
   }
   return out;
+}
+
+// PTT 股板最新 6 頁標題，15 分鐘共用一次
+let pttMemo = { at: 0, titles: null };
+async function pttTitles() {
+  if (pttMemo.titles && Date.now() - pttMemo.at < 15 * 60_000) return pttMemo.titles;
+  const titles = [];
+  let url = "https://www.ptt.cc/bbs/Stock/index.html";
+  try {
+    for (let i = 0; i < 6 && url; i++) {
+      const res = await fetch(url, { headers: { "User-Agent": UA } });
+      if (!res.ok) break;
+      const page = parsePttIndex(await res.text());
+      titles.push(...page.titles);
+      url = page.prev;
+    }
+  } catch (exc) {
+    console.error("ptt", exc);
+  }
+  if (titles.length) pttMemo = { at: Date.now(), titles };
+  return titles;
 }
 
 async function askGroq(env, messages) {
@@ -104,7 +126,13 @@ export async function onRequestPost({ request, env }) {
       .catch((exc) => console.error("advisor_watch", exc));
   }
 
-  const stocks = codes.map((c) => compactStock(data.stocks[c], held[c]));
+  // 每日資料沒有 PTT（build 主機被擋）時，即時抓
+  const full = codes.map((c) => ({ ...data.stocks[c] }));
+  if (full.some((s) => !s.ptt)) {
+    const titles = await pttTitles();
+    if (titles.length) for (const s of full) if (!s.ptt) s.ptt = pttFor(s.code, s.name, titles);
+  }
+  const stocks = full.map((s) => compactStock(s, held[s.code]));
   const news = await relatedNews(stocks);
   const portfolio = holdings ? {
     as_of: holdings.as_of,
@@ -125,7 +153,7 @@ export async function onRequestPost({ request, env }) {
   return Response.json({
     answer,
     unverified: unverifiedNumbers(answer, known),
-    stocks: codes.map((c) => ({ ...data.stocks[c], held: held[c] || null, news: news[c] || [] })),
+    stocks: full.map((s) => ({ ...s, held: held[s.code] || null, news: news[s.code] || [] })),
     missing_metrics: missing,
     data_date: data.generated_at,
   });

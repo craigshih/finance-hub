@@ -63,7 +63,7 @@
       v.roe_est != null ? cell("ROE（估）", `${fmt(v.roe_est)}%`, "≈ 淨值比 ÷ 本益比") : null,
     ]]);
     groups.push(["輿情", [
-      p ? cell("PTT 股板提及", `${p.mentions} 篇`, `最近 ${p.sample} 篇標題`) : cell("PTT", "—"),
+      p ? cell("PTT 股板提及", `${p.mentions} 篇`, `最近 ${p.sample} 篇標題`) : cell("PTT 股板", "暫時抓不到", "今天沒有取得資料"),
       p ? cell("[標的] 文", `多 ${p.target_bull}・空 ${p.target_bear}`, "多空篇數") : null,
       cell("今日新聞", `${(s.news || []).length} 則`, "鉅亨網標題點名"),
     ]]);

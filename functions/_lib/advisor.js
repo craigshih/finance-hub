@@ -68,9 +68,9 @@ export const SYSTEM_PROMPT = `你是 Craig 的私人 AI 投資顧問（台股）
 
 規則（一定要遵守）：
 1. 只能使用 DATA 裡的數字與事實。DATA 沒有的（例如法說會內容、分點主力、財測、未公布的訂單），直接說「目前資料沒有」，不可以自己補。
-2. 引用數字時照 DATA 的數值寫（可四捨五入到小數一位），並說明是哪一項（例如「近一年最大回撤 -41.8%」）。
+2. 引用數字時照 DATA 的數值寫（可四捨五入到小數一位），並說明是哪一項（例如「近一年最大回撤 -41.8%」）。公司一律用中文名稱（例如台積電、聯電），不要用英文縮寫。
 3. 不給目標價、不預測未來股價、不說「保證」「穩賺」「一定漲」。可以清楚說出你的傾向。
-4. 回測只有近 3 年、而且是樣本內結果，引用時要提醒這一點；PTT 只是最近約 300 篇標題的樣本。
+4. 回測只有近 3 年、而且是樣本內結果，陣營 B 引用時要提醒這一點；如果規則的年化報酬落後買進持有，要直接說出來。PTT 只是最近幾百篇標題的樣本，ptt 為 null 代表今天抓不到。
 5. 如果 my_position 有資料，要評估部位大小是否超過 ${POSITION_CAP}% 上限。
 6. 比較兩檔以上時，synthesis.ranking 要排出順序並說明理由。
 7. 如果問題是名詞或觀念（例如「什麼是除權息」），mode 用 "coach"，在 coach 欄位用白話解釋，可以舉 DATA 裡的例子。
@@ -161,13 +161,14 @@ export function collectNumbers(obj, out = []) {
   return out;
 }
 
-// 回答裡出現、但 DATA 裡找不到的數字（容許四捨五入與正負號寫法差異）。日期、代號、小整數不檢查。
+// 回答裡出現、但 DATA 裡找不到的數字（容許四捨五入與正負號寫法差異）。日期、代號、小整數不檢查；
+// 名詞解釋（coach）裡的舉例數字本來就是假設的，也不檢查。
 export function unverifiedNumbers(answer, dataNumbers) {
   const texts = [];
   const walk = (v) => {
     if (typeof v === "string") texts.push(v);
     else if (Array.isArray(v)) v.forEach(walk);
-    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) if (k !== "code") walk(x);
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) if (k !== "code" && k !== "coach") walk(x);
   };
   walk(answer);
   const known = dataNumbers.map(Math.abs);
@@ -187,4 +188,36 @@ export function unverifiedNumbers(answer, dataNumbers) {
     }
   }
   return bad;
+}
+
+// ---------- PTT 股板（build 主機的 IP 被擋時，改由 Cloudflare 即時抓） ----------
+
+export function parsePttIndex(html) {
+  const titles = [...html.matchAll(/<div class="title">\s*<a href="([^"]+)">([^<]+)<\/a>/g)]
+    .map(([, href, t]) => ({ title: t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').trim(), url: "https://www.ptt.cc" + href }));
+  const prev = html.match(/<a class="btn wide" href="([^"]+)">&lsaquo; 上頁<\/a>/);
+  return { titles, prev: prev ? "https://www.ptt.cc" + prev[1] : null };
+}
+
+// 跟 advisor.py 的 ptt_for 同一套規則：標題提到代號或名稱就算一次（回文去重）；[標的] 文看結尾的多／空
+export function pttFor(code, name, titles) {
+  const n = short(name);
+  const seen = new Set();
+  const hits = [];
+  for (const t of titles) {
+    const key = t.title.replace(/^(Re|Fw):\s*/, "");
+    if ((key.includes(code) || (n.length >= 2 && key.includes(n))) && !seen.has(key)) {
+      seen.add(key);
+      hits.push(key);
+    }
+  }
+  let bull = 0, bear = 0;
+  for (const k of hits) {
+    if (k.startsWith("[標的]")) {
+      const tail = k.slice(-3);
+      bull += tail.includes("多") ? 1 : 0;
+      bear += tail.includes("空") ? 1 : 0;
+    }
+  }
+  return { mentions: hits.length, target_bull: bull, target_bear: bear, titles: hits.slice(0, 5), sample: titles.length };
 }

@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildMessages, collectNumbers, compactStock, findStocks, sanitizeAnswer, scrub, unverifiedNumbers } from "../functions/_lib/advisor.js";
+import { buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer, scrub, unverifiedNumbers } from "../functions/_lib/advisor.js";
 
 const STOCKS = {
   "2330": { code: "2330", name: "台積電", market: "上市" },
@@ -62,4 +62,24 @@ test("給 AI 的資料不含走勢陣列，持股只給權重", () => {
   assert.equal(msgs[0].role, "system");
   assert.equal(msgs.length, 4);
   assert.ok(msgs.at(-1).content.includes("問題：q"));
+});
+
+test("PTT：解析看板列表、提及次數、[標的] 多空、回文不重複算", () => {
+  const html = `<div class="title">
+    <a href="/bbs/Stock/M.1.A.html">[標的] 2330 台積電 多</a></div>
+    <div class="title"><a href="/bbs/Stock/M.2.A.html">Re: [新聞] 台積電擴產</a></div>
+    <div class="title"><a href="/bbs/Stock/M.3.A.html">[新聞] 台積電擴產</a></div>
+    <div class="title"><a href="/bbs/Stock/M.4.A.html">[標的] 2303 聯電 空</a></div>
+    <a class="btn wide" href="/bbs/Stock/index100.html">&lsaquo; 上頁</a>`;
+  const page = parsePttIndex(html);
+  assert.equal(page.titles.length, 4);
+  assert.equal(page.prev, "https://www.ptt.cc/bbs/Stock/index100.html");
+  const tsmc = pttFor("2330", "台積電", page.titles);
+  assert.equal(tsmc.mentions, 2);
+  assert.equal(tsmc.target_bull, 1);
+  assert.equal(pttFor("2303", "聯電", page.titles).target_bear, 1);
+});
+
+test("名詞解釋的舉例數字不檢查", () => {
+  assert.deepEqual(unverifiedNumbers({ coach: "從 100 元跌到 60 元，回撤 40%", headline: "說明" }, []), []);
 });
