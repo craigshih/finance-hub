@@ -80,6 +80,25 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm install -g wrangler@3
+
+      # AI 顧問頁問過、但還不在每日計算範圍的股票（存在 D1），這次一起算
+      - name: Advisor watchlist
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          mkdir -p data/advisor
+          wrangler d1 execute craig-finance-sim --remote --json --command "SELECT code FROM advisor_watch" > /tmp/watch.json 2>/dev/null \
+            && jq '[.[0].results[].code]' /tmp/watch.json > data/advisor/watch.json \
+            || echo '[]' > data/advisor/watch.json
+          echo "追蹤清單：$(cat data/advisor/watch.json)"
+
       # 今日觀察標的（台股收盤後的法人資料＋美股前一交易日）；失敗不影響建站
       - name: Daily observation picks
         continue-on-error: true
@@ -94,6 +113,14 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python digest_titles.py
+
+      # AI 投資顧問的每日資料：全市場財報估值籌碼 + 約 300 檔的風控與回測（只會放進有密碼的 /portfolio/）
+      - name: Advisor data
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: python advisor.py
 
       # 供應鏈地圖：海外龍頭與台股相關公司的漲跌（用上一步存下的法人資料）
       - name: Supply chain map data
@@ -114,14 +141,19 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
       - name: Unit tests
         run: npm test
 
-      - run: npm install -g wrangler@3
+      # 用真的 AI 試問兩題，回答印在 log 裡檢查品質（不含持股資料；失敗不擋部署）
+      - name: Advisor live check
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          [ -f data/advisor/stocks.json ] || { echo "沒有顧問資料，略過"; exit 0; }
+          node tests/advisor_live.mjs "台積電和聯電哪個比較值得投資？"
+          node tests/advisor_live.mjs "什麼是最大回撤和 VaR？"
 
       # 模擬交易用的 D1 資料庫：第一次執行時建立，之後沿用同一個
       - name: Set up D1 and wrangler.toml
@@ -171,6 +203,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PORTFOLIO_PASSWORD: ${{ secrets.PORTFOLIO_PASSWORD }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           if [ -z "$PORTFOLIO_PASSWORD" ] || [ -z "$SESSION_SECRET" ]; then
             echo "::warning::還沒設定 PORTFOLIO_PASSWORD，投資頁會維持鎖住"
@@ -178,6 +211,11 @@ jobs:
           fi
           printf '%s' "$PORTFOLIO_PASSWORD" | wrangler pages secret put PORTFOLIO_PASSWORD --project-name craig-finance
           printf '%s' "$SESSION_SECRET" | wrangler pages secret put SESSION_SECRET --project-name craig-finance
+          if [ -n "$GROQ_API_KEY" ]; then
+            printf '%s' "$GROQ_API_KEY" | wrangler pages secret put GROQ_API_KEY --project-name craig-finance
+          else
+            echo "::warning::沒有 GROQ_API_KEY，AI 投資顧問無法回答"
+          fi
 
       - name: Deploy to Cloudflare Pages
         env:

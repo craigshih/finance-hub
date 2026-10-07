@@ -29,3 +29,8 @@ CREATE TABLE IF NOT EXISTS trades (
   price_date TEXT
 );
 CREATE INDEX IF NOT EXISTS trades_by_email ON trades (email, id);
+-- AI 投資顧問：問過但還不在每日計算範圍的股票，build 時加入範圍（隔天就有風控與回測）
+CREATE TABLE IF NOT EXISTS advisor_watch (
+  code     TEXT PRIMARY KEY,
+  added_at TEXT NOT NULL
+);

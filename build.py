@@ -579,6 +579,40 @@ def reconcile_block(rc: dict) -> str:
     return status + (f'<ul class="rc-list">{items}</ul>' if items else "") + trade_note + table
 
 
+def portfolio_tabs(active: str) -> str:
+    tabs = [("overview", "/portfolio/", "持股總覽"), ("advisor", "/portfolio/advisor/", "AI 投資顧問")]
+    return ('<div class="pf-tabs"><div class="wrap">' + "".join(
+        f'<a href="{href}"{" class=\"on\"" if key == active else ""}>{label}</a>' for key, href, label in tabs) + "</div></div>")
+
+
+def advisor_suggestions(sm: dict | None, picks: dict | None) -> list[str]:
+    from supply_map import TW_PEERS
+
+    out = []
+    held = [h for h in (sm or {}).get("holdings", []) if h.get("code", "").isdigit() and len(h["code"]) == 4]
+    if held:
+        out.append(f'{short_name(held[0]["name"])} 還值得續抱嗎？')
+        peer = next((p for h in held for p in TW_PEERS.get(h["code"], [])), None)
+        if peer:
+            owner = next(h for h in held if peer in TW_PEERS.get(h["code"], []))
+            out.append(f'{short_name(owner["name"])} 和 {peer["name"]} 哪個比較值得投資？')
+        out.append("我的持股有沒有太集中？")
+    tw = next((p for p in (picks or {}).get("picks", []) if p.get("market") == "台股"), None)
+    if tw:
+        out.append(f'今日觀察的 {tw["name"]} 值得研究嗎？')
+    out += ["台積電和聯電哪個比較值得投資？", "什麼是最大回撤和 VaR？"]
+    seen = set()
+    return [q for q in out if not (q in seen or seen.add(q))][:6]
+
+
+def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | None) -> str:
+    body = (ROOT / "static" / "advisor_body.html").read_text(encoding="utf-8")
+    chips = "".join(f'<button type="button" class="chip" data-q="{e(q)}">{e(q)}</button>' for q in advisor_suggestions(sm, picks))
+    return (body.replace("{{TABS}}", portfolio_tabs("advisor")).replace("{{SUGGESTIONS}}", chips)
+            .replace("{{DATA_DATE}}", e((adv_meta or {}).get("generated_at", "—")[:16].replace("T", " ")))
+            .replace("{{PRICED}}", str(len((adv_meta or {}).get("price_codes", [])))))
+
+
 def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None) -> str:
     if sm is None:
         body = hero("投資總覽", "暫時讀不到 Notion", e(error or ""))
@@ -587,6 +621,7 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, s
     sub = (f'未實現損益 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）'
            f'・股價日期 {e(sm["price_date"] or "—")}・<a href="__logout">登出</a>')
     body = hero("投資總覽・市值（新台幣）", money(sm["total_value"]), sub)
+    body += portfolio_tabs("overview")
     body += '<main class="wrap">'
     tiles = [("持有成本", money(sm["total_cost"]), "含手續費與稅"),
              ("未實現損益", signed_money(sm["unrealized"]), signed_pct(sm["unrealized_pct"])),
@@ -801,6 +836,23 @@ def main() -> int:
         err = str(exc)
         print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
     write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply), 1, "portfolio/index.html"))
+
+    # AI 投資顧問（同樣在 /portfolio/ 密碼後面）：每日資料 + 持股權重（只放比例，不放金額）
+    adv_dir = OUT_DIR / "portfolio" / "advisor"
+    adv_dir.mkdir(parents=True, exist_ok=True)
+    adv_meta = None
+    adv_src = ROOT / "data" / "advisor" / "stocks.json"
+    if adv_src.exists():
+        shutil.copy(adv_src, adv_dir / "stocks.json")
+        meta = json.loads(adv_src.read_text(encoding="utf-8"))
+        adv_meta = {"generated_at": meta["generated_at"], "price_codes": meta["price_codes"]}
+    if sm:
+        (adv_dir / "holdings.json").write_text(json.dumps({"as_of": sm["price_date"], "holdings": [
+            {"code": h["code"], "name": h["name"], "market": h["market"], "weight_pct": round(h["weight"] * 100, 1),
+             "pl_pct": round(h["return"] * 100, 1) if h["return"] is not None else None} for h in sm["holdings"]]},
+            ensure_ascii=False), encoding="utf-8")
+    shutil.copy(ROOT / "static" / "advisor.js", adv_dir / "advisor.js")
+    write(adv_dir / "index.html", page("AI 投資顧問", render_advisor_page(sm, visuals.load_latest_picks(PICKS_DIR), adv_meta), 2, "portfolio/index.html"))
 
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")

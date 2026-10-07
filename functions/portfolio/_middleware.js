@@ -5,7 +5,7 @@ import { COOKIE, SESSION_DAYS, getCookie, makeToken, passwordMatches, validToken
 
 const NO_STORE = "private, no-store";
 
-function loginPage(message, status = 401) {
+function loginPage(message, status = 401, next = "/portfolio/") {
   const note = message ? `<p class="login-msg">${message}</p>` : "";
   const html = `<!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8">
@@ -15,12 +15,13 @@ function loginPage(message, status = 401) {
 <link rel="stylesheet" href="/style.css"></head>
 <body>
 <header class="top"><div class="wrap"><a class="brand" href="/"><span class="mark">C</span><span class="brand-text">Craig 財經站</span></a>
-<nav><a href="/">總覽</a><a class="on" href="/portfolio/">投資</a><a href="/daily/">每日總經</a><a href="/weekly/">每週研究</a><a href="/sim/">模擬交易</a></nav></div></header>
+<nav><a href="/">總覽</a><a href="/news/">即時快報</a><a class="on" href="/portfolio/">投資</a><a href="/daily/">每日總經</a><a href="/weekly/">每週研究</a><a href="/supply/">供應鏈</a><a href="/sim/">模擬交易</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="kicker">投資總覽</div><h1>這一頁需要密碼</h1>
 <p class="hero-sub">持股與損益只給站長本人看。</p></div></section>
 <main class="wrap"><form class="login" method="post" action="/portfolio/__login">
 <label for="pw">密碼</label>
 <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
+<input type="hidden" name="next" value="${next.replace(/[^\w\-/]/g, "")}">
 <button type="submit">進入</button>${note}</form></main>
 </body></html>`;
   return new Response(html, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": NO_STORE } });
@@ -43,14 +44,16 @@ export async function onRequest({ request, env, next }) {
     const form = await request.formData();
     if (await passwordMatches(env, String(form.get("password") || ""))) {
       const token = await makeToken(env);
+      const back = String(form.get("next") || "");
+      const target = /^\/portfolio\/[\w\-/]*$/.test(back) && !back.includes("__") ? back : "/portfolio/";
       return new Response(null, {
         status: 303,
-        headers: { Location: "/portfolio/", "Cache-Control": NO_STORE,
+        headers: { Location: target, "Cache-Control": NO_STORE,
                    "Set-Cookie": `${COOKIE}=${token}; ${cookieAttrs}; Max-Age=${SESSION_DAYS * 86400}` },
       });
     }
     await new Promise((r) => setTimeout(r, 1000)); // 拖慢猜密碼
-    return loginPage("密碼不正確");
+    return loginPage("密碼不正確", 401, String(form.get("next") || "/portfolio/"));
   }
 
   if (await validToken(env, getCookie(request, COOKIE))) {
@@ -59,5 +62,6 @@ export async function onRequest({ request, env, next }) {
     out.headers.set("Cache-Control", NO_STORE);
     return out;
   }
-  return loginPage("");
+  if (pathname.startsWith("/portfolio/api/")) return Response.json({ error: "請重新輸入密碼" }, { status: 401 });
+  return loginPage("", 401, pathname);
 }

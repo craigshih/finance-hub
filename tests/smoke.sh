@@ -21,6 +21,24 @@ code=$(curl -s -o /tmp/pf.html -w '%{http_code}' -H "Cookie: $cookie" "$BASE/por
 grep -q "這一頁需要密碼" /tmp/pf.html && fail "帶 cookie 還是顯示密碼頁"
 echo "✅ 投資頁密碼鎖"
 
+# AI 投資顧問：沒登入拿不到頁面、資料與 API；登入後頁面正常、API 會檢查輸入（CI 沒有 AI 金鑰 → 503）
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/portfolio/advisor/"); [ "$code" = 401 ] || fail "顧問頁沒密碼應該回 401，實際 $code"
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/portfolio/advisor/holdings.json"); [ "$code" = 401 ] || fail "持股權重沒密碼應該回 401，實際 $code"
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/portfolio/advisor/stocks.json"); [ "$code" = 401 ] || fail "顧問資料沒密碼應該回 401，實際 $code"
+r=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"台積電"}' "$BASE/portfolio/api/advisor"); need "$r" '請重新輸入密碼' "沒登入不能問顧問"
+code=$(curl -s -o /tmp/adv.html -w '%{http_code}' -H "Cookie: $cookie" "$BASE/portfolio/advisor/"); [ "$code" = 200 ] || fail "登入後顧問頁應該 200，實際 $code"
+grep -q "問顧問" /tmp/adv.html || fail "顧問頁內容不對"
+apost() { curl -s -X POST -H "Cookie: $cookie" -H "Content-Type: application/json" -d "$1" "$BASE/portfolio/api/advisor"; }
+need "$(apost '{"question":""}')" '請輸入問題' "空白問題應該擋下"
+r=$(apost '{"question":"台積電和聯電哪個比較好？"}')
+if [ -f site/portfolio/advisor/stocks.json ]; then
+  need "$r" 'AI 金鑰還沒設定' "沒有金鑰時應該回清楚的錯誤"
+  need "$r" '"found":\["2330","2303"\]' "應該從問題找出台積電與聯電（也代表讀得到顧問資料）"
+else
+  need "$r" '顧問資料還沒產生' "沒有顧問資料時應該回清楚的錯誤"
+fi
+echo "✅ AI 投資顧問"
+
 # 模擬交易（ACCESS_DEV_EMAIL=smoke@example.com）
 me=$(curl -s "$BASE/api/sim/me"); need "$me" '"cash":1000000' "新帳戶應該有 100 萬"
 q=$(curl -s "$BASE/api/sim/quote?code=0050"); need "$q" '"price"' "查不到 0050 報價"

@@ -5,3 +5,6 @@ sources/
 wrangler.toml
 .wrangler/
 node_modules/
+
+# AI 顧問每日資料（build 時產生，不進 repo）
+data/advisor/
