@@ -37,7 +37,8 @@ STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 PICKS_DIR = ROOT / "data" / "picks"
 
 # (路徑, 標籤, 手機上的短標籤)
-NAV = [("index.html", "總覽", "總覽"), ("news/index.html", "即時快報", "快報"), ("portfolio/index.html", "投資", "投資"),
+NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "市場", "市場"), ("news/index.html", "即時快報", "快報"),
+       ("portfolio/index.html", "投資", "投資"),
        ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
        ("sim/index.html", "模擬交易", "模擬")]
 # 太泛的關鍵字不當作新聞標籤
@@ -613,7 +614,8 @@ def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | No
             .replace("{{PRICED}}", str(len((adv_meta or {}).get("price_codes", [])))))
 
 
-def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None) -> str:
+def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None,
+                          market: dict | None = None) -> str:
     if sm is None:
         body = hero("投資總覽", "暫時讀不到 Notion", e(error or ""))
         return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
@@ -633,6 +635,9 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, s
     body += section("資產配置", allocation_bar(sm["allocation"], sm["total_value"]), "依 Notion「市場」分類")
     body += section("持股明細", holdings_table(sm["holdings"]) if sm["holdings"] else '<p class="empty">目前沒有持股</p>',
                     f'{len(sm["holdings"])} 檔')
+    if market:
+        import market_page
+        body += section("持股提醒", market_page.holdings_alerts(sm["holdings"], market), "處置／注意股・近期除權息（只有你看得到）")
     if supply:
         import supply_page
         body += section("我的持股 × 供應鏈", supply_page.holdings_exposure(sm["holdings"], supply),
@@ -803,6 +808,9 @@ def main() -> int:
 
     import supply_page
     supply = supply_page.load(ROOT / "data" / "supply" / "latest.json")
+    import market_page
+    market = market_page.load(ROOT / "data" / "market" / "latest.json")
+    write(OUT_DIR / "market" / "index.html", page("市場", market_page.render(market, hero, section), 1, "market/index.html"))
 
     digests = load_digests()  # 新 → 舊
     for i, d in enumerate(digests):
@@ -835,7 +843,7 @@ def main() -> int:
     except portfolio.NotionUnavailable as exc:
         err = str(exc)
         print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
-    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply), 1, "portfolio/index.html"))
+    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply, market), 1, "portfolio/index.html"))
 
     # AI 投資顧問（同樣在 /portfolio/ 密碼後面）：每日資料 + 持股權重（只放比例，不放金額）
     adv_dir = OUT_DIR / "portfolio" / "advisor"
@@ -868,6 +876,14 @@ def main() -> int:
         body += section("供應鏈連動", home_link_card("supply/index.html", "🔗",
                         f'本日最強：{e(top["name"])}（{e(top["market"])}）{top["chg_1d"]:+.2f}%',
                         f'台股相關：{e(names)}' if names else "看看台股供應鏈怎麼反應", "看供應鏈地圖"))
+    if market and market.get("indices"):
+        tw = market["indices"][0]
+        b = market["breadth"]
+        hot = max(market.get("industries", [])[:15] or [{"name": "—", "pct": 0}], key=lambda g: g["pct"])
+        body += section("市場", home_link_card("market/index.html", "🗺️",
+                        f'{e(tw["name"])} {tw["close"]:,.0f}（{tw["chg_pct"]:+.2f}%）・上漲 {b["up"]} 家／下跌 {b["down"]} 家',
+                        f'最強產業：{e(hot["name"])} {hot["pct"]:+.2f}%・處置／注意股 {len(market.get("warnings", []))} 檔',
+                        "看熱力圖"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/

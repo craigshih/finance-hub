@@ -55,6 +55,11 @@ need "$(post /api/sim/reset '{}')" '"ok":true' "重新開始失敗"
 me=$(curl -s "$BASE/api/sim/me"); need "$me" '"resets":1' "重來次數沒有增加"; need "$me" '"holdings":\[\]' "重來後應該沒有持股"
 echo "✅ 模擬交易"
 
+# 市場頁：所有登入者都看得到，但不能出現持股提醒
+code=$(curl -s -o /tmp/mk.html -w '%{http_code}' "$BASE/market/"); [ "$code" = 200 ] || fail "市場頁應該 200，實際 $code"
+grep -q "持股提醒" /tmp/mk.html && fail "市場頁不該有持股提醒"
+echo "✅ 市場頁"
+
 # 即時快報
 n=$(curl -s "$BASE/api/news?cat=tw_stock"); need "$n" '"items":\[{' "即時快報沒有新聞"
 need "$(curl -s "$BASE/api/news?cat=nope")" '沒有這個分類' "未知分類應該回錯誤"
