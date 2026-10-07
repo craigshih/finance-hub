@@ -105,7 +105,7 @@ async function leaderboard(db, email) {
     const total = p.cash + value;
     return {
       nickname: p.nickname, total, return_pct: (total - INITIAL_CASH) / INITIAL_CASH,
-      holdings: (byEmail[p.email] || []).length, trades: tradeCount[p.email] || 0, resets: p.resets,
+      holdings: (byEmail[p.email] || []).length, trades: tradeCount[p.email] || 0,
       me: p.email === email,
     };
   });

@@ -71,7 +71,7 @@
       ["可用現金", fmt(me.cash), ""],
       ["持股市值", fmt(me.holdings_value), `${me.holdings.length} 檔`],
       ["損益", signed(me.total - me.initial), pct(me.return_pct)],
-      ["初始資金", fmt(me.initial), me.resets ? `已重來 ${me.resets} 次` : ""],
+      ["初始資金", fmt(me.initial), ""],
     ];
     $("#sim-tiles").replaceChildren(...tiles.map(([label, value, foot], i) =>
       el("div", { class: "stat" },
@@ -108,7 +108,7 @@
     const { rows } = await api("leaderboard");
     $("#sim-board").replaceChildren(...rows.map((r, i) => el("tr", { class: r.me ? "me" : "" },
       el("td", { class: "rank" }, String(i + 1)),
-      el("td", {}, el("b", {}, r.nickname), r.me ? el("small", {}, "（我）") : "", r.resets ? el("small", {}, ` 重來 ${r.resets} 次`) : ""),
+      el("td", {}, el("b", {}, r.nickname), r.me ? el("small", {}, "（我）") : ""),
       el("td", { class: "num" }, fmt(r.total)),
       el("td", { class: "num " + cls(r.return_pct) }, pct(r.return_pct)),
       el("td", { class: "num" }, String(r.holdings)),
@@ -206,7 +206,7 @@
       } catch (err) { toast(err.message, true); }
     });
     $("#sim-reset").addEventListener("click", async () => {
-      if (!confirm("確定要重新開始？持股和成交紀錄會清空，資金回到 1,000,000。排行榜會顯示重來次數。")) return;
+      if (!confirm("確定要重新開始？持股和成交紀錄會清空，資金回到 1,000,000。")) return;
       try {
         await api("reset", {});
         toast("已重新開始");
