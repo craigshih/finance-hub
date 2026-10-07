@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer, scrub, unverifiedNumbers } from "../functions/_lib/advisor.js";
+import { backtestNotes, buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer, scrub, unverifiedNumbers } from "../functions/_lib/advisor.js";
 
 const STOCKS = {
   "2330": { code: "2330", name: "台積電", market: "上市" },
@@ -82,4 +82,12 @@ test("PTT：解析看板列表、提及次數、[標的] 多空、回文不重�
 
 test("名詞解釋的舉例數字不檢查", () => {
   assert.deepEqual(unverifiedNumbers({ coach: "從 100 元跌到 60 元，回撤 40%", headline: "說明" }, []), []);
+});
+
+test("回測註記：規則落後買進持有時一定提醒", () => {
+  const n = backtestNotes([{ name: "台積電", backtest: { strategy_cagr: 32.8, hold_cagr: 78.8 } }, { name: "聯電", backtest: { strategy_cagr: 30, hold_cagr: 20 } }]);
+  assert.equal(n.length, 2);
+  assert.ok(n[0].includes("台積電") && n[0].includes("落後"));
+  assert.ok(n[1].includes("樣本內"));
+  assert.deepEqual(backtestNotes([{ name: "x" }]), []);
 });

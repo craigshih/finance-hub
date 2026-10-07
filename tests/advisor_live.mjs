@@ -22,4 +22,4 @@ const body = await res.json();
 const answer = sanitizeAnswer(JSON.parse(body.choices[0].message.content), codes);
 console.log(`問題：${question}（找到 ${codes.join(", ") || "無"}，${((Date.now() - t0) / 1000).toFixed(1)} 秒，${body.usage?.total_tokens} tokens）`);
 console.log(JSON.stringify(answer, null, 1));
-console.log("找不到出處的數字：", unverifiedNumbers(answer, [...collectNumbers(context), 15, 300, 60, 20, 95, 1.5, 3]));
+console.log("找不到出處的數字：", unverifiedNumbers(answer, [...collectNumbers(context), 15, 300, 60, 120, 20, 95, 52, 1.5, 3]));

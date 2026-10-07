@@ -221,3 +221,17 @@ export function pttFor(code, name, titles) {
   }
   return { mentions: hits.length, target_bull: bull, target_bear: bear, titles: hits.slice(0, 5), sample: titles.length };
 }
+
+// 回測的固定提醒由系統加，不靠 AI 記得：規則落後買進持有、樣本內結果
+export function backtestNotes(stocks) {
+  const notes = [];
+  for (const s of stocks) {
+    const b = s.backtest;
+    if (!b || b.strategy_cagr == null || b.hold_cagr == null) continue;
+    if (b.strategy_cagr < b.hold_cagr) {
+      notes.push(`（系統註記）${s.name} 的規則年化 ${b.strategy_cagr}% 落後買進持有 ${b.hold_cagr}%，這段期間單純抱著反而賺更多`);
+    }
+  }
+  if (notes.length || stocks.some((s) => s.backtest)) notes.push("（系統註記）回測只用近 3 年資料、而且是樣本內結果，不代表未來");
+  return notes;
+}

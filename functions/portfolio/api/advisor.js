@@ -3,14 +3,14 @@
 // 資料：build 時產生的 /portfolio/advisor/stocks.json（每日）、holdings.json（持股權重），加上鉅亨網即時新聞。
 
 import {
-  MAX_QUESTION, MAX_STOCKS, buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer,
+  MAX_QUESTION, MAX_STOCKS, backtestNotes, buildMessages, collectNumbers, compactStock, findStocks, parsePttIndex, pttFor, sanitizeAnswer,
   unverifiedNumbers,
 } from "../../_lib/advisor.js";
 import { parseRss } from "../../api/news.js";
 
 const MODEL = "openai/gpt-oss-120b";
 const UA = "craig-finance-hub/1.0 (+https://github.com/craigshih)";
-const PROMPT_NUMBERS = [15, 300, 60, 20, 95, 1.5, 3];
+const PROMPT_NUMBERS = [15, 300, 60, 120, 20, 95, 52, 1.5, 3];
 let memo = { at: 0, data: null, holdings: null };
 
 const fail = (error, status = 400) => Response.json({ error }, { status });
@@ -144,6 +144,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const raw = await askGroq(env, buildMessages({ question, data: context, news, history: body.history, portfolio }));
     answer = sanitizeAnswer(raw, codes);
+    if (answer.quant_camp) answer.quant_camp.points.push(...backtestNotes(stocks));
   } catch (exc) {
     console.error(exc);
     return fail("AI 暫時沒有回應，請稍後再試", 502);

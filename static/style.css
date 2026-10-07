@@ -703,3 +703,4 @@ footer { color: var(--muted); font-size: 12px; padding: 32px 0 48px; border-top:
 }
 .adv-stance .stance { margin-left: 0; flex: none; }
 #adv-out { scroll-margin-top: 120px; }
+.adv-camp li.sysnote { list-style: none; margin-left: -18px; color: var(--muted); font-size: 13px; }

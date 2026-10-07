@@ -109,7 +109,7 @@
       el("div", { class: "adv-camp-head" }, el("span", { class: "adv-icon" }, meta[0]),
         el("div", {}, el("b", {}, meta[1]), el("small", {}, meta[2])), stanceChip(c.stance)),
       el("p", {}, c.argument),
-      c.points.length ? el("ul", {}, c.points.map((p) => el("li", {}, p))) : null);
+      c.points.length ? el("ul", {}, c.points.map((p) => el("li", { class: p.startsWith("（系統註記）") ? "sysnote" : null }, p))) : null);
   }
 
   function sources(stocks) {
