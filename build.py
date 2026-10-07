@@ -22,9 +22,10 @@ from pathlib import Path
 
 import markdown
 
+import icons
 import portfolio
 import visuals
-from visuals import funnel, monogram, news_cover, revenue_bars, score_bar, short_name, stock_logo
+from visuals import funnel, monogram, revenue_bars, score_bar, short_name, stock_logo
 
 ROOT = Path(__file__).parent
 SOURCES_DIR = Path(os.environ.get("SOURCES_DIR", ROOT / "sources"))
@@ -99,6 +100,7 @@ def page(title: str, body: str, depth: int, active: str) -> str:
   <a class="brand" href="{prefix}index.html"><span class="mark">C</span><span class="brand-text">Craig 財經站</span></a>
   <nav>{nav}</nav>
 </div></header>
+<div class="tickerbar" aria-label="即時行情"><span class="tk-live"><span class="live-dot"></span><span class="live-stamp">即時行情</span></span><div class="tk-view" id="tk"></div></div>
 {body}
 <footer><div class="wrap">更新於 {built}（台北時間）・{DISCLAIMER}</div></footer>
 <script src="{prefix}site.js" defer></script>
@@ -234,7 +236,7 @@ def render_article(a: dict, section_name: str, featured: bool = False) -> str:
         full = f'<details class="more"><summary>完整摘要</summary><div class="more-body">{parts}</div></details>'
     link = f'<a class="ext" href="{e(a["url"])}" target="_blank" rel="noopener">原文 ↗</a>' if a.get("url") else ""
     kws = keywords(a)
-    return (f'<article class="news{" featured" if featured else ""}">{news_cover(a, section_name)}<div class="news-in">'
+    return (f'<article class="news{" featured" if featured else ""}">{icons.article_icon(a)}<div class="news-in">'
             f'<div class="news-meta"><span>{meta}</span>{link}</div>'
             f'<h3>{e(a.get("title"))}</h3>'
             + (f'<p class="lede">{e(lede)}</p>' if lede else "")
@@ -520,15 +522,23 @@ def allocation_bar(alloc: list[tuple[str, float]], total: float) -> str:
     return f'<div class="alloc"><div class="bar">{segs}</div><ul class="legend">{legend}</ul></div>'
 
 
+def live_attrs(h: dict) -> str:
+    """台股持股讓前端用盤中即時價重算市值與損益（site.js）。"""
+    if not re.fullmatch(r"\d{4,6}[A-Z]?", h.get("code") or "") or not h.get("shares"):
+        return ""
+    return (f' data-live-tw="{e(h["code"])}" data-shares="{h["shares"]:g}" data-cost="{h.get("cost") or 0:g}"'
+            f' data-value="{h.get("value") or 0:g}"')
+
+
 def holdings_table(holdings: list[dict]) -> str:
     rows = "".join(
-        f'<tr><td><span class="name">{stock_logo(h["code"], h["name"], None, "sm")}<span><b>{e(h["name"])}</b><small>{e(h["code"])}</small></span></span></td>'
+        f'<tr{live_attrs(h)}><td><span class="name">{stock_logo(h["code"], h["name"], None, "sm")}<span><b>{e(h["name"])}</b><small>{e(h["code"])}・<span data-f="pct"></span></small></span></span></td>'
         f'<td class="num">{shares_fmt(h["shares"])}</td>'
         f'<td class="num">{num(h["avg_cost"], 2)}</td>'
-        f'<td class="num">{num(h["price"], 2)}</td>'
-        f'<td class="num">{money(h["value"])}</td>'
-        f'<td class="num">{signed_money(h["unrealized"])}</td>'
-        f'<td class="num">{signed_pct(h["return"])}</td>'
+        f'<td class="num" data-f="price">{num(h["price"], 2)}</td>'
+        f'<td class="num" data-f="value">{money(h["value"])}</td>'
+        f'<td class="num" data-f="pl">{signed_money(h["unrealized"])}</td>'
+        f'<td class="num" data-f="plpct">{signed_pct(h["return"])}</td>'
         f'<td class="num">{h["weight"] * 100:.1f}%</td></tr>'
         for h in holdings
     )
@@ -621,7 +631,8 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, s
         return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
 
     sub = (f'未實現損益 {signed_money(sm["unrealized"])}（{signed_pct(sm["unrealized_pct"])}）'
-           f'・股價日期 {e(sm["price_date"] or "—")}・<a href="__logout">登出</a>')
+           f'・股價日期 {e(sm["price_date"] or "—")}・<a href="__logout">登出</a>'
+           '<span class="pf-live" id="pf-live" hidden></span>')
     body = hero("投資總覽・市值（新台幣）", money(sm["total_value"]), sub)
     body += portfolio_tabs("overview")
     body += '<main class="wrap">'
@@ -699,20 +710,8 @@ def report_headline(r: dict) -> tuple[str, str, list[dict]]:
 
 
 def digest_cover(d: dict) -> str:
-    """每日總經封面：當天新聞照片拼貼（1 大 3 小）＋深色漸層；沒照片時改用生成式圖案。"""
-    thumbs = []
-    for sec in d.get("news_sections", []):
-        for a in sec.get("articles", []):
-            t = a.get("thumb")
-            if t and t not in thumbs:
-                thumbs.append(t)
-    # 真的新聞照片排前面，鉅亨網的預設圖庫照片排後面
-    thumbs.sort(key=lambda u: "/static/rss/default/" in u)
-    if len(thumbs) < 2:
-        hue = (int(d["date"].replace("-", "")) * 53) % 360
-        return visuals.report_art(d["date"], 12, hue)
-    imgs = "".join(f'<img src="{e(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" class="c{i}">' for i, u in enumerate(thumbs[:4]))
-    return f'<div class="collage n{min(len(thumbs), 4)}">{imgs}</div>'
+    """每日總經封面：Q 版主題角色（當天新聞最多的主題當主角），取代畫質不好的新聞照片。"""
+    return icons.digest_cover(d)
 
 
 def fred_highlight(d: dict) -> str:
@@ -803,6 +802,7 @@ def main() -> int:
     shutil.copy(ROOT / "static" / "sim.js", OUT_DIR / "sim.js")
     sim_body = (ROOT / "static" / "sim_body.html").read_text(encoding="utf-8")
     shutil.copy(ROOT / "static" / "site.js", OUT_DIR / "site.js")
+    (OUT_DIR / "topics.js").write_text(icons.topics_js(), encoding="utf-8")
     write(OUT_DIR / "news" / "index.html", page("即時快報", (ROOT / "static" / "news_body.html").read_text(encoding="utf-8"), 1, "news/index.html"))
     write(OUT_DIR / "sim" / "index.html", page("模擬交易", sim_body, 1, "sim/index.html"))
 

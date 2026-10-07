@@ -78,6 +78,19 @@
     "加權指數", "台積電ADR", "股市", "新聞", "財經", "市場", "經濟", "投資", "盤勢", "個股", "櫃買", "觀察", "焦點",
     "市場預估", "EPS", "目標價", "盤中速報", "美股盤中", "鉅亨看世界", "美股雷達"]);
 
+  // Q 版主題圖示（topics.js 由 build.py 依 icons.py 產生），取代畫質不穩的新聞縮圖
+  const qicon = (text, title) => {
+    const Q = window.QTOPICS;
+    if (!Q) return null;
+    const hit = Q.topics.find(([, , kws]) => kws.some((k) => text.includes(k))) || Q.topics[Q.topics.length - 1];
+    const count = (ws) => ws.reduce((n, w) => n + (title.split(w).length - 1), 0);
+    const box = el("div", { class: `qthumb t-${hit[0]}` });
+    const neg = count(Q.neg), pos = count(Q.pos);
+    box.innerHTML = Q.icons[hit[0]][neg > pos ? "sad" : pos > neg ? "happy" : "calm"];
+    box.append(el("span", { class: "qtag" }, hit[1]));
+    return box;
+  };
+
   async function loadNews(cat = "all") {
     const res = await fetch(`/api/news?cat=${cat}`);
     if (!res.ok) throw new Error("新聞暫時讀不到");
@@ -109,7 +122,7 @@
       list.replaceChildren(...(items.length ? items.map((i, n) => {
         const fresh = Date.now() - new Date(i.time) < 30 * 60000;
         return el("a", { class: "nitem reveal in", href: i.url, target: "_blank", rel: "noopener", style: `--d:${Math.min(n, 10) * 40}ms` },
-          i.thumb ? el("img", { src: i.thumb, alt: "", loading: "lazy", referrerpolicy: "no-referrer" }) : el("div", { class: "noimg" }, i.feed_label),
+          qicon(`${i.title} ${i.keywords.join(" ")}`, i.title) || el("div", { class: "noimg" }, i.feed_label),
           el("div", { class: "nbody" },
             el("div", { class: "nmeta" }, el("span", { class: "pill" }, i.feed_label), i.category ? el("span", {}, i.category) : "",
               fresh ? el("span", { class: "new" }, "NEW") : "", el("span", { class: "time" }, ago(i.time))),
@@ -143,6 +156,98 @@
     });
     refresh();
     setInterval(refresh, 180_000);
+  }
+
+  // ---- 即時報價：頂部跑馬燈、市場頁指數、投資頁持股（每次開啟就抓最新，之後每 60 秒更新）----
+  const fmtN = (n, d = 2) => Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const tone = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
+  const flash = (node, dir) => {
+    if (!node || reduce) return;
+    node.classList.remove("flash-up", "flash-down");
+    void node.offsetWidth;
+    node.classList.add(dir > 0 ? "flash-up" : "flash-down");
+  };
+  const setText = (node, text, cls) => {
+    if (!node) return;
+    const changed = node.textContent !== text;
+    node.textContent = text;
+    if (cls !== undefined) node.classList.remove("pos", "neg"), cls && node.classList.add(cls);
+    return changed;
+  };
+  const strip = document.querySelector("#tk");
+  const twCodes = [...new Set([...document.querySelectorAll("[data-live-tw]")].map((n) => n.dataset.liveTw))];
+  const wantIdx = strip || document.querySelector("[data-live-idx]");
+  const last = {};
+
+  function paintStrip(idx) {
+    const items = Object.entries(idx).map(([sym, q]) => el("span", { class: "tk-item", "data-sym": sym },
+      el("b", {}, q.name), el("span", {}, fmtN(q.price, q.price > 1000 ? 0 : 2)),
+      el("i", { class: tone(q.chg) }, `${q.chg > 0 ? "▲" : q.chg < 0 ? "▼" : "–"} ${Math.abs(q.pct).toFixed(2)}%`)));
+    if (!items.length) return;
+    const track = el("div", { class: "tk-track" }, ...items, ...items.map((n) => n.cloneNode(true)));
+    track.style.setProperty("--dur", `${items.length * 5}s`);
+    strip.replaceChildren(track);
+  }
+
+  async function live(first) {
+    if ((!first && document.hidden) || (!wantIdx && !twCodes.length)) return;
+    const qs = new URLSearchParams();
+    if (wantIdx) qs.set("idx", "1");
+    if (twCodes.length) qs.set("tw", twCodes.join(","));
+    let data;
+    try {
+      const res = await fetch(`/api/live?${qs}`);
+      if (!res.ok) return;
+      data = await res.json();
+    } catch { return; }
+    const idx = data.idx || {};
+    if (strip) paintStrip(idx);
+    for (const node of document.querySelectorAll("[data-live-idx]")) {
+      const q = idx[node.dataset.liveIdx];
+      if (!q) continue;
+      const v = node.querySelector(".mk-idx-val");
+      if (setText(v, fmtN(q.price))) flash(v, q.price - (last[node.dataset.liveIdx] ?? q.price));
+      setText(node.querySelector(".mk-idx-chg"), `${q.chg > 0 ? "+" : ""}${fmtN(q.chg)}（${q.pct > 0 ? "+" : ""}${q.pct.toFixed(2)}%）`, tone(q.chg));
+      last[node.dataset.liveIdx] = q.price;
+    }
+    let total = 0, base = 0, priced = 0;
+    for (const node of document.querySelectorAll("[data-live-tw]")) {
+      const q = (data.tw || {})[node.dataset.liveTw];
+      if (!q) continue;
+      priced += 1;
+      const p = node.querySelector("[data-f=price]");
+      if (setText(p, fmtN(q.price))) flash(p, q.chg);
+      setText(node.querySelector("[data-f=pct]"), `${q.pct > 0 ? "+" : ""}${q.pct.toFixed(2)}%`, tone(q.chg));
+      const shares = Number(node.dataset.shares || 0), cost = Number(node.dataset.cost || 0);
+      if (shares) {
+        const value = q.price * shares;
+        total += value;
+        base += Number(node.dataset.value || value);
+        setText(node.querySelector("[data-f=value]"), fmtN(value, 0));
+        if (cost) {
+          setText(node.querySelector("[data-f=pl]"), `${value - cost > 0 ? "+" : ""}${fmtN(value - cost, 0)}`, tone(value - cost));
+          setText(node.querySelector("[data-f=plpct]"), `${value > cost ? "+" : ""}${((value / cost - 1) * 100).toFixed(1)}%`, tone(value - cost));
+        }
+      }
+    }
+    const pf = document.querySelector("#pf-live");
+    if (pf && priced && total) {
+      pf.hidden = false;
+      pf.replaceChildren("盤中即時市值 ", el("b", {}, fmtN(total, 0)), el("span", { class: tone(total - base) }, `（較 Notion 收盤 ${total - base > 0 ? "+" : ""}${fmtN(total - base, 0)}）`));
+    }
+    const t = new Date(data.updated).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    document.querySelectorAll(".live-stamp").forEach((n) => { n.textContent = `即時 ${t}`; });
+  }
+  live(true);
+  setInterval(live, 60_000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) live(); });
+
+  // ---- 頁面載入進度條（紅→黃） ----
+  if (!reduce) {
+    const bar = el("div", { class: "loadbar" });
+    document.body.append(bar);
+    addEventListener("load", () => bar.classList.add("done"));
+    setTimeout(() => bar.classList.add("done"), 2500);
   }
 
   // ---- 供應鏈地圖：切換龍頭、市場篩選 ----

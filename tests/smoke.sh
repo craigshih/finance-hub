@@ -60,6 +60,10 @@ code=$(curl -s -o /tmp/mk.html -w '%{http_code}' "$BASE/market/"); [ "$code" = 2
 grep -q "持股提醒" /tmp/mk.html && fail "市場頁不該有持股提醒"
 echo "✅ 市場頁"
 
+# 即時報價 API（來源暫時連不到也要回正常格式）
+need "$(curl -s "$BASE/api/live?idx=1&tw=2330,abc")" '"updated"' "即時報價 API 格式不對"
+echo "✅ 即時報價"
+
 # 即時快報
 n=$(curl -s "$BASE/api/news?cat=tw_stock"); need "$n" '"items":\[{' "即時快報沒有新聞"
 need "$(curl -s "$BASE/api/news?cat=nope")" '沒有這個分類' "未知分類應該回錯誤"

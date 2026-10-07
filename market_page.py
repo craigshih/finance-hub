@@ -91,7 +91,7 @@ def index_board(indices: list[dict]) -> str:
     for i, ix in enumerate(indices):
         closes = [r[4] for r in ix["ohlc"][-40:]]
         cards.append(
-            f'<button type="button" class="mk-idx{" on" if i == 0 else ""}" data-tab="{i}">'
+            f'<button type="button" class="mk-idx{" on" if i == 0 else ""}" data-tab="{i}" data-live-idx="{e(ix["ticker"])}">'
             f'<span class="mk-idx-top"><b>{e(ix["name"])}</b><small>{e(ix["region"])}</small></span>'
             f'<span class="mk-idx-val">{ix["close"]:,.2f}</span>'
             f'<span class="mk-idx-chg {cls(ix["chg"])}">{ix["chg"]:+,.2f}（{ix["chg_pct"]:+.2f}%）</span>{spark(closes)}</button>')
@@ -327,7 +327,7 @@ def render(m: dict | None, hero, section) -> str:
     date = (m.get("history") or [{}])[-1].get("date") or m["generated_at"][:10]
     body = hero("市場", "今天市場怎麼走", f"指數、產業熱力圖、法人與融資、強勢股、處置股與除權息，一頁看完・台股資料日 {e(date)}")
     body += '<main class="wrap">'
-    body += section("指數看板", index_board(m.get("indices", [])), "點卡片看近半年日 K")
+    body += section("指數看板", index_board(m.get("indices", [])), '<span class="live-dot"></span><span class="live-stamp">盤中即時更新</span>・點卡片看近半年日 K')
     heat = (tabs("heat", [("ind", "上市櫃產業"), ("theme", "供應鏈題材")], "ind")
             + panel("heat", "ind", treemap(m.get("industries", [])), True)
             + panel("heat", "theme", treemap(m.get("themes", [])), False)
