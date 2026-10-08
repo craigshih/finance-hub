@@ -59,16 +59,21 @@ def holder_chips(holders: list[dict]) -> str:
                    f'{e(h["person"])}{badge(h["change"], h.get("chg_pct"))}</span>' for h in sorted(holders, key=lambda h: -h["weight"]))
 
 
+def live_us(ticker: str) -> str:
+    """美股代號給前端抓即時價（site.js）；BRK/B 這類轉成 BRK.B。"""
+    return f' data-live-us="{e(ticker.replace("/", "."))}"' if ticker else ""
+
+
 def consensus(w: dict) -> str:
     rows = sorted(w["by_ticker"].values(), key=lambda t: (-t["n"], -t["buying"], -t["value"]))[:12]
     cards = "".join(
-        f'<article class="wcard"><header>{stock_logo(t["ticker"], t["name"], "美股", "")}<div><b>{e(t["ticker"])}</b><small>{e(t["name"].title())}</small></div>'
+        f'<article class="wcard"{live_us(t["ticker"])}><header>{stock_logo(t["ticker"], t["name"], "美股", "")}<div><b>{e(t["ticker"])}</b><small>{e(t["name"].title())}・<span data-f="price"></span> <span data-f="pct"></span></small></div>'
         f'<span class="wn"><b>{t["n"]}</b> 位</span></header><div class="whs">{holder_chips(t["holders"])}</div>'
         f'<p class="wfoot">合計 {usd(t["value"])}・本季買進 {t["buying"]} 位／賣出 {t["selling"]} 位</p></article>' for t in rows)
     return f'<div class="wgrid">{cards}</div>'
 
 
-def to_taiwan(w: dict, supply: dict | None) -> str:
+def to_taiwan(w: dict, supply: dict | None, trump: dict | None = None) -> str:
     sup = leader_suppliers()
     moves = tw_moves(supply)
     rows = sorted((t for t in w["by_ticker"].values() if t["ticker"] in sup), key=lambda t: (-t["n"], -t["buying"]))
@@ -86,8 +91,12 @@ def to_taiwan(w: dict, supply: dict | None) -> str:
             tws.append(f'<li>{stock_logo(s["code"], s["name"], None, "sm")}<span><b>{e(s["name"])}</b><small>{e(s["code"])}・{e(s["relation"])}・{e(s["note"])}</small></span>'
                        + (f'<i class="{"pos" if chg > 0 else "neg" if chg < 0 else ""}">{chg:+.2f}%</i>' if chg is not None else "")
                        + f'{link}</li>')
-        out.append(f'<article class="wchain"><div class="wus">{stock_logo(t["ticker"], t["name"], "美股", "lg")}'
-                   f'<div><b>{e(t["ticker"])}</b><small>{t["n"]} 位大佬持有・本季買進 {t["buying"]} 位</small><div class="whs">{holder_chips(t["holders"])}</div></div></div>'
+        tr = (trump or {}).get("by_ticker", {}).get(t["ticker"])
+        tchip = (f'<span class="wh trump {"add" if tr["buys"] > tr["sells"] else "cut"}">川普 近期{"買進" if tr["buys"] > tr["sells"] else "賣出"} {max(tr["buys"], tr["sells"])} 筆</span>'
+                 if tr else "")
+        out.append(f'<article class="wchain"><div class="wus"{live_us(t["ticker"])}>{stock_logo(t["ticker"], t["name"], "美股", "lg")}'
+                   f'<div><b>{e(t["ticker"])} <span class="wlive"><span data-f="price"></span> <span data-f="pct"></span></span></b>'
+                   f'<small>{t["n"]} 位大佬持有・本季買進 {t["buying"]} 位</small><div class="whs">{holder_chips(t["holders"])}{tchip}</div></div></div>'
                    f'<div class="warrow" aria-hidden="true"></div><ul class="wtw">{"".join(tws)}</ul></article>')
     return ('<div class="wchains">' + "".join(out) + '</div><p class="mk-note">台股端只列供應鏈地圖裡有新聞或公司資料出處的關係（點 📰 看原文）；漲跌為最近交易日。</p>')
 
@@ -146,17 +155,64 @@ def managers(w: dict) -> str:
             + "".join(panel("wm", m["id"], manager_block(m), i == 0) for i, m in enumerate(ms)))
 
 
-def render(w: dict | None, supply: dict | None, hero, section) -> str:
+def money_range(lo: float, hi: float) -> str:
+    f = lambda v: f"${v / 1e6:,.1f}M" if v >= 1e6 else f"${v / 1e3:,.0f}K"  # noqa: E731
+    return f"{f(lo)}～{f(hi)}"
+
+
+def trump_section(t: dict | None) -> str:
+    if not t or not t.get("filings"):
+        return '<p class="empty">川普的 OGE 申報暫時讀不到</p>'
+    fl = [f for f in t["filings"] if f["parsed"]]
+    djt = t.get("djt")
+    head = (f'<div class="wtrump-head"><div class="stat"><div class="stat-label">近 120 天股票交易</div><div class="stat-value">{t["n_trades"]:,}<span class="unit">筆</span></div>'
+            f'<div class="stat-foot"><span>對到美股代號 {t["matched"]:,} 筆（只列這些）・最新交易日 {e(t["latest_trade"])}</span></div></div>')
+    if djt:
+        pct = f'{djt["percent"]:.1f}%' if djt.get("percent") is not None else "—"
+        head += (f'<div class="stat"><div class="stat-label">{e(djt.get("issuer") or "川普媒體科技")}（DJT）持股比例</div><div class="stat-value">{pct}</div>'
+                 f'<div class="stat-foot"><span>SEC {e(djt["form"])}・{e(djt["filed"])}・<a href="{e(djt["url"])}" target="_blank" rel="noopener">原始申報 ↗</a></span></div></div>')
+    head += "</div>"
+
+    def rows(items, side):
+        out = []
+        for a in items[:12]:
+            n = a["buys"] if side == "buy" else a["sells"]
+            lo, hi = (a["buy_lo"], a["buy_hi"]) if side == "buy" else (a["sell_lo"], a["sell_hi"])
+            label = a["ticker"] or a["name"]
+            out.append(f'<li{live_us(a["ticker"]) if a["ticker"] else ""}>{stock_logo(a["ticker"] or label, a["name"], "美股", "sm")}'
+                       f'<span><b>{e(label)} <span class="wlive"><span data-f="pct"></span></span></b><small>{e(a["name"].title())}・{n} 筆・合計 {money_range(lo, hi)}・最近 {e(a["last"])}</small></span>'
+                       f'<a class="wsrc" href="{e(a["url"])}" target="_blank" rel="noopener">📄 OGE 原文</a></li>')
+        return "".join(out) or '<li class="empty">沒有</li>'
+    cols = ('<div class="two-col">'
+            f'<div><h3 class="wh3">淨買進（依筆數）</h3><ul class="wlist">{rows(t["net_buys"], "buy")}</ul></div>'
+            f'<div><h3 class="wh3">淨賣出（依筆數）</h3><ul class="wlist">{rows(t["net_sells"], "sell")}</ul></div></div>')
+    # 川普買進的美股 → 台股供應鏈
+    sup = leader_suppliers()
+    links = []
+    for a in t["net_buys"]:
+        for x in sup.get(a["ticker"] or "", [])[:4]:
+            links.append(f'<span class="wh add">{e(a["ticker"])} → {e(x["name"])}（{e(x["relation"])}）</span>')
+    chain = (f'<h3 class="wh3" style="margin-top:18px">川普買進的美股，台股供應鏈有誰</h3><div class="whs">{"".join(links)}</div>' if links else "")
+    filings = "、".join(f'<a href="{e(f["url"])}" target="_blank" rel="noopener">{e(f["first"])}～{e(f["last"])}（{f["parsed"]}／{f["total"]} 筆）</a>' for f in fl[-6:])
+    note = ('<p class="mk-note">來源：美國政府道德辦公室（OGE）公開的總統財產申報 Form 278-T。申報只列金額「區間」，表中合計是區間加總；'
+            'PDF 是掃描檔，本站用文字辨識解析（括號內是解析出的股票交易數／申報總筆數，總數含債券），解析不到的不會亂猜，每一筆都可點 📄 對照原文。'
+            'OGE 沒有說明交易是本人決定還是委託帳戶操作；申報最晚可在交易後 45 天提出。依法這些資料不得用於商業或募款用途，本站僅供個人研究。'
+            f'</p><p class="mk-note">最近解析的申報：{filings}</p>')
+    return head + cols + chain + note
+
+
+def render(w: dict | None, supply: dict | None, hero, section, trump: dict | None = None) -> str:
     if not w or not w.get("managers"):
         return hero("大佬持股", "資料準備中", "SEC 13F 資料下一次更新後就會出現。")
     latest = max(m["filed"] for m in w["managers"])
     body = hero("大佬持股", "大佬在買什麼？台股誰受惠？",
-                f'{len(w["managers"])} 位知名投資人的 SEC 13F 官方申報・最新申報 {e(latest)}',
+                f'{len(w["managers"])} 位知名投資人的 SEC 13F ＋ 川普的 OGE 申報・最新申報 {e(latest)}・每 3 小時檢查新申報・股價盤中即時',
                 '<p class="hero-note">13F 是美國機構每季申報的美股多方持股，最晚在季末後 45 天公布，所以看到的是「上一季做了什麼」，不是即時動向；'
                 '也不包含放空與非美股部位。每一筆都能點回 SEC 原始文件。</p>')
     body += '<main class="wrap">'
     body += section("大佬共同持有", consensus(w), "依持有人數排序")
-    body += section("大佬持股 → 台股供應鏈", to_taiwan(w, supply), "大佬持有的美股龍頭，連到已查證的台廠", ("../supply/index.html", "看完整供應鏈地圖"))
+    body += section("大佬持股 → 台股供應鏈", to_taiwan(w, supply, trump), "大佬持有的美股龍頭，連到已查證的台廠", ("../supply/index.html", "看完整供應鏈地圖"))
+    body += section("川普在買賣什麼", trump_section(trump), "OGE 官方財產申報（Form 278-T）")
     body += section("這一季的動作", quarter_moves(w), "跟上一份 13F 比較")
     body += section("各別大佬的最新持股", managers(w), "前十大持股與占比")
     return body + "</main>" + TAB_SCRIPT

@@ -817,7 +817,8 @@ def main() -> int:
     market = market_page.load(ROOT / "data" / "market" / "latest.json")
     import whales_page
     whales = whales_page.load(ROOT / "data" / "whales" / "latest.json")
-    write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section), 1, "whales/index.html"))
+    trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
+    write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
     write(OUT_DIR / "market" / "index.html", page("市場", market_page.render(market, hero, section), 1, "market/index.html"))
 
     digests = load_digests()  # 新 → 舊

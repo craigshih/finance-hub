@@ -176,6 +176,7 @@
   };
   const strip = document.querySelector("#tk");
   const twCodes = [...new Set([...document.querySelectorAll("[data-live-tw]")].map((n) => n.dataset.liveTw))];
+  const usCodes = [...new Set([...document.querySelectorAll("[data-live-us]")].map((n) => n.dataset.liveUs))];
   const wantIdx = strip || document.querySelector("[data-live-idx]");
   const last = {};
 
@@ -190,10 +191,11 @@
   }
 
   async function live(first) {
-    if ((!first && document.hidden) || (!wantIdx && !twCodes.length)) return;
+    if ((!first && document.hidden) || (!wantIdx && !twCodes.length && !usCodes.length)) return;
     const qs = new URLSearchParams();
     if (wantIdx) qs.set("idx", "1");
     if (twCodes.length) qs.set("tw", twCodes.join(","));
+    if (usCodes.length) qs.set("us", usCodes.join(","));
     let data;
     try {
       const res = await fetch(`/api/live?${qs}`);
@@ -229,6 +231,13 @@
           setText(node.querySelector("[data-f=plpct]"), `${value > cost ? "+" : ""}${((value / cost - 1) * 100).toFixed(1)}%`, tone(value - cost));
         }
       }
+    }
+    for (const node of document.querySelectorAll("[data-live-us]")) {
+      const q = (data.us || {})[node.dataset.liveUs];
+      if (!q) continue;
+      const p = node.querySelector("[data-f=price]");
+      if (setText(p, `$${fmtN(q.price)}`)) flash(p, q.chg);
+      setText(node.querySelector("[data-f=pct]"), `${q.pct > 0 ? "+" : ""}${q.pct.toFixed(2)}%`, tone(q.chg));
     }
     const pf = document.querySelector("#pf-live");
     if (pf && priced && total) {

@@ -53,3 +53,7 @@ export function validCodes(raw) {
 export function misChannels(codes) {
   return codes.flatMap((c) => [`tse_${c}.tw`, `otc_${c}.tw`]);
 }
+
+export function validUs(raw) {
+  return [...new Set(String(raw || "").split(",").map((c) => c.trim().toUpperCase()).filter((c) => /^[A-Z][A-Z.\-]{0,6}$/.test(c)))].slice(0, MAX_CODES);
+}

@@ -6,6 +6,8 @@ on:
     - cron: "30 7 * * 1-5"    # 平日台北 15:30：台股收盤後先更新一次市場頁、熱力圖、強勢股（法人與融資晚上 22:00 那次會再補齊）
     # 台北 07:00–12:30 每 30 分鐘：Tim-Lu 的每日總經有新檔或更新（例如補上朋友的工商時報摘要）才重建
     - cron: "*/30 23,0-4 * * *"
+    # 每 3 小時：檢查大佬 13F 與川普 278-T 有沒有新申報，有才重建
+    - cron: "15 */3 * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,27 +21,37 @@ jobs:
   # 很輕的檢查：只問 GitHub API「Tim-Lu 的 data/digests 最後一次變動是哪個 commit」，跟上次建站時記下的比
   gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     outputs:
       run: ${{ steps.check.outputs.run }}
       digest_sha: ${{ steps.check.outputs.sha }}
+      filings_fp: ${{ steps.check.outputs.fp }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            whales.py
+            scripts
+            data/state
       - id: check
         env:
           GH_TOKEN: ${{ secrets.SOURCES_TOKEN }}
-          OWN_TOKEN: ${{ github.token }}
-          POLL: ${{ github.event.schedule == '*/30 23,0-4 * * *' }}
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          POLL: ${{ github.event.schedule == '*/30 23,0-4 * * *' || github.event.schedule == '15 */3 * * *' }}
         run: |
           sha=$(gh api "repos/craigshih/Tim-Lu/commits?path=data/digests&per_page=1" --jq '.[0].sha' || echo "")
+          fp=$(python3 scripts/filings_fingerprint.py || echo "")
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "fp=$fp" >> "$GITHUB_OUTPUT"
           if [ "$POLL" != "true" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
-          last=$(GH_TOKEN=$OWN_TOKEN gh api "repos/${{ github.repository }}/contents/data/state/digest_sha.txt" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo "")
-          if [ -n "$sha" ] && [ "$sha" = "$last" ]; then
+          last_sha=$(cat data/state/digest_sha.txt 2>/dev/null || echo "")
+          last_fp=$(cat data/state/filings_fp.txt 2>/dev/null || echo "")
+          if [ -n "$sha" ] && [ "$sha" = "$last_sha" ] && [ -n "$fp" ] && [ "$fp" = "$last_fp" ]; then
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "⏭️ 每日總經沒有變動，略過重建" >> "$GITHUB_STEP_SUMMARY"
+            echo "⏭️ 每日總經、大佬 13F、川普 278-T 都沒有新資料，略過重建" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "🆕 每日總經有更新（$sha），重建網站" >> "$GITHUB_STEP_SUMMARY"
+            echo "🆕 有新資料（總經 $sha／申報 $fp），重建網站" >> "$GITHUB_STEP_SUMMARY"
           fi
 
   build:
@@ -137,6 +149,17 @@ jobs:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python whales.py
 
+      # 川普的股票交易：OGE 278-T（只解析新申報；第一次較久）
+      - name: Trump trades (OGE 278-T)
+        continue-on-error: true
+        timeout-minutes: 15
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: |
+          # 有些申報是純圖片掃描檔，需要 OCR
+          sudo apt-get install -y -qq tesseract-ocr poppler-utils >/dev/null 2>&1 || echo "OCR 套件安裝失敗，純圖片申報這次略過"
+          python trump.py
+
       # 供應鏈地圖：海外龍頭與台股相關公司的漲跌（用上一步存下的法人資料）
       - name: Supply chain map data
         continue-on-error: true
@@ -147,6 +170,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/state && printf '%s' "${{ needs.gate.outputs.digest_sha }}" > data/state/digest_sha.txt
+          [ -n "${{ needs.gate.outputs.filings_fp }}" ] && printf '%s' "${{ needs.gate.outputs.filings_fp }}" > data/state/filings_fp.txt
           git add data/picks/ data/flows/ data/supply/ data/digest_titles/ data/state/ data/market/ data/whales/ 2>/dev/null || exit 0
           git diff --cached --quiet && exit 0
           git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
