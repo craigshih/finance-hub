@@ -95,26 +95,30 @@ TRUMP_PROFILE = {
 }
 
 
+def avatar(pid: str, name: str, cls: str = "", prefix: str = "../") -> str:
+    """全站統一的 Q 版頭像（chibi.py 產生）。"""
+    return f'<img class="qava {cls}" src="{prefix}portraits/q/{e(pid)}.svg" alt="{e(name)}（Q 版插畫）" loading="lazy">'
+
+
 def profiles(w: dict, trump: dict | None, prefix: str = "../") -> str:
     import investors
-    from visuals import monogram, portrait
 
     cards = []
     for m in w["managers"]:
         inv = investors.BY_ID.get(m.get("investor") or "")
         if inv:
-            pic, en, role = portrait(inv["id"], prefix), inv["en"], m["fund"]
+            pic, en, role = avatar(inv["id"], m["person"], "lg", prefix), inv["en"], m["fund"]
             bio, why, caveat = inv["bio"], inv["trust"], None
         else:
             p = PROFILES.get(m["id"])
             if not p:
                 continue
-            pic, en, role = monogram(m["person"][0], m["id"]), p["en"], p["role"]
+            pic, en, role = avatar(m["id"], m["person"], "lg", prefix), p["en"], p["role"]
             bio, why, caveat = p["bio"], p["why"], p["caveat"]
         cards.append(_profile_card(m["person"], en, role, pic, bio, why, caveat, m["id"]))
     if trump:
         t = TRUMP_PROFILE
-        cards.append(_profile_card("川普", t["en"], t["role"], monogram("川", "trump"), t["bio"], t["why"], t["caveat"], "trump"))
+        cards.append(_profile_card("川普", t["en"], t["role"], avatar("trump", "川普", "lg", prefix), t["bio"], t["why"], t["caveat"], "trump"))
     return (f'<div class="wprof-grid">{"".join(cards)}</div>'
             '<p class="mk-note">介紹只寫有公開紀錄可查的事實；四位投資人（段永平、巴菲特、芒格、李錄）的完整介紹在'
             '<a href="../investors/index.html">四位投資人頁</a>。過去績效不代表未來，請把他們的持股當研究線索，不是買進清單。</p>'
@@ -162,7 +166,7 @@ def tw_moves(supply: dict | None) -> dict[str, dict]:
 
 def holder_chips(holders: list[dict]) -> str:
     return "".join(f'<span class="wh {CHANGE_CLASS.get(h["change"] or "", "flat")}" title="{e(h["person"])}：占其組合 {h["weight"]:.1f}%">'
-                   f'{e(h["person"])}{badge(h["change"], h.get("chg_pct"))}</span>' for h in sorted(holders, key=lambda h: -h["weight"]))
+                   f'{avatar(h["id"], h["person"], "xs")}{e(h["person"])}{badge(h["change"], h.get("chg_pct"))}</span>' for h in sorted(holders, key=lambda h: -h["weight"]))
 
 
 def live_us(ticker: str) -> str:
@@ -173,7 +177,7 @@ def live_us(ticker: str) -> str:
 def consensus(w: dict) -> str:
     rows = sorted(w["by_ticker"].values(), key=lambda t: (-t["n"], -t["buying"], -t["value"]))[:12]
     cards = "".join(
-        f'<article class="wcard"{live_us(t["ticker"])}><header>{stock_logo(t["ticker"], t["name"], "美股", "")}<div><b>{e(t["ticker"])}</b><small>{e(t["name"].title())}・<span data-f="price"></span> <span data-f="pct"></span></small></div>'
+        f'<article class="wcard"{live_us(t["ticker"])}><header>{stock_logo(t["ticker"], t["name"], "美股", "")}<div><b>{e(t["ticker"])}</b><small>{e(t["name"].title())}<span class="wq" data-f="price"></span> <span data-f="pct"></span></small></div>'
         f'<span class="wn"><b>{t["n"]}</b> 位</span></header><div class="whs">{holder_chips(t["holders"])}</div>'
         f'<p class="wfoot">合計 {usd(t["value"])}・本季買進 {t["buying"]} 位／賣出 {t["selling"]} 位</p></article>' for t in rows)
     return f'<div class="wgrid">{cards}</div>'
@@ -246,7 +250,7 @@ def manager_block(m: dict, top: int = 10) -> str:
     from datetime import date
     if (date.today() - date.fromisoformat(m["period"])).days > 200:
         notes += f'<p class="wexit">⚠︎ 最新申報停在 {e(m["period"])}，之後沒有新的 13F（可能已不需申報或停止申報），資料偏舊。</p>'
-    return (f'<div class="wmgr"><div class="wmgr-head"><div><b>{e(m["person"])}</b><small>{e(m["fund"])}・{e(m["note"])}</small></div>'
+    return (f'<div class="wmgr"><div class="wmgr-head"><div class="wmgr-who">{avatar(m["id"], m["person"], "md")}<div><b>{e(m["person"])}</b><small>{e(m["fund"])}・{e(m["note"])}</small></div></div>'
             f'<div class="wmeta">持股期間 {e(m["period"])}・申報 {e(m["filed"])}・{len(m["holdings"])} 檔・{usd(m["total_value"])}'
             f'・<a href="{e(m["url"])}" target="_blank" rel="noopener">SEC 原始申報 ↗</a></div></div>'
             f'<ol class="wbars">{bars}</ol>' + notes
@@ -271,7 +275,8 @@ def trump_section(t: dict | None) -> str:
         return '<p class="empty">川普的 OGE 申報暫時讀不到</p>'
     fl = [f for f in t["filings"] if f["parsed"]]
     djt = t.get("djt")
-    head = (f'<div class="wtrump-head"><div class="stat"><div class="stat-label">近 120 天股票交易</div><div class="stat-value">{t["n_trades"]:,}<span class="unit">筆</span></div>'
+    head = (f'<div class="wtrump-head"><div class="wtrump-who">{avatar("trump", "川普", "xl")}<div><b>川普</b><small>Form 278-T・{len(t["filings"])} 份申報</small></div></div>'
+            f'<div class="stat"><div class="stat-label">近 120 天股票交易</div><div class="stat-value">{t["n_trades"]:,}<span class="unit">筆</span></div>'
             f'<div class="stat-foot"><span>對到美股代號 {t["matched"]:,} 筆（只列這些）・最新交易日 {e(t["latest_trade"])}</span></div></div>')
     if djt:
         pct = f'{djt["percent"]:.1f}%' if djt.get("percent") is not None else "—"

@@ -1018,3 +1018,16 @@ html :is(input, textarea) { cursor: text; }
 .wcav b { color: #ff8a8f; }
 .wgoto { margin-top: auto; padding-top: 10px; font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 700; align-self: flex-start; }
 .wgoto:hover { text-decoration: underline; }
+/* Q 版頭像（全站統一） */
+.portrait { border-radius: 50%; background: none; border: 0; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.45)); }
+.qava { display: inline-block; border-radius: 50%; flex: none; vertical-align: middle; }
+.qava.xs { width: 18px; height: 18px; margin-right: 2px; }
+.qava.md { width: 44px; height: 44px; }
+.qava.lg { width: 64px; height: 64px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); transition: transform .3s cubic-bezier(.2,.7,.2,1.4); }
+.qava.xl { width: 72px; height: 72px; }
+.wprof:hover .qava.lg { transform: scale(1.1) rotate(-6deg); }
+.wmgr-who { display: flex; align-items: center; gap: 10px; }
+.wtrump-who { display: flex; align-items: center; gap: 12px; padding: 10px 6px; }
+.wtrump-who b { display: block; font: 700 20px var(--serif); color: var(--ink); }
+.wprof header .qava { width: 64px; height: 64px; }
+.wq:not(:empty)::before { content: "・"; }

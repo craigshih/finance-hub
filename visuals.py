@@ -205,7 +205,7 @@ STANCE_CLASS.update({"偏多": "bull", "中性": "flat", "保留": "bear"})
 
 def portrait(inv_id: str, prefix: str, cls: str = "") -> str:
     inv = BY_ID[inv_id]
-    return f'<img class="portrait {cls}" src="{prefix}portraits/{inv_id}.svg" alt="{e(inv["name"])}素描插畫" loading="lazy">'
+    return f'<img class="portrait {cls}" src="{prefix}portraits/q/{inv_id}.svg" alt="{e(inv["name"])}（Q 版插畫）" loading="lazy">'
 
 
 def source_tags(text_html: str) -> str:
