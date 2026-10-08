@@ -165,9 +165,18 @@ def ocr_pages(pdf: bytes) -> list[str] | None:
         src = Path(tmp) / "in.pdf"
         src.write_bytes(pdf)
         subprocess.run(["pdftoppm", "-r", "200", "-gray", "-png", str(src), f"{tmp}/p"], check=True)
+        imgs = sorted(Path(tmp).glob("p-*.png"), key=lambda p: int(p.stem.split("-")[-1]))
+        # 先試第 3 頁，看哪種版面模式能把「名稱 類型 日期 金額」讀在同一行
+        best, best_n = "6", -1
+        for psm in ("6", "4", "3"):
+            sample = subprocess.run(["tesseract", str(imgs[min(2, len(imgs) - 1)]), "-", "--psm", psm], capture_output=True, text=True).stdout
+            n = len(parse(sample))
+            log(f"  OCR psm {psm}：第 3 頁解析出 {n} 筆；前幾行：{sample.splitlines()[8:14]}")
+            if n > best_n:
+                best, best_n = psm, n
         texts = []
-        for img in sorted(Path(tmp).glob("p-*.png"), key=lambda p: int(p.stem.split("-")[-1])):
-            out = subprocess.run(["tesseract", str(img), "-", "--psm", "6"], capture_output=True, text=True)
+        for img in imgs:
+            out = subprocess.run(["tesseract", str(img), "-", "--psm", best], capture_output=True, text=True)
             texts.append(out.stdout)
         return texts
 
