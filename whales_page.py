@@ -35,6 +35,112 @@ def badge(change: str | None, pct: float | None = None) -> str:
     return f'<span class="wb {CHANGE_CLASS.get(change, "flat")}">{e(change)}{e(extra)}</span>'
 
 
+# 大佬介紹：只寫有公開紀錄可查的事實；「要留意」寫他的風格限制，避免只看光環
+PROFILES = {
+    "ackman": {
+        "en": "Bill Ackman", "role": "潘興廣場資本（Pershing Square）創辦人",
+        "bio": ["2004 年創立潘興廣場，以「激進投資人」聞名：買進大量股份後進董事會推動公司改革。",
+                "組合通常只有約 10 檔，長抱希爾頓、Chipotle、Restaurant Brands 等成功案例。",
+                "2020 年 3 月疫情初期用信用違約交換避險，數千萬美元的部位換回約 26 億美元獲利。"],
+        "why": "持股極度集中、每一檔都公開說明理由（年報、投資人說明會），可以完整追蹤他的邏輯與後續結果。",
+        "caveat": "也有重大失誤，例如 Valeant 虧損與做空康寶萊的長期纏鬥；集中持股代表看錯時影響很大。",
+    },
+    "druck": {
+        "en": "Stanley Druckenmiller", "role": "Duquesne 家族辦公室",
+        "bio": ["1981 年創立 Duquesne Capital，到 2010 年結束對外募資前，據報導年化報酬約 30%、沒有一年虧損。",
+                "曾擔任索羅斯量子基金的首席操盤手，參與 1992 年放空英鎊一役。",
+                "現在只管理自己的家族資金，仍按規定每季申報 13F。"],
+        "why": "總體經濟（利率、資金流）出發的頂尖操盤手，對產業趨勢轉向很敏銳，常是市場主題的早期指標。",
+        "caveat": "換股非常快，13F 晚 45 天公布，看到時他可能已經賣掉；適合看方向，不適合照抄。",
+    },
+    "tepper": {
+        "en": "David Tepper", "role": "Appaloosa 創辦人",
+        "bio": ["1993 年創立 Appaloosa，專長在危機中買進被錯殺的資產。",
+                "2009 年金融海嘯谷底大舉買進美國銀行、花旗等銀行股，當年替基金賺進數十億美元。",
+                "也是 NFL 卡羅萊納黑豹隊老闆。"],
+        "why": "在市場恐慌時敢於逆向重押，紀錄可查；他的加碼方向常反映對景氣與政策底部的判斷。",
+        "caveat": "部位隨景氣循環大幅調整，波動大；近年已把大部分資金轉為家族資金管理。",
+    },
+    "wood": {
+        "en": "Cathie Wood", "role": "方舟投資（ARK Invest）創辦人",
+        "bio": ["2014 年創立方舟投資，專注 AI、機器人、基因科技、區塊鏈等「破壞式創新」。",
+                "很早公開看好特斯拉，旗艦 ETF（ARKK）在 2020 年大漲，2021～2022 年也大幅回落。",
+                "每天公布 ETF 交易明細，透明度很高。"],
+        "why": "是觀察「創新題材」資金流向的好指標：她買什麼，往往代表市場在追哪些新科技。",
+        "caveat": "長期績效波動非常大，選股偏向高成長、尚未獲利的公司；適合當題材參考，不適合當穩健範本。",
+    },
+    "burry": {
+        "en": "Michael Burry", "role": "Scion 資產管理",
+        "bio": ["2005 年起用信用違約交換押注美國次貸崩盤，2008 年大賺，是電影《大賣空》的主角原型。",
+                "以深度研究、逆向操作聞名，2019 年很早就買進遊戲驛站（GameStop）。"],
+        "why": "擅長找出市場忽略的風險與被低估的冷門公司，逆向觀點常有參考價值。",
+        "caveat": "2025 年 9 月之後沒有新的 13F，資料停在當時；他也常用選擇權表達看空，13F 看不出完整部位。",
+    },
+    "gates": {
+        "en": "Bill & Melinda Gates Foundation Trust", "role": "蓋茲基金會信託",
+        "bio": ["管理蓋茲基金會的捐贈資產，由比爾蓋茲的投資公司 Cascade 團隊操作。",
+                "最大持股長期是波克夏（巴菲特多年來把自己的波克夏股票捐給基金會），還有微軟、廢棄物處理、鐵路等穩定型公司。",
+                "基金會 2025 年宣布計畫在 2045 年前把資產用完後關閉。"],
+        "why": "超長期、低週轉的「永久資本」，偏好有定價能力與穩定現金流的公司，風格接近巴菲特。",
+        "caveat": "因為要持續捐款與在 2045 年前花完資產，賣出不一定代表看壞那家公司。",
+    },
+}
+TRUMP_PROFILE = {
+    "en": "Donald J. Trump", "role": "美國第 47 任總統、川普媒體科技（DJT）最大股東",
+    "bio": ["房地產與品牌授權起家，2017～2021 年擔任第 45 任總統，2025 年起擔任第 47 任總統。",
+            "透過信託持有川普媒體科技集團（Truth Social 母公司）約 41.5% 股份（SEC 13D）。",
+            "依法須向政府道德辦公室申報個人證券交易（Form 278-T），申報顯示大量個股與債券買賣。"],
+    "why": "值得追蹤的不是投資績效，而是政策與市場的交集：關稅、晶片、能源等政策會直接影響這些公司，申報內容也受到國會與媒體高度關注。",
+    "caveat": "OGE 沒有說明交易是本人決定還是委託帳戶操作；申報最晚可晚 45 天，且只列金額區間。",
+}
+
+
+def profiles(w: dict, trump: dict | None, prefix: str = "../") -> str:
+    import investors
+    from visuals import monogram, portrait
+
+    cards = []
+    for m in w["managers"]:
+        inv = investors.BY_ID.get(m.get("investor") or "")
+        if inv:
+            pic, en, role = portrait(inv["id"], prefix), inv["en"], m["fund"]
+            bio, why, caveat = inv["bio"], inv["trust"], None
+        else:
+            p = PROFILES.get(m["id"])
+            if not p:
+                continue
+            pic, en, role = monogram(m["person"][0], m["id"]), p["en"], p["role"]
+            bio, why, caveat = p["bio"], p["why"], p["caveat"]
+        cards.append(_profile_card(m["person"], en, role, pic, bio, why, caveat, m["id"]))
+    if trump:
+        t = TRUMP_PROFILE
+        cards.append(_profile_card("川普", t["en"], t["role"], monogram("川", "trump"), t["bio"], t["why"], t["caveat"], "trump"))
+    return (f'<div class="wprof-grid">{"".join(cards)}</div>'
+            '<p class="mk-note">介紹只寫有公開紀錄可查的事實；四位投資人（段永平、巴菲特、芒格、李錄）的完整介紹在'
+            '<a href="../investors/index.html">四位投資人頁</a>。過去績效不代表未來，請把他們的持股當研究線索，不是買進清單。</p>'
+            + GOTO_SCRIPT)
+
+
+def _profile_card(name, en, role, pic, bio, why, caveat, target) -> str:
+    goto = ('<a class="wgoto" href="#trump-sec" data-goto="trump">看他的交易 →</a>' if target == "trump"
+            else f'<a class="wgoto" href="#wm-sec" data-goto="{e(target)}">看他的持股 →</a>')
+    return (f'<article class="wprof"><header>{pic}<div><h3>{e(name)}</h3><small>{e(en)}</small><span class="wrole">{e(role)}</span></div></header>'
+            f'<ul>{"".join(f"<li>{e(b)}</li>" for b in bio)}</ul>'
+            f'<p class="wwhy"><b>為什麼值得參考</b>{e(why)}</p>'
+            + (f'<p class="wcav"><b>要留意</b>{e(caveat)}</p>' if caveat else "")
+            + goto + "</article>")
+
+
+GOTO_SCRIPT = """<script>
+document.addEventListener("click", (ev) => {
+  const a = ev.target.closest("[data-goto]");
+  if (!a) return;
+  const id = a.dataset.goto;
+  if (id !== "trump") document.querySelector(`[data-tabs="wm"] [data-tab="${CSS.escape(id)}"]`)?.click();
+});
+</script>"""
+
+
 def leader_suppliers() -> dict[str, list[dict]]:
     """美股龍頭 → 台股（只有新聞出處核對過的關係）。台積電 ADR 直接對到台積電。"""
     from supply_map import SOURCES, TW_MAP
@@ -210,11 +316,12 @@ def render(w: dict | None, supply: dict | None, hero, section, trump: dict | Non
                 '<p class="hero-note">13F 是美國機構每季申報的美股多方持股，最晚在季末後 45 天公布，所以看到的是「上一季做了什麼」，不是即時動向；'
                 '也不包含放空與非美股部位。每一筆都能點回 SEC 原始文件。</p>')
     body += '<main class="wrap">'
+    body += section("他們是誰、為什麼值得參考", profiles(w, trump), f'{len(w["managers"])} 位大佬＋川普')
     body += section("大佬共同持有", consensus(w), "依持有人數排序")
     body += section("大佬持股 → 台股供應鏈", to_taiwan(w, supply, trump), "大佬持有的美股龍頭，連到已查證的台廠", ("../supply/index.html", "看完整供應鏈地圖"))
-    body += section("川普在買賣什麼", trump_section(trump), "OGE 官方財產申報（Form 278-T）")
+    body += '<div id="trump-sec"></div>' + section("川普在買賣什麼", trump_section(trump), "OGE 官方財產申報（Form 278-T）")
     body += section("這一季的動作", quarter_moves(w), "跟上一份 13F 比較")
-    body += section("各別大佬的最新持股", managers(w), "前十大持股與占比")
+    body += '<div id="wm-sec"></div>' + section("各別大佬的最新持股", managers(w), "前十大持股與占比")
     return body + "</main>" + TAB_SCRIPT
 
 
