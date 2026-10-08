@@ -945,3 +945,54 @@ html, html * { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.
 html :is(a, button, summary, label, [role="button"], tr.clickable, .mk-idx, [data-tab], [data-q], .chip, .rcard, .locked),
 html :is(a, button, summary, label, [role="button"], tr.clickable, .mk-idx, [data-tab], [data-q], .chip, .rcard, .locked) * { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2234%22%20height%3D%2234%22%20viewBox%3D%220%200%2034%2034%22%3E%3Cpath%20d%3D%22M12%204%20L22%204%20L19%2010%20L15%2010%20Z%22%20fill%3D%22%23c99400%22%20stroke%3D%22%23141416%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3Cpath%20d%3D%22M14%2010%20H20%20C29%2014%2031%2022%2029%2027%20C27%2031%207%2031%205%2027%20C3%2022%205%2014%2014%2010%20Z%22%20fill%3D%22%23ffc928%22%20stroke%3D%22%23141416%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22/%3E%3Crect%20x%3D%2213%22%20y%3D%229%22%20width%3D%228%22%20height%3D%223%22%20rx%3D%221.5%22%20fill%3D%22%23e3232c%22%20stroke%3D%22%23141416%22%20stroke-width%3D%221.2%22/%3E%3Ctext%20x%3D%2217%22%20y%3D%2226%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%22%20font-weight%3D%22900%22%20font-size%3D%2212%22%20fill%3D%22%23e3232c%22%3E%24%3C/text%3E%3C/svg%3E") 17 6, pointer; }
 html :is(input, textarea) { cursor: text; }
+
+/* ---------- 大佬持股 ---------- */
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.wcard, .wchain, .wmgr { background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; transition: transform .25s, box-shadow .25s, border-color .25s; }
+.wcard:hover, .wchain:hover { transform: translateY(-3px); box-shadow: var(--glow-yellow); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.wcard header { display: flex; align-items: center; gap: 10px; }
+.wcard header > div { flex: 1; min-width: 0; }
+.wcard header b, .wus b { display: block; color: var(--ink); font: 700 18px var(--serif); }
+.wcard header small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wn { color: var(--muted); font-size: 12px; } .wn b { font: 700 26px var(--serif); color: var(--accent); }
+.whs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.wh { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--chip); color: var(--text); display: inline-flex; gap: 4px; align-items: center; }
+.wh.new, .wh.add { background: color-mix(in srgb, var(--pos) 18%, var(--chip)); }
+.wh.cut { background: color-mix(in srgb, var(--neg) 16%, var(--chip)); }
+.wb { font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+.wb.new { background: var(--accent); color: #111; animation: livepulse 1.8s infinite; } .wb.add { background: var(--pos); color: #fff; }
+.wb.cut { background: var(--neg); color: #111; } .wb.exit { background: #555; color: #fff; }
+.wfoot { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.wchains { display: grid; gap: 14px; }
+.wchain { display: grid; grid-template-columns: minmax(220px, 1fr) 48px 2fr; align-items: center; gap: 10px; }
+.wus { display: flex; gap: 12px; align-items: flex-start; }
+.wus small { display: block; color: var(--muted); }
+.warrow { height: 2px; background: linear-gradient(90deg, var(--accent), var(--brand)); position: relative; background-size: 200% 100%; animation: flow 2.5s linear infinite; }
+.warrow::after { content: ""; position: absolute; right: -2px; top: -5px; border: 6px solid transparent; border-left-color: var(--brand); }
+.wtw, .wlist, .wbars { list-style: none; margin: 0; padding: 0; }
+.wtw li, .wlist li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.wtw li:first-child, .wlist li:first-child { border-top: 0; }
+.wtw li > span, .wlist li > span:not(.whs):not(.wb) { flex: 1; min-width: 140px; }
+.wtw b, .wlist b { color: var(--ink); } .wtw small, .wlist small { display: block; }
+.wtw i { font-style: normal; font-variant-numeric: tabular-nums; font-weight: 700; }
+.wtw a { font-size: 12px; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.wlist { background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: 8px; padding: 4px 14px; }
+.wh3 { font: 700 16px var(--serif); color: var(--ink); margin: 0 0 8px; }
+.wmgr-head { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.wmgr-head b { font: 700 20px var(--serif); color: var(--ink); margin-right: 8px; }
+.wmeta { font-size: 12px; color: var(--muted); } .wmeta a { color: var(--accent); }
+.wbars li { display: grid; grid-template-columns: 28px minmax(120px, 1.2fr) 2fr 56px 70px; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+.wbars li:first-child { border-top: 0; }
+.wnm small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wnm b { color: var(--ink); }
+.wbar { height: 8px; background: var(--chip); border-radius: 99px; overflow: hidden; }
+.wbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), var(--accent)); border-radius: inherit; transform-origin: left; animation: grow 1s cubic-bezier(.2,.7,.2,1) both; }
+.wpct { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 700; }
+.wexit { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+.inv-13f { margin-top: 14px; }
+@media (max-width: 720px) {
+  .wchain { grid-template-columns: 1fr; }
+  .warrow { width: 2px; height: 24px; justify-self: center; background: linear-gradient(180deg, var(--accent), var(--brand)); }
+  .warrow::after { right: -5px; top: auto; bottom: -8px; border-left-color: transparent; border-top-color: var(--brand); }
+  .wbars li { grid-template-columns: 28px 1fr 50px; } .wbars .wbar { display: none; } .wbars .wb { grid-column: 2 / 4; justify-self: start; }
+}

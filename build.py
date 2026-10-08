@@ -41,6 +41,7 @@ PICKS_DIR = ROOT / "data" / "picks"
 NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "市場", "市場"), ("news/index.html", "即時快報", "快報"),
        ("portfolio/index.html", "投資", "投資"),
        ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
+       ("whales/index.html", "大佬持股", "大佬"),
        ("sim/index.html", "模擬交易", "模擬")]
 # 太泛的關鍵字不當作新聞標籤
 GENERIC_KW = {"TOP", "headline", "台股", "美股", "國際股", "科技", "產業", "鉅亨速報", "大盤", "股市", "市場", "經濟", "投資", "個股"}
@@ -625,7 +626,7 @@ def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | No
 
 
 def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None,
-                          market: dict | None = None) -> str:
+                          market: dict | None = None, whales: dict | None = None) -> str:
     if sm is None:
         body = hero("投資總覽", "暫時讀不到 Notion", e(error or ""))
         return body + '<main class="wrap"><div class="soon">設定好 NOTION_TOKEN 並把「股票交易管理」分享給 integration 後，下次重建就會出現。</div></main>'
@@ -646,6 +647,10 @@ def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, s
     body += section("資產配置", allocation_bar(sm["allocation"], sm["total_value"]), "依 Notion「市場」分類")
     body += section("持股明細", holdings_table(sm["holdings"]) if sm["holdings"] else '<p class="empty">目前沒有持股</p>',
                     f'{len(sm["holdings"])} 檔')
+    if whales:
+        import whales_page
+        body += section("我的持股 × 大佬", whales_page.holdings_whales(sm["holdings"], whales),
+                        "你的持股是哪些大佬持有之美股龍頭的供應商（只有你看得到）", ("../whales/index.html", "看大佬持股"))
     if market:
         import market_page
         body += section("持股提醒", market_page.holdings_alerts(sm["holdings"], market), "處置／注意股・近期除權息（只有你看得到）")
@@ -810,6 +815,9 @@ def main() -> int:
     supply = supply_page.load(ROOT / "data" / "supply" / "latest.json")
     import market_page
     market = market_page.load(ROOT / "data" / "market" / "latest.json")
+    import whales_page
+    whales = whales_page.load(ROOT / "data" / "whales" / "latest.json")
+    write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section), 1, "whales/index.html"))
     write(OUT_DIR / "market" / "index.html", page("市場", market_page.render(market, hero, section), 1, "market/index.html"))
 
     digests = load_digests()  # 新 → 舊
@@ -832,7 +840,10 @@ def main() -> int:
     write(OUT_DIR / "investors" / "index.html", page("四位投資人", hero(
         "四位投資人", "段永平・巴菲特・芒格・李錄",
         "本站的每週研究與今日觀察，都用這四位投資人的框架從四個角度看同一家公司。")
-        + f'<main class="wrap">{section("他們是誰、為什麼值得參考", visuals.investors_section("../"))}</main>', 1, "weekly/index.html"))
+        + f'<main class="wrap">{section("他們是誰、為什麼值得參考", visuals.investors_section("../"))}'
+        + (section("他們實際持有什麼", "".join(whales_page.manager_block(m) for m in whales["managers"] if m.get("investor")),
+                   "SEC 13F 官方申報（真實持股，不是 AI 模擬）", ("../whales/index.html", "看十位大佬"))
+           if whales else "") + '</main>', 1, "weekly/index.html"))
 
     # 投資總覽：讀不到 Notion 時照樣產生其他頁面
     sm = rc = err = None
@@ -843,7 +854,7 @@ def main() -> int:
     except portfolio.NotionUnavailable as exc:
         err = str(exc)
         print(f"⚠️ 投資總覽略過：{exc}", file=sys.stderr)
-    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply, market), 1, "portfolio/index.html"))
+    write(OUT_DIR / "portfolio" / "index.html", page("投資總覽", render_portfolio_page(sm, rc, err, supply, market, whales), 1, "portfolio/index.html"))
 
     # AI 投資顧問（同樣在 /portfolio/ 密碼後面）：每日資料 + 持股權重（只放比例，不放金額）
     adv_dir = OUT_DIR / "portfolio" / "advisor"
@@ -884,6 +895,11 @@ def main() -> int:
                         f'{e(tw["name"])} {tw["close"]:,.0f}（{tw["chg_pct"]:+.2f}%）・上漲 {b["up"]} 家／下跌 {b["down"]} 家',
                         f'最強產業：{e(hot["name"])} {hot["pct"]:+.2f}%・處置／注意股 {len(market.get("warnings", []))} 檔',
                         "看熱力圖"))
+    if whales and whales.get("by_ticker"):
+        top = sorted(whales["by_ticker"].values(), key=lambda t: (-t["buying"], -t["n"]))[:3]
+        body += section("大佬持股", home_link_card("whales/index.html", "🐋",
+                        f'{len(whales["managers"])} 位大佬最新 13F：本季最多人買進 ' + "、".join(e(t["ticker"]) for t in top),
+                        "巴菲特、段永平、李錄、Ackman…持股與台股供應鏈連動", "看大佬在買什麼"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/

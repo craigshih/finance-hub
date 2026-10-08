@@ -133,6 +133,8 @@ jobs:
       - name: Whale holdings (13F)
         continue-on-error: true
         timeout-minutes: 8
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python whales.py
 
       # 供應鏈地圖：海外龍頭與台股相關公司的漲跌（用上一步存下的法人資料）

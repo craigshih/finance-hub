@@ -14,6 +14,7 @@
 """
 
 import json
+import os
 import re
 import sys
 import time
@@ -29,7 +30,7 @@ FILINGS = DIR / "filings"
 CUSIP = DIR / "cusip.json"
 OUT = DIR / "latest.json"
 TAIPEI = timezone(timedelta(hours=8))
-SEC_UA = "craig-finance-hub craigshih@users.noreply.github.com"
+SEC_UA = os.environ.get("SEC_USER_AGENT") or "craig-finance-hub craigshih@users.noreply.github.com"
 
 # (代號, 人物, 機構, CIK, 說明, 對應本站四位投資人的 id)
 MANAGERS = [
@@ -51,18 +52,24 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr)
 
 
+class SecBlocked(Exception):
+    pass
+
+
 def sec_get(url: str):
-    for attempt in range(3):
+    for attempt in range(2):
         r = requests.get(url, headers={"User-Agent": SEC_UA, "Accept-Encoding": "gzip, deflate"}, timeout=40)
         if r.status_code == 200:
             time.sleep(0.25)  # SEC 上限每秒 10 次，這裡遠低於
             return r
-        if r.status_code in (403, 429):
-            log(f"⚠️ SEC 回 {r.status_code}，等一下重試")
-            time.sleep(10 * (attempt + 1))
+        if r.status_code == 429 and attempt == 0:
+            time.sleep(5)
             continue
+        if r.status_code in (403, 429):
+            # 被擋就整批停下，不要拖慢建站（通常是 User-Agent 的聯絡資訊不被接受）
+            raise SecBlocked(f"SEC 回 {r.status_code}：{url}")
         r.raise_for_status()
-    raise RuntimeError(f"SEC 一直拒絕：{url}")
+    raise SecBlocked(f"SEC 一直拒絕：{url}")
 
 
 def latest_13f(cik: int, n: int = 2) -> list[dict]:
@@ -172,6 +179,9 @@ def main() -> int:
                 continue
             cur = aggregate(holdings_of(cik, filings[0]["accession"]))
             prev = aggregate(holdings_of(cik, filings[1]["accession"])) if len(filings) > 1 else None
+        except SecBlocked as exc:
+            log(f"❌ {exc}；這次先跳過，沿用上一份資料")
+            return 0
         except Exception as exc:  # 單一大佬失敗不影響其他人
             log(f"⚠️ {person}（{fund}）讀取失敗：{exc}")
             continue
