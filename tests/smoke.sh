@@ -58,6 +58,8 @@ echo "✅ 模擬交易"
 # 市場頁：所有登入者都看得到，但不能出現持股提醒
 code=$(curl -s -o /tmp/mk.html -w '%{http_code}' "$BASE/market/"); [ "$code" = 200 ] || fail "市場頁應該 200，實際 $code"
 grep -q "持股提醒" /tmp/mk.html && fail "市場頁不該有持股提醒"
+code=$(curl -s -o /tmp/wh.html -w '%{http_code}' "$BASE/whales/"); [ "$code" = 200 ] || fail "大佬持股頁應該 200，實際 $code"
+grep -q "我的持股 × 大佬" /tmp/wh.html && fail "大佬持股頁不該有站長持股"
 echo "✅ 市場頁"
 
 # 即時報價 API（來源暫時連不到也要回正常格式）

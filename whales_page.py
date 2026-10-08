@@ -123,10 +123,18 @@ def manager_block(m: dict, top: int = 10) -> str:
         f'<span class="wbar"><i style="width:{r["weight"] / mx * 100:.1f}%"></i></span><span class="wpct">{r["weight"]:.1f}%</span>{badge(r["change"], r.get("chg_pct"))}</li>'
         for r in rows)
     exits = "、".join(e(r.get("ticker") or r["name"]) for r in m["exits"][:8])
+    opts = [r for r in m["holdings"] if r["option"]]
+    notes = ""
+    if not rows and opts:
+        notes += (f'<p class="wexit">這份申報只有選擇權部位：'
+                  + "、".join(f'{e(r.get("ticker") or r["name"])} {"看跌" if r["option"] == "PUT" else "看漲"}' for r in opts[:8]) + "</p>")
+    from datetime import date
+    if (date.today() - date.fromisoformat(m["period"])).days > 200:
+        notes += f'<p class="wexit">⚠︎ 最新申報停在 {e(m["period"])}，之後沒有新的 13F（可能已不需申報或停止申報），資料偏舊。</p>'
     return (f'<div class="wmgr"><div class="wmgr-head"><div><b>{e(m["person"])}</b><small>{e(m["fund"])}・{e(m["note"])}</small></div>'
             f'<div class="wmeta">持股期間 {e(m["period"])}・申報 {e(m["filed"])}・{len(m["holdings"])} 檔・{usd(m["total_value"])}'
             f'・<a href="{e(m["url"])}" target="_blank" rel="noopener">SEC 原始申報 ↗</a></div></div>'
-            f'<ol class="wbars">{bars}</ol>'
+            f'<ol class="wbars">{bars}</ol>' + notes
             + (f'<p class="wexit">本季出清：{exits}</p>' if exits else "")
             + (f'<p class="mk-note">比較基準：上一份申報（{e(m["prev_period"])}）</p>' if m.get("prev_period") else '<p class="mk-note">只有一份申報，無法比較增減</p>')
             + "</div>")

@@ -250,9 +250,10 @@
 "type": "Common Stock"
 },
 "116794207": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "BRKR 6.375 09/01/28",
+"figi_name": "BRUKER CORP",
+"type": "Preferred Stock",
+"foreign": true
 },
 "124155102": {
 "ticker": "BFLY",
@@ -630,9 +631,10 @@
 "type": "Common Stock"
 },
 "438516106": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "HONGBP",
+"figi_name": "HONEYWELL INTERNATIONAL INC",
+"type": "Common Stock",
+"foreign": true
 },
 "438516205": {
 "ticker": "HON",
@@ -1400,9 +1402,10 @@
 "type": "Common Stock"
 },
 "881624209": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "TEVAN",
+"figi_name": "TEVA PHARMACEUTICAL-SP ADR",
+"type": "Depositary Receipt",
+"foreign": true
 },
 "883556102": {
 "ticker": "TMO",
@@ -1581,312 +1584,364 @@
 },
 "D18190898": {
 "ticker": null,
-"figi_name": null,
-"type": null
+"tries": 3
 },
 "G0896C103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "TBBB",
+"figi_name": "Bbb Foods Inc",
+"type": null,
+"via": "sec-name"
 },
 "G11448100": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "BTDR",
+"figi_name": "Bitdeer Technologies Group",
+"type": null,
+"via": "sec-name"
 },
 "G13311116": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "SLMT",
+"figi_name": "Brera Holdings PLC",
+"type": null,
+"via": "sec-name"
 },
 "G16910120": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "BLSH",
+"figi_name": "Bullish",
+"type": null,
+"via": "sec-name"
 },
 "G22845104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "OCTV",
+"figi_name": "Octave Intelligence PLC",
+"type": null,
+"via": "sec-name"
 },
 "G25457105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CRDO",
+"figi_name": "CREDO TECHNOLOGY GROUP HOLDI",
+"type": null,
+"via": "sec-name"
 },
 "G25508105": {
 "ticker": null,
-"figi_name": null,
-"type": null
+"tries": 3
 },
 "G32089107": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ETOR",
+"figi_name": "Etoro Group Ltd",
+"type": null,
+"via": "sec-name"
 },
 "G3730V105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "FTAI",
+"figi_name": "Ftai Aviation Ltd",
+"type": null,
+"via": "sec-name"
 },
 "G3934V109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "GENI",
+"figi_name": "Genius Sports Ltd",
+"type": null,
+"via": "sec-name"
 },
 "G5279N105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "KLAR",
+"figi_name": "Klarna Group PLC",
+"type": null,
+"via": "sec-name"
 },
 "G54950103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "LIN",
+"figi_name": "Linde Plc",
+"type": null,
+"via": "sec-name"
 },
 "G65163100": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "JOBY",
+"figi_name": "Joby Aviation Inc",
+"type": null,
+"via": "sec-name"
 },
 "G6683N103": {
 "ticker": null,
-"figi_name": null,
-"type": null
+"tries": 3
 },
 "G7997R103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "STX",
+"figi_name": "Seagate Technology Hldngs Pl",
+"type": null,
+"via": "sec-name"
 },
 "H1467J104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CB",
+"figi_name": "CHUBB LIMITED",
+"type": null,
+"via": "sec-name"
 },
 "H17182108": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CRSP",
+"figi_name": "CRISPR Therapeutics AG",
+"type": null,
+"via": "sec-name"
 },
 "H2906T109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "GRMN",
+"figi_name": "Garmin Ltd",
+"type": null,
+"via": "sec-name"
 },
 "H5919C104": {
 "ticker": null,
-"figi_name": null,
-"type": null
+"tries": 3
 },
 "L8681T102": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "SPOT",
+"figi_name": "Spotify Technology SA",
+"type": null,
+"via": "sec-name"
 },
 "M0740A108": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "DRTS",
+"figi_name": "Alpha Tau Medical Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M0854Q105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ALLT",
+"figi_name": "Allot Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M15342104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "AUDC",
+"figi_name": "AudioCodes Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M20791105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CAMT",
+"figi_name": "Camtek Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M2197Q107": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CLBT",
+"figi_name": "Cellebrite DI Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M22465104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CHKP",
+"figi_name": "Check Point Software Technologies Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M25133105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CGNT",
+"figi_name": "Cognyte Software Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M25722105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "CGEN",
+"figi_name": "Compugen Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M3760D101": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ESLT",
+"figi_name": "Elbit Systems Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M4130Y106": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ENLV",
+"figi_name": "Enlivex Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M4R82T106": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "FVRR",
+"figi_name": "Fiverr International Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M51474118": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "GILT",
+"figi_name": "Gilat Satellite Networks Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M5425M103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "INMD",
+"figi_name": "Inmode Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M6158M104": {
 "ticker": null,
-"figi_name": null,
-"type": null
+"tries": 3
 },
 "M6191J100": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "FROG",
+"figi_name": "JFrog Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M6240T109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "KMDA",
+"figi_name": "Kamada Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M68830112": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "MDWD",
+"figi_name": "MediWound Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M70700105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "NNOX",
+"figi_name": "Nano-X Imaging Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M7516K103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "NVMI",
+"figi_name": "Nova Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M7518J104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ODD",
+"figi_name": "Oddity Tech Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M78673114": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "PERI",
+"figi_name": "Perion Network Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M7S64H106": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "MNDY",
+"figi_name": "Monday.com Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M7S64L123": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "PGY",
+"figi_name": "Pagaya Technologies Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M7S750159": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "NYAX",
+"figi_name": "Nayax Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M81865111": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "RDCM",
+"figi_name": "RADCOM Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M81873107": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "RDWR",
+"figi_name": "Radware Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M8216R109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "RSKD",
+"figi_name": "Riskified Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M84137104": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "SMWB",
+"figi_name": "SimilarWeb Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M85548101": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "SSYS",
+"figi_name": "Stratasys Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M8740S227": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "TATT",
+"figi_name": "TAT Technologies Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M8744T106": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "TBLA",
+"figi_name": "Taboola.com Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M87915274": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "TSEM",
+"figi_name": "Tower Semiconductor Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M9607U115": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "VLN",
+"figi_name": "Valens Semiconductor Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M96088105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "URGN",
+"figi_name": "UroGen Pharma Ltd",
+"type": null,
+"via": "sec-name"
 },
 "M98068105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "WIX",
+"figi_name": "Wix.com Ltd",
+"type": null,
+"via": "sec-name"
 },
 "N07059210": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "ASML",
+"figi_name": "ASML HLDG NV",
+"type": null,
+"via": "sec-name"
 },
 "N4732M103": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "JBS",
+"figi_name": "Jbs N.V.",
+"type": null,
+"via": "sec-name"
 },
 "N53745100": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "LYB",
+"figi_name": "Lyondellbasell Industries Nv",
+"type": null,
+"via": "sec-name"
 },
 "N62509109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "NAMS",
+"figi_name": "Newamsterdam Pharma Company",
+"type": null,
+"via": "sec-name"
 },
 "Q4982L109": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "IREN",
+"figi_name": "Iren Limited",
+"type": null,
+"via": "sec-name"
 },
 "Y95308105": {
-"ticker": null,
-"figi_name": null,
-"type": null
+"ticker": "WVE",
+"figi_name": "Wave Life Sciences Ltd",
+"type": null,
+"via": "sec-name"
 }
 }

@@ -45,7 +45,8 @@ MANAGERS = [
     ("burry", "Michael Burry", "Scion Asset Management", 1649339, "《大賣空》主角", None),
     ("gates", "比爾蓋茲", "Bill & Melinda Gates Foundation Trust", 1166559, "蓋茲基金會信託", None),
 ]
-CHANGE_TOLERANCE = 0.05  # 股數變動 5% 以內算「持平」
+CHANGE_TOLERANCE = 0.05
+SHARE_CLASS = {"GOOG": "GOOGL", "BRK/A": "BRK/B", "FOXA": "FOX", "NWSA": "NWS"}  # 股數變動 5% 以內算「持平」
 
 
 def log(msg: str) -> None:
@@ -124,28 +125,83 @@ def aggregate(rows: list[dict]) -> dict[str, dict]:
     return out
 
 
+def _figi(jobs: list[dict]) -> list[dict] | None:
+    for attempt in range(3):
+        try:
+            r = requests.post("https://api.openfigi.com/v3/mapping", json=jobs, timeout=30)
+        except requests.RequestException:
+            time.sleep(5)
+            continue
+        if r.status_code == 429:
+            time.sleep(20 * (attempt + 1))
+            continue
+        if r.ok:
+            return r.json()
+        return None
+    return None
+
+
 def map_cusips(cusips: set[str]) -> dict:
+    """OpenFIGI 只查美國交易所；查不到的（多半是外國註冊公司的 CINS 代碼）之後用 SEC 公司名稱對照補上。"""
     mapping = json.loads(CUSIP.read_text(encoding="utf-8")) if CUSIP.exists() else {}
-    todo = sorted(c for c in cusips if c not in mapping)
+    todo = sorted(c for c in cusips if c not in mapping or (not mapping[c].get("ticker") and mapping[c].get("tries", 0) < 3))
     for i in range(0, len(todo), 10):
         batch = todo[i:i + 10]
-        try:
-            r = requests.post("https://api.openfigi.com/v3/mapping", timeout=30,
-                              json=[{"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"} for c in batch])
-            if r.status_code == 429:
-                time.sleep(30)
-                r = requests.post("https://api.openfigi.com/v3/mapping", timeout=30,
-                                  json=[{"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"} for c in batch])
-            r.raise_for_status()
-            for c, res in zip(batch, r.json()):
-                d = (res.get("data") or [{}])[0]
-                mapping[c] = {"ticker": d.get("ticker"), "figi_name": d.get("name"), "type": d.get("securityType2")}
-        except (requests.RequestException, ValueError) as exc:
-            log(f"⚠️ OpenFIGI 失敗（{exc}），這批之後再補")
+        res = _figi([{"idType": "ID_CUSIP", "idValue": c, "exchCode": "US"} for c in batch])
         time.sleep(2.6)  # 沒有金鑰：每分鐘 25 次
+        if res is None:
+            log("⚠️ OpenFIGI 暫時失敗，這批之後再補")
+            continue
+        retry = []
+        for c, x in zip(batch, res):
+            d = (x.get("data") or [None])[0]
+            if d:
+                mapping[c] = {"ticker": d.get("ticker"), "figi_name": d.get("name"), "type": d.get("securityType2")}
+            else:
+                retry.append(c)
+        for c in retry:
+            mapping[c] = {"ticker": None, "tries": mapping.get(c, {}).get("tries", 0) + 1}
     DIR.mkdir(parents=True, exist_ok=True)
     CUSIP.write_text(json.dumps(mapping, ensure_ascii=False, indent=0), encoding="utf-8")
     return mapping
+
+
+SUFFIX = re.compile(r"\b(INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LTD|LIMITED|PLC|AG|NV|N V|SA|S A|SE|LLC|LP|HLDGS?|HOLDINGS?|GROUP|"
+                    r"TECHNOLOGY|TECHNOLOGIES|THE|CL [A-Z]|CLASS [A-Z]|NEW|COM|ORD|SHS|ADR|SPONSORED|SPON)\b")
+
+
+def norm(name: str) -> str:
+    n = re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper().replace("&", " "))
+    n = SUFFIX.sub(" ", n)
+    return " ".join(n.split())
+
+
+def sec_name_tickers() -> dict[str, str]:
+    """SEC 官方公司代號表：正規化後的公司名 → 代號（同名多檔時取第一個）。"""
+    data = sec_get("https://www.sec.gov/files/company_tickers.json").json()
+    out: dict[str, str] = {}
+    for row in data.values():
+        out.setdefault(norm(row["title"]), row["ticker"])
+    return out
+
+
+def fill_by_name(rows: list[dict], mapping: dict, names: dict[str, str]) -> int:
+    filled = 0
+    for r in rows:
+        if (mapping.get(r["cusip"]) or {}).get("ticker"):
+            continue
+        words = norm(r["name"]).split()
+        t = None
+        # 13F 的名稱常被截斷（例如 HOLDI、Hldngs Pl）：最多去掉結尾兩個字再比
+        for cut in range(0, 3):
+            key = " ".join(words[:len(words) - cut]) if cut else " ".join(words)
+            if len(key) >= 3 and key in names:
+                t = names[key]
+                break
+        if t:
+            mapping[r["cusip"]] = {"ticker": t, "figi_name": r["name"], "type": None, "via": "sec-name"}
+            filled += 1
+    return filled
 
 
 def compare(now: dict, prev: dict | None) -> tuple[list[dict], list[dict]]:
@@ -197,24 +253,43 @@ def main() -> int:
         log(f"{person}：{f['sec_name']}・{f['period']}・{len(rows)} 檔")
 
     mapping = map_cusips(cusips)
+    try:
+        names = sec_name_tickers()
+        n = sum(fill_by_name(m["holdings"] + m["exits"], mapping, names) for m in managers)
+        CUSIP.write_text(json.dumps(mapping, ensure_ascii=False, indent=0), encoding="utf-8")
+        log(f"SEC 公司名稱對照補上 {n} 檔代號")
+    except (SecBlocked, requests.RequestException, ValueError) as exc:
+        log(f"⚠️ SEC 公司代號表讀取失敗：{exc}")
     for m in managers:
         for r in m["holdings"] + m["exits"]:
             mp = mapping.get(r["cusip"]) or {}
             r["ticker"] = mp.get("ticker")
             r["adr"] = mp.get("type") == "Depositary Receipt"
 
-    # 依股票彙總：幾位大佬持有、這季誰新買或加碼
+    # 依股票彙總：幾位大佬持有、這季誰新買或加碼（同公司不同股別合併，例如 GOOG／GOOGL）
     by_ticker: dict[str, dict] = {}
+    rank = {"新買進": 3, "加碼": 2, "持平": 1, "減碼": 0, None: 1}
     for m in managers:
+        mine: dict[str, dict] = {}
         for r in m["holdings"]:
             if r["option"] or not r["ticker"]:
                 continue
-            t = by_ticker.setdefault(r["ticker"], {"ticker": r["ticker"], "name": r["name"], "holders": [], "value": 0.0})
-            t["holders"].append({"id": m["id"], "person": m["person"], "weight": round(r["weight"], 2), "change": r["change"], "chg_pct": r["chg_pct"]})
-            t["value"] += r["value"]
+            tk = SHARE_CLASS.get(r["ticker"], r["ticker"])
+            h = mine.setdefault(tk, {"id": m["id"], "person": m["person"], "weight": 0.0, "change": r["change"], "chg_pct": r["chg_pct"], "value": 0.0, "name": r["name"]})
+            h["weight"] += r["weight"]
+            h["value"] += r["value"]
+            if rank.get(r["change"], 1) > rank.get(h["change"], 1):
+                h["change"], h["chg_pct"] = r["change"], r["chg_pct"]
+        for tk, h in mine.items():
+            t = by_ticker.setdefault(tk, {"ticker": tk, "name": h["name"], "holders": [], "value": 0.0})
+            t["value"] += h.pop("value")
+            h.pop("name")
+            h["weight"] = round(h["weight"], 2)
+            t["holders"].append(h)
         for r in m["exits"]:
-            if r["ticker"]:
-                t = by_ticker.setdefault(r["ticker"], {"ticker": r["ticker"], "name": r["name"], "holders": [], "value": 0.0})
+            tk = SHARE_CLASS.get(r["ticker"], r["ticker"]) if r["ticker"] else None
+            if tk and tk not in mine:
+                t = by_ticker.setdefault(tk, {"ticker": tk, "name": r["name"], "holders": [], "value": 0.0})
                 t.setdefault("exited_by", []).append(m["person"])
     for t in by_ticker.values():
         t["n"] = len(t["holders"])
