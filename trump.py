@@ -146,8 +146,8 @@ def parse_filing(f: dict) -> list[dict]:
         for i, text in enumerate(ocr, 1):
             for r in parse(text):
                 rows.append({**r, "page": i})
-            for n in re.findall(r"(?m)^\s*[I|]?\s*(\d{1,4})\s+[A-Za-z]", text):
-                total = max(total, int(n))
+            # OCR 會把序號讀錯，總筆數改數「有交易日期的行」
+            total += len(re.findall(r"\d{1,2}\s?/\s?\d{1,2}\s?/\s?20\d\d", text))
     data = {"total": total, "rows": rows}
     DIR.mkdir(parents=True, exist_ok=True)
     cache.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")

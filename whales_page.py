@@ -193,7 +193,7 @@ def trump_section(t: dict | None) -> str:
         for x in sup.get(a["ticker"] or "", [])[:4]:
             links.append(f'<span class="wh add">{e(a["ticker"])} → {e(x["name"])}（{e(x["relation"])}）</span>')
     chain = (f'<h3 class="wh3" style="margin-top:18px">川普買進的美股，台股供應鏈有誰</h3><div class="whs">{"".join(links)}</div>' if links else "")
-    filings = "、".join(f'<a href="{e(f["url"])}" target="_blank" rel="noopener">{e(f["first"])}～{e(f["last"])}（{f["parsed"]}／{f["total"]} 筆）</a>' for f in fl[-6:])
+    filings = "、".join(f'<a href="{e(f["url"])}" target="_blank" rel="noopener">{e(f["first"])}～{e(f["last"])}（{f["parsed"]}／{f["total"] or "?"} 筆）</a>' for f in fl[-6:])
     note = ('<p class="mk-note">來源：美國政府道德辦公室（OGE）公開的總統財產申報 Form 278-T。申報只列金額「區間」，表中合計是區間加總；'
             'PDF 是掃描檔，本站用文字辨識解析（括號內是解析出的股票交易數／申報總筆數，總數含債券），解析不到的不會亂猜，每一筆都可點 📄 對照原文。'
             'OGE 沒有說明交易是本人決定還是委託帳戶操作；申報最晚可在交易後 45 天提出。依法這些資料不得用於商業或募款用途，本站僅供個人研究。'
