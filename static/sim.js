@@ -71,11 +71,8 @@
   function equityChart(points) {
     const svg = $("#sim-equity");
     svg.replaceChildren();
-    if (!points || points.length < 2) {
-      svg.append(svgEl("text", { x: 150, y: 44, "text-anchor": "middle", class: "eq-empty" }));
-      svg.lastChild.textContent = "每天看一次帳戶，就會畫出資產走勢";
-      return;
-    }
+    svg.classList.toggle("empty", !points || points.length < 2);
+    if (!points || points.length < 2) return;
     const vals = points.map((p) => p.total);
     const lo = Math.min(...vals, me.initial), hi = Math.max(...vals, me.initial), span = hi - lo || 1;
     const x = (i) => (i / (vals.length - 1)) * 300, y = (v) => 74 - ((v - lo) / span) * 66;
@@ -156,15 +153,19 @@
       : [el("li", { class: "empty" }, "還沒有成交紀錄")]));
   }
 
+  // 排行榜放在最上面的帳戶區塊：前 5 名＋自己的名次
   async function loadBoard() {
     const { rows } = await api("leaderboard");
-    $("#sim-board").replaceChildren(...rows.map((r, i) => el("tr", { class: r.me ? "me" : "" },
-      el("td", { class: "rank" }, i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)),
-      el("td", {}, el("b", {}, r.nickname), r.me ? el("small", {}, "（我）") : ""),
-      el("td", { class: "num" }, fmt(r.total)),
-      el("td", { class: "num " + cls(r.return_pct) }, pct(r.return_pct)),
-      el("td", { class: "num" }, String(r.holdings)),
-      el("td", { class: "num" }, String(r.trades)))));
+    const mine = rows.findIndex((r) => r.me);
+    const show = rows.slice(0, 5).map((r, i) => [r, i]);
+    if (mine >= 5) show.push([rows[mine], mine]);
+    const li = ([r, i]) => el("li", { class: r.me ? "me" : "" },
+      el("span", { class: "rk" }, i < 3 ? ["🥇", "🥈", "🥉"][i] : String(i + 1)),
+      el("b", {}, r.nickname, r.me ? el("small", {}, "（我）") : ""),
+      el("span", { class: "num" }, fmt(r.total)),
+      el("span", { class: "num " + cls(r.return_pct) }, pct(r.return_pct)));
+    $("#sim-board").replaceChildren(...show.map(li));
+    $("#sim-board-note").textContent = mine >= 0 ? `共 ${rows.length} 位・我排第 ${mine + 1} 名` : `共 ${rows.length} 位`;
   }
 
   async function loadWatch() {
@@ -187,6 +188,7 @@
   async function refresh() {
     me = await api("me");
     renderAccount();
+    loadBoard().catch(() => {});
   }
 
   // ---------- 搜尋 ----------
@@ -387,7 +389,6 @@
   function switchTab(name) {
     $$("#sim-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
     $$(".sim-panel").forEach((p) => (p.hidden = p.dataset.panel !== name));
-    if (name === "board") loadBoard().catch((e) => toast(e.message, true));
     if (name === "watch") loadWatch();
   }
 

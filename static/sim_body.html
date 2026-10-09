@@ -10,6 +10,10 @@
     <svg class="sim-equity" id="sim-equity" viewBox="0 0 300 80" preserveAspectRatio="none" aria-label="總資產走勢"></svg>
   </div>
   <div class="sim-tiles" id="sim-tiles"></div>
+  <div class="sim-board">
+    <div class="sim-board-head"><b>🏆 排行榜</b><small id="sim-board-note">依總資產排序，只顯示暱稱</small></div>
+    <ol id="sim-board"></ol>
+  </div>
 </div></section>
 
 <nav class="sim-tabs" id="sim-tabs" aria-label="模擬交易分頁"><div class="wrap">
@@ -18,7 +22,6 @@
   <button type="button" data-tab="watch">自選 <b id="n-watch"></b></button>
   <button type="button" data-tab="orders">委託 <b id="n-orders"></b></button>
   <button type="button" data-tab="history">紀錄</button>
-  <button type="button" data-tab="board">排行</button>
   <button type="button" data-tab="settings">設定</button>
 </div></nav>
 
@@ -72,12 +75,6 @@
   <!-- 紀錄 -->
   <section class="sim-panel" data-panel="history" hidden>
     <ul class="feed" id="sim-trades"></ul>
-  </section>
-
-  <!-- 排行 -->
-  <section class="sim-panel" data-panel="board" hidden>
-    <div class="table-wrap"><table class="board"><thead><tr><th>#</th><th>暱稱</th><th class="num">總資產</th><th class="num">報酬率</th><th class="num">持股</th><th class="num">成交</th></tr></thead>
-    <tbody id="sim-board"></tbody></table></div>
   </section>
 
   <!-- 設定與規則 -->
