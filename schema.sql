@@ -34,3 +34,37 @@ CREATE TABLE IF NOT EXISTS advisor_watch (
   code     TEXT PRIMARY KEY,
   added_at TEXT NOT NULL
 );
+-- 模擬交易 v2：限價委託、自選股、每日資產快照、已實現損益
+CREATE TABLE IF NOT EXISTS sim_orders (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  email       TEXT NOT NULL,
+  ts          TEXT NOT NULL,
+  code        TEXT NOT NULL,
+  name        TEXT,
+  side        TEXT NOT NULL,             -- buy / sell
+  shares      INTEGER NOT NULL,
+  limit_price REAL NOT NULL,
+  status      TEXT NOT NULL,             -- open / filled / cancelled / expired / failed
+  note        TEXT,
+  expires     TEXT NOT NULL              -- 當天收盤（台北 13:30）
+);
+CREATE INDEX IF NOT EXISTS sim_orders_by_email ON sim_orders (email, status);
+CREATE TABLE IF NOT EXISTS sim_watch (
+  email TEXT NOT NULL,
+  code  TEXT NOT NULL,
+  added TEXT NOT NULL,
+  PRIMARY KEY (email, code)
+);
+CREATE TABLE IF NOT EXISTS sim_equity (
+  email TEXT NOT NULL,
+  date  TEXT NOT NULL,                   -- 台北日期
+  total INTEGER NOT NULL,
+  PRIMARY KEY (email, date)
+);
+CREATE TABLE IF NOT EXISTS sim_realized (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  email    TEXT NOT NULL,
+  ts       TEXT NOT NULL,
+  code     TEXT NOT NULL,
+  realized INTEGER NOT NULL              -- 賣出實收 − 對應的持有成本
+);

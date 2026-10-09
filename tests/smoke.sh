@@ -48,6 +48,16 @@ r=$(post /api/sim/order '{"code":"0050","side":"sell","shares":4}'); need "$r" '
 r=$(post /api/sim/order '{"code":"2330","side":"buy","shares":100000}'); need "$r" '現金不足' "應該擋下超買"
 r=$(post /api/sim/order '{"code":"0050","side":"buy","shares":-1}'); need "$r" '整數' "應該擋下負股數"
 me=$(curl -s "$BASE/api/sim/me"); need "$me" '"shares":6' "持股應該剩 6 股"
+sr=$(curl -s "$BASE/api/sim/search?q=%E5%85%83%E5%A4%A7"); need "$sr" '"0050"' "用名稱「元大」應該搜得到 0050"
+lo=$(post /api/sim/order '{"code":"0050","side":"buy","shares":1,"type":"limit","limit_price":0.01}'); need "$lo" '±50%' "限價離現價太遠應該擋下"
+q=$(curl -s "$BASE/api/sim/quote?code=0050"); px=$(echo "$q" | sed -n 's/.*"price":\([0-9.]*\).*/\1/p')
+lim=$(python3 -c "print(round($px*0.6,2))")
+lo=$(post /api/sim/order "{\"code\":\"0050\",\"side\":\"buy\",\"shares\":1,\"type\":\"limit\",\"limit_price\":$lim}"); need "$lo" '"filled":false' "低於現價的限價買單應該掛單"
+me=$(curl -s "$BASE/api/sim/me"); need "$me" '"status":"open"' "委託清單應該有掛單"
+oid=$(echo "$me" | sed -n 's/.*"orders":\[{"id":\([0-9]*\).*/\1/p')
+need "$(post /api/sim/cancel "{\"id\":$oid}")" '"ok":true' "取消委託失敗"
+need "$(post /api/sim/watch '{"code":"2330","on":true}')" '"ok":true' "加入自選失敗"
+need "$(curl -s "$BASE/api/sim/watch")" '"2330"' "自選股清單沒有 2330"
 need "$(post /api/sim/nickname '{"nickname":"<b>測試</b>"}')" '"ok":true' "改暱稱失敗"
 lb=$(curl -s "$BASE/api/sim/leaderboard"); need "$lb" '"me":true' "排行榜沒有自己"
 echo "$lb" | grep -q "smoke@example.com" && fail "排行榜洩漏 email"

@@ -102,3 +102,41 @@ export function valuate(holdings, quotes) {
   rows.sort((a, b) => b.value - a.value);
   return { rows, value };
 }
+
+// ---------- 搜尋、盤中即時價 ----------
+
+// 代號或中文名稱都可以搜：代號完全符合 > 代號開頭 > 名稱開頭 > 名稱包含
+export function searchStocks(quotes, q, limit = 8) {
+  const s = String(q || "").trim().toUpperCase().replace(/\s+/g, "");
+  if (!s) return [];
+  const scored = [];
+  for (const x of Object.values(quotes)) {
+    const name = x.name.replace(/\s+/g, "").toUpperCase();
+    let score = null;
+    if (x.code === s) score = 0;
+    else if (name === s) score = 1;
+    else if (x.code.startsWith(s)) score = 2;
+    else if (name.startsWith(s)) score = 3;
+    else if (name.includes(s)) score = 4;
+    if (score != null) scored.push([score, x.code.length, x.code, x]);
+  }
+  scored.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2].localeCompare(b[2]));
+  return scored.slice(0, limit).map(([, , , x]) => ({ code: x.code, name: x.name, market: x.market, price: x.price }));
+}
+
+// 台股盤中：週一到週五 09:00～13:30（台北時間）；不處理國定假日（休市時 MIS 會回昨收，不影響）
+export function marketOpen(now = new Date()) {
+  const t = new Date(now.getTime() + 8 * 3600_000);
+  const day = t.getUTCDay();
+  const mins = t.getUTCHours() * 60 + t.getUTCMinutes();
+  return day >= 1 && day <= 5 && mins >= 9 * 60 && mins <= 13 * 60 + 30;
+}
+
+// 限價委託的有效期限：當天（或下一個平日）台北 13:30
+export function nextClose(now = new Date()) {
+  const t = new Date(now.getTime() + 8 * 3600_000);
+  const close = (d) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 13, 30) - 8 * 3600_000;
+  let d = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()));
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6 || close(d) < now.getTime()) d = new Date(d.getTime() + 86400_000);
+  return new Date(close(d)).toISOString();
+}
