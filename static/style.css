@@ -1171,3 +1171,14 @@ html :is(input, textarea) { cursor: text; }
   background-image: radial-gradient(color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1.2px); background-size: 14px 14px;
   mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%); opacity: .55; }
 .qcover .qicon, .qthumb .qicon, .qart > * { position: relative; }
+
+/* 每日更新的研究候選 */
+.screen-live{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.8rem}
+.screen-live small{color:var(--muted)}
+.screen-live .live-dot{width:.6rem;height:.6rem;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(255,201,40,.6);animation:livePulse 2s infinite}
+@keyframes livePulse{70%{box-shadow:0 0 0 .5rem rgba(255,201,40,0)}100%{box-shadow:0 0 0 0 rgba(255,201,40,0)}}
+.screen-diff{list-style:none;padding:0;margin:.8rem 0 0;display:grid;gap:.35rem;font-size:.92rem}
+.screen-diff li{display:flex;gap:.6rem;flex-wrap:wrap;align-items:baseline}
+.screen-diff .up{color:var(--pos)}.screen-diff .down{color:var(--muted)}
+.pill.new{background:var(--accent);color:#111;margin-left:.35rem;font-size:.7rem;vertical-align:middle}
+@media (prefers-reduced-motion:reduce){.screen-live .live-dot{animation:none}}

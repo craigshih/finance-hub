@@ -75,7 +75,9 @@ jobs:
           repository: craigshih/investment-team
           token: ${{ secrets.SOURCES_TOKEN }}
           path: sources/investment-team
-          sparse-checkout: data/reports
+          sparse-checkout: |
+            data/reports
+            data/screens
 
       # 對帳用；token 還沒授權這個 repo 時照樣建站，只是對帳區塊會顯示沒有資料
       - uses: actions/checkout@v4

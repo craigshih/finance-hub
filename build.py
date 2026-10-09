@@ -35,6 +35,7 @@ TAIPEI = timezone(timedelta(hours=8))
 
 DIGEST_DIR = SOURCES_DIR / "tim-lu" / "data" / "digests"
 REPORT_DIR = SOURCES_DIR / "investment-team" / "data" / "reports"
+SCREEN_DIR = SOURCES_DIR / "investment-team" / "data" / "screens"   # 每個交易日收盤後更新的研究候選（daily_screen.py）
 STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 PICKS_DIR = ROOT / "data" / "picks"
 
@@ -312,6 +313,28 @@ def load_reports() -> list[dict]:
     return reports
 
 
+def screen_ok(s) -> bool:
+    """新版篩選且有實際跑出結果；全市場資料抓不齊的那幾次（初篩 0 家或有 error）不算。"""
+    return bool(s) and "value" in s and not s.get("error") and sum((s.get("prefilter") or {}).values()) > 0
+
+
+def load_latest_screen(reports: list[dict]) -> dict | None:
+    """目前最新的研究候選：每日篩選比週報新就用每日的，否則用最近一份資料完整的週報。"""
+    daily = None
+    f = SCREEN_DIR / "latest.json"
+    if f.exists():
+        try:
+            daily = json.loads(f.read_text(encoding="utf-8"))
+            daily["date"] = daily.get("generated_at", "")[:10]
+            daily["source"] = "daily"
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"⚠️ 每日篩選讀取失敗：{exc}", file=sys.stderr)
+            daily = None
+    weekly = next(({**r["screen"], "date": r["date"], "source": "weekly"} for r in reports if screen_ok(r["screen"])), None)
+    cands = [x for x in (daily, weekly) if x and screen_ok(x)]
+    return max(cands, key=lambda x: (x["date"], x["source"] == "daily")) if cands else None
+
+
 def bucket(cands: list[dict]) -> dict:
     return {
         "full": [c for c in cands if c["n_fail"] == 0 and not c["flags"]],
@@ -355,9 +378,9 @@ def candidate_detail(c: dict) -> str:
     return f'<ul class="checks">{flags}{checks}</ul>{leader}'
 
 
-def candidate_table(cands: list[dict], style: str, show_reason: bool = False) -> str:
+def candidate_table(cands: list[dict], style: str, show_reason: bool = False, new_codes=()) -> str:
     if not cands:
-        return '<p class="empty">本週沒有</p>'
+        return '<p class="empty">目前沒有</p>'
     heads = "".join(f'<span class="num">{h}</span>' for h in METRIC_HEAD[style])
     rows = []
     for c in cands:
@@ -369,7 +392,8 @@ def candidate_table(cands: list[dict], style: str, show_reason: bool = False) ->
         rows.append(
             f'<details class="row"><summary>'
             f'<span class="name">{stock_logo(c.get("code"), c.get("name"), c.get("market"), "sm")}'
-            f'<span><b>{e(c.get("name"))}</b><small>{e(c.get("code"))}・{e(c.get("industry"))}</small>{reason}</span></span>'
+            f'<span><b>{e(c.get("name"))}</b>{'<span class="pill new">新進</span>' if c.get("code") in new_codes else ""}'
+            f'<small>{e(c.get("code"))}・{e(c.get("industry"))}</small>{reason}</span></span>'
             f'{cells}<span class="num">{rev_dots(c)}</span>'
             f'{score_bar(c.get("n_pass") or 0, c.get("n_total") or 0)}</summary>'
             f'<div class="row-body">{candidate_detail(c)}</div></details>'
@@ -431,6 +455,8 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
         n_c = sum(1 for x in s["stocks"] if x.get("candidate"))
         sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔 → {n_c} 檔符合多數條件"
         extra = funnel([("供應鏈公司", len(s["stocks"])), ("符合多數條件", n_c)]) + extra
+    elif s and not screen_ok(s):
+        sub = "本期全市場資料沒抓齊，篩選結果改看每日更新"
     elif s:
         counts = {st: bucket(s.get(st, [])) for st in STYLE_LABEL}
         n_full = sum(len(b["full"]) for b in counts.values())
@@ -445,19 +471,11 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
 
     if legacy:
         body += section("台股研究候選：全球龍頭供應鏈", legacy_screen(s), "依通過條件的比例排序")
+    elif s and not screen_ok(s):
+        body += section("台股研究候選", '<p class="empty">這一期執行時證交所、櫃買中心的全市場資料沒有抓齊（網路中斷），'
+                        '為了不把「0 檔通過」誤當成結論，本期不列候選。<a href="index.html">看每個交易日更新的最新候選 →</a></p>')
     elif s:
-        for st, (label, horizon) in STYLE_LABEL.items():
-            b = counts[st]
-            inner = candidate_table(b["full"], st)
-            if b["near"]:
-                inner += (f'<details class="fold"><summary>差一項（{len(b["near"])}）</summary>'
-                          f'{candidate_table(b["near"], st, show_reason=True)}</details>')
-            if b["flagged"]:
-                inner += (f'<details class="fold"><summary>紅旗排除（{len(b["flagged"])}）</summary>'
-                          f'{candidate_table(b["flagged"], st, show_reason=True)}</details>')
-            body += section(f"{label}候選", inner, f"{horizon}・點列展開檢查細節")
-        if s.get("etfs"):
-            body += section("主題 ETF", etf_table(s["etfs"]))
+        body += screen_sections(s)
 
     if r["companies"]:
         cards = "".join(company_card(c) for c in r["companies"])
@@ -470,6 +488,63 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
     return body + "</main>"
 
 
+def screen_sections(s: dict, new: dict | None = None) -> str:
+    out = ""
+    for st, (label, horizon) in STYLE_LABEL.items():
+        b = bucket(s.get(st, []))
+        inner = candidate_table(b["full"], st, new_codes=(new or {}).get(st, ()))
+        if b["near"]:
+            inner += (f'<details class="fold"><summary>差一項（{len(b["near"])}）</summary>'
+                      f'{candidate_table(b["near"], st, show_reason=True)}</details>')
+        if b["flagged"]:
+            inner += (f'<details class="fold"><summary>紅旗排除（{len(b["flagged"])}）</summary>'
+                      f'{candidate_table(b["flagged"], st, show_reason=True)}</details>')
+        out += section(f"{label}候選", inner, f"{horizon}・點列展開檢查細節")
+    if s.get("etfs"):
+        out += section("主題 ETF", etf_table(s["etfs"]))
+    return out
+
+
+def screen_stamp(ls: dict) -> str:
+    if ls["source"] == "daily":
+        t = ls.get("generated_at", "")
+        return f"{zh_date(ls['date'])} {t[11:16]} 更新・每個交易日收盤後"
+    return f"{zh_date(ls['date'])} 週報篩選"
+
+
+def screen_changes(ls: dict) -> str:
+    """跟上一個交易日比：新進榜、移出的公司。"""
+    ch = ls.get("changes") or {}
+    names = {c["code"]: c["name"] for st in STYLE_LABEL for c in ls.get(st, [])}
+    rows = []
+    for st, (label, _) in STYLE_LABEL.items():
+        c = ch.get(st) or {}
+        add = "、".join(f'{e(names.get(x, x))}' for x in c.get("added", []))
+        rem = "、".join(e(names.get(x, x)) for x in c.get("removed", []))
+        if add or rem:
+            rows.append(f'<li><b>{label}</b>' + (f'<span class="up">＋ {add}</span>' if add else "")
+                        + (f'<span class="down">－ {rem}</span>' if rem else "") + "</li>")
+    since = next((c.get("since") for c in ch.values() if c and c.get("since")), None)
+    if not since:
+        return ""
+    if not rows:
+        return f'<p class="screen-diff muted">跟 {e(zh_date(since))} 比，完全符合名單沒有變動。</p>'
+    return f'<ul class="screen-diff"><li class="muted">跟 {e(zh_date(since))} 比</li>{"".join(rows)}</ul>'
+
+
+def latest_screen_block(ls: dict) -> str:
+    """每週研究目錄最上面：最新一次的全市場篩選（每個交易日更新）。"""
+    full = {st: bucket(ls.get(st, []))["full"] for st in STYLE_LABEL}
+    n_pre = sum((ls.get("prefilter") or {}).values())
+    n_full = sum(len(v) for v in full.values())
+    new = {st: (ls.get("changes") or {}).get(st, {}).get("added", []) for st in STYLE_LABEL}
+    head = (f'<div class="screen-live"><span class="live-dot"></span><b>最新研究候選</b><small>{e(screen_stamp(ls))}</small></div>'
+            + funnel([("全市場上市櫃公司", ls.get("n_market") or 0), ("通過初篩", n_pre),
+                      ("完整檢查", sum(len(ls.get(st, [])) for st in STYLE_LABEL)), ("完全符合", n_full)])
+            + screen_changes(ls))
+    return section("每日更新的研究候選", head, "篩選條件同每週報告；四框架深度分析仍每週三、每月 11 日各一次") + screen_sections(ls, new)
+
+
 def render_full_report(r: dict) -> str:
     md = markdown.Markdown(extensions=["tables", "toc", "sane_lists"], extension_configs={"toc": {"toc_depth": "2-3"}})
     html_body = re.sub(r"^<h1[^>]*>.*?</h1>", "", md.convert(r["md"]), count=1, flags=re.S)
@@ -478,18 +553,19 @@ def render_full_report(r: dict) -> str:
             + f'<main class="wrap">{toc}<div class="prose">{html_body}</div></main>')
 
 
-def home_candidates(r: dict) -> str:
-    s = r["screen"]
+def home_candidates(s: dict | None) -> str:
     if not s:
-        return '<p class="empty">本週報告沒有台股篩選</p>'
+        return '<p class="empty">目前沒有可用的台股篩選結果</p>'
     cols = []
     for st, (label, horizon) in STYLE_LABEL.items():
         full = bucket(s.get(st, []))["full"]
+        new = set(((s.get("changes") or {}).get(st) or {}).get("added", []))
         items = "".join(
-            f'<li>{stock_logo(c["code"], c["name"], c.get("market"), "sm")}<b>{e(c["name"])}</b><small>{e(c["code"])}・{e(c.get("industry"))}</small>'
+            f'<li>{stock_logo(c["code"], c["name"], c.get("market"), "sm")}<b>{e(c["name"])}</b>'
+            f'{'<span class="pill new">新進</span>' if c["code"] in new else ""}<small>{e(c["code"])}・{e(c.get("industry"))}</small>'
             f'<span class="num">{metric_cells(c, st)[0]}</span></li>'
             for c in full
-        ) or '<li class="empty">本週沒有</li>'
+        ) or '<li class="empty">目前沒有</li>'
         cols.append(f'<div class="pick"><div class="pick-head">{label}<small>{horizon}・{METRIC_HEAD[st][0]}</small></div><ul>{items}</ul></div>')
     return f'<div class="picks">{"".join(cols)}</div>'
 
@@ -698,6 +774,11 @@ def report_headline(r: dict) -> tuple[str, str, list[dict]]:
         title = f"{names}等 {len(cands)} 檔供應鏈公司符合多數條件" if cands else "全球龍頭供應鏈篩選"
         sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔篩選｜{len(companies)} 家個股深度分析"
         logos = [{"code": x["id"], "name": x["name"], "market": None} for x in cands]
+    elif s and not screen_ok(s):
+        names = "、".join(short_name(c.get("name")) for c in companies[:3])
+        title = f"{names}等 {len(companies)} 家個股深度分析" if companies else "本期篩選資料不完整"
+        sub = "本期全市場資料沒抓齊，研究候選請看上方每日更新"
+        logos = []
     elif s:
         full = [c for st in STYLE_LABEL for c in bucket(s.get(st, []))["full"]]
         names = "、".join(c["name"] for c in full[:3])
@@ -763,9 +844,12 @@ def daily_index(digests: list[dict]) -> str:
     return body + "</main>"
 
 
-def weekly_index(reports: list[dict]) -> str:
-    body = hero("每週研究", "歷史報告", "每週三更新：台股全市場篩選＋四位投資人框架的個股分析")
+def weekly_index(reports: list[dict], ls: dict | None = None) -> str:
+    body = hero("每週研究", "研究候選與歷史報告",
+                "研究候選每個交易日收盤後更新；四位投資人框架的深度分析每週三、每月 11 日（月營收公布後）各一次")
     body += '<main class="wrap">'
+    if ls:
+        body += latest_screen_block(ls)
     if not reports:
         return body + '<p class="empty">尚無資料</p></main>'
     cards = []
@@ -779,7 +863,7 @@ def weekly_index(reports: list[dict]) -> str:
             f'<div class="rart">{visuals.report_art(r["date"], len(logos), hue)}'
             f'<span class="rdate">{e(zh_date(r["date"]))}</span>{"<span class=rnew>最新</span>" if i == 0 else ""}</div>'
             f'<div class="rbody"><h3>{e(title)}</h3><p>{e(sub)}</p><div class="logos">{logo_row}{more}</div></div></a>')
-    body += section("全部報告", f'<div class="rgrid">{"".join(cards)}</div>', f"{len(reports)} 份")
+    body += section("深度分析報告", f'<div class="rgrid">{"".join(cards)}</div>', f"{len(reports)} 份")
     body += section("四位投資人", visuals.investors_section("../"), "每份報告都用他們的框架分析", ("../investors/index.html", "完整介紹"))
     return body + "</main>"
 
@@ -830,13 +914,14 @@ def main() -> int:
     write(OUT_DIR / "daily" / "index.html", page("每日總經", daily_index(digests), 1, "daily/index.html"))
 
     reports = load_reports()
+    latest_screen = load_latest_screen(reports)
     for i, r in enumerate(reports):
         older = reports[i + 1] if i + 1 < len(reports) else None
         newer = reports[i - 1] if i > 0 else None
         write(OUT_DIR / "weekly" / f"{r['date']}.html", page(f"每週研究 {r['date']}", render_report_page(r, older, newer), 1, "weekly/index.html"))
         if r["md"]:
             write(OUT_DIR / "weekly" / f"{r['date']}-full.html", page(f"完整報告 {r['date']}", render_full_report(r), 1, "weekly/index.html"))
-    write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports), 1, "weekly/index.html"))
+    write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports, latest_screen), 1, "weekly/index.html"))
     shutil.copytree(ROOT / "static" / "portraits", OUT_DIR / "portraits")
     shutil.copytree(ROOT / "static" / "ui", OUT_DIR / "ui")
     write(OUT_DIR / "supply" / "index.html", page("供應鏈地圖", supply_page.render(supply), 1, "supply/index.html"))
@@ -914,9 +999,9 @@ def main() -> int:
         body += section("今日頭條", headline_list(d, 6, ""), "", (f"daily/{d['date']}.html", "看全部摘要"))
     else:
         body += section("每日總經", '<p class="empty">第一份每日摘要產生後會出現在這裡</p>')
-    if reports:
-        r = reports[0]
-        body += section("本週研究候選", home_candidates(r), f"{r['date']}・完全符合條件", (f"weekly/{r['date']}.html", "看完整研究"))
+    if latest_screen:
+        body += section("研究候選", home_candidates(latest_screen), f"{screen_stamp(latest_screen)}・完全符合條件",
+                        ("weekly/index.html", "看完整名單"))
     body += section("模擬交易", home_link_card("sim/index.html", ui("chart", "/"), "用 100 萬虛擬資金練習下單",
                                                "台股上市櫃與 ETF，跟朋友比排行榜", "開始"))
     body += "</main>"
