@@ -23,6 +23,7 @@ from pathlib import Path
 import markdown
 
 import icons
+from ui_icons import ui
 import portfolio
 import visuals
 from visuals import funnel, monogram, revenue_bars, score_bar, short_name, stock_logo
@@ -837,6 +838,7 @@ def main() -> int:
             write(OUT_DIR / "weekly" / f"{r['date']}-full.html", page(f"完整報告 {r['date']}", render_full_report(r), 1, "weekly/index.html"))
     write(OUT_DIR / "weekly" / "index.html", page("每週研究", weekly_index(reports), 1, "weekly/index.html"))
     shutil.copytree(ROOT / "static" / "portraits", OUT_DIR / "portraits")
+    shutil.copytree(ROOT / "static" / "ui", OUT_DIR / "ui")
     write(OUT_DIR / "supply" / "index.html", page("供應鏈地圖", supply_page.render(supply), 1, "supply/index.html"))
     write(OUT_DIR / "investors" / "index.html", page("四位投資人", hero(
         "四位投資人", "段永平・巴菲特・芒格・李錄",
@@ -885,26 +887,26 @@ def main() -> int:
         top = max(supply["leaders"], key=lambda l: l.get("chg_1d") or 0)
         chain = sorted((t for t in supply["tw"] if top["code"] in t["links"]), key=lambda t: -(t.get("chg_1d") or 0))[:4]
         names = "、".join(f'{t["name"]} {t["chg_1d"]:+.1f}%' for t in chain)
-        body += section("供應鏈連動", home_link_card("supply/index.html", "🔗",
+        body += section("供應鏈連動", home_link_card("supply/index.html", ui("chain", "/"),
                         f'本日最強：{e(top["name"])}（{e(top["market"])}）{top["chg_1d"]:+.2f}%',
                         f'台股相關：{e(names)}' if names else "看看台股供應鏈怎麼反應", "看供應鏈地圖"))
     if market and market.get("indices"):
         tw = market["indices"][0]
         b = market["breadth"]
         hot = max(market.get("industries", [])[:15] or [{"name": "—", "pct": 0}], key=lambda g: g["pct"])
-        body += section("市場", home_link_card("market/index.html", "🗺️",
+        body += section("市場", home_link_card("market/index.html", ui("map", "/"),
                         f'{e(tw["name"])} {tw["close"]:,.0f}（{tw["chg_pct"]:+.2f}%）・上漲 {b["up"]} 家／下跌 {b["down"]} 家',
                         f'最強產業：{e(hot["name"])} {hot["pct"]:+.2f}%・處置／注意股 {len(market.get("warnings", []))} 檔',
                         "看熱力圖"))
     if whales and whales.get("by_ticker"):
         top = sorted(whales["by_ticker"].values(), key=lambda t: (-t["buying"], -t["n"]))[:3]
-        body += section("大佬持股", home_link_card("whales/index.html", "🐋",
+        body += section("大佬持股", home_link_card("whales/index.html", ui("whale", "/"),
                         f'{len(whales["managers"])} 位大佬最新 13F：本季最多人買進 ' + "、".join(e(t["ticker"]) for t in top),
                         "巴菲特、段永平、李錄、Ackman…持股與台股供應鏈連動", "看大佬在買什麼"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/
-    body += section("我的投資", home_link_card("portfolio/index.html", "🔒", "投資總覽需要密碼",
+    body += section("我的投資", home_link_card("portfolio/index.html", ui("lock", "/"), "投資總覽需要密碼",
                                                "持股、損益與對帳結果只給站長本人看", "輸入密碼"))
     if digests:
         d = digests[0]
@@ -915,7 +917,7 @@ def main() -> int:
     if reports:
         r = reports[0]
         body += section("本週研究候選", home_candidates(r), f"{r['date']}・完全符合條件", (f"weekly/{r['date']}.html", "看完整研究"))
-    body += section("模擬交易", home_link_card("sim/index.html", "📈", "用 100 萬虛擬資金練習下單",
+    body += section("模擬交易", home_link_card("sim/index.html", ui("chart", "/"), "用 100 萬虛擬資金練習下單",
                                                "台股上市櫃與 ETF，跟朋友比排行榜", "開始"))
     body += "</main>"
     write(OUT_DIR / "index.html", page("總覽", body, 0, "index.html"))

@@ -10,8 +10,9 @@ import json
 import re
 from html import escape
 
-INK = "#141416"
-RED, YELLOW, CREAM, ORANGE, DARK, GREY = "#e3232c", "#ffc928", "#fbf6e9", "#f28c28", "#2a2a30", "#b8b2a3"
+# いらすとや風：細的暖棕色外框、柔和粉彩色、簡單的臉（2026-10-09 改版）
+INK = "#5b4740"
+RED, YELLOW, CREAM, ORANGE, DARK, GREY = "#ef7468", "#f9d36b", "#fff6e6", "#f5a865", "#5f6577", "#d3cbc0"
 
 # (主題代號, 標籤, 關鍵字)；依序比對，越前面優先
 TOPICS = [
@@ -51,20 +52,19 @@ def mood_of(text: str) -> str:
 
 
 def face(cx: float, cy: float, s: float = 1.0, mood: str = "happy") -> str:
-    ex = 9 * s
-    eyes = "".join(
-        f'<ellipse cx="{cx + dx:.1f}" cy="{cy:.1f}" rx="{3.6 * s:.1f}" ry="{4.6 * s:.1f}" fill="{INK}"/>'
-        f'<circle cx="{cx + dx + 1.3 * s:.1f}" cy="{cy - 1.6 * s:.1f}" r="{1.3 * s:.1f}" fill="#fff"/>' for dx in (-ex, ex))
-    blush = "".join(f'<ellipse cx="{cx + dx:.1f}" cy="{cy + 6 * s:.1f}" rx="{4 * s:.1f}" ry="{2.4 * s:.1f}" fill="#ff7a8a" opacity=".55"/>'
-                    for dx in (-ex - 5 * s, ex + 5 * s))
-    my = cy + 7 * s
+    """いらすとや風的臉：小黑豆眼（不加高光）、短短的嘴、圓圓的粉紅臉頰。"""
+    ex = 8.5 * s
+    eyes = "".join(f'<ellipse cx="{cx + dx:.1f}" cy="{cy:.1f}" rx="{2.4 * s:.1f}" ry="{3.1 * s:.1f}" fill="{INK}"/>' for dx in (-ex, ex))
+    blush = "".join(f'<circle cx="{cx + dx:.1f}" cy="{cy + 6 * s:.1f}" r="{3.6 * s:.1f}" fill="#f6a5a0" opacity=".75"/>'
+                    for dx in (-ex - 4.5 * s, ex + 4.5 * s))
+    my = cy + 6.5 * s
     if mood == "calm":
         mood = "happy"
     if mood == "sad":
-        mouth = f'<path d="M{cx - 5 * s:.1f} {my + 3 * s:.1f} Q{cx:.1f} {my - 2.5 * s:.1f} {cx + 5 * s:.1f} {my + 3 * s:.1f}" fill="none" stroke="{INK}" stroke-width="{2.6 * s:.1f}" stroke-linecap="round"/>'
-        sweat = f'<path class="drop" d="M{cx + ex + 9 * s:.1f} {cy - 9 * s:.1f} q{3 * s:.1f} {5 * s:.1f} 0 {7 * s:.1f} q-{3 * s:.1f} -{2 * s:.1f} 0 -{7 * s:.1f}z" fill="#7cc6ff" stroke="{INK}" stroke-width="{1.4 * s:.1f}"/>'
+        mouth = f'<path d="M{cx - 4 * s:.1f} {my + 2.5 * s:.1f} Q{cx:.1f} {my - 1.5 * s:.1f} {cx + 4 * s:.1f} {my + 2.5 * s:.1f}" fill="none" stroke="{INK}" stroke-width="{1.8 * s:.1f}" stroke-linecap="round"/>'
+        sweat = f'<path class="drop" d="M{cx + ex + 8 * s:.1f} {cy - 8 * s:.1f} q{2.6 * s:.1f} {4.5 * s:.1f} 0 {6.2 * s:.1f} q-{2.6 * s:.1f} -{1.7 * s:.1f} 0 -{6.2 * s:.1f}z" fill="#bfe3ff" stroke="{INK}" stroke-width="{1 * s:.1f}"/>'
         return eyes + blush + mouth + sweat
-    mouth = f'<path d="M{cx - 5.5 * s:.1f} {my:.1f} Q{cx:.1f} {my + 6 * s:.1f} {cx + 5.5 * s:.1f} {my:.1f}" fill="{RED}" stroke="{INK}" stroke-width="{2.4 * s:.1f}" stroke-linejoin="round"/>'
+    mouth = f'<path d="M{cx - 4.5 * s:.1f} {my:.1f} Q{cx:.1f} {my + 4.5 * s:.1f} {cx + 4.5 * s:.1f} {my:.1f}" fill="none" stroke="{INK}" stroke-width="{1.8 * s:.1f}" stroke-linecap="round"/>'
     return eyes + blush + mouth
 
 
@@ -74,7 +74,7 @@ def sparkles() -> str:
     return star(18, 22, 7, YELLOW) + star(102, 30, 5, CREAM) + star(100, 96, 6, YELLOW)
 
 
-S = f'stroke="{INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"'
+S = f'stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"'
 
 
 def body(topic: str, mood: str) -> str:
@@ -92,7 +92,7 @@ def body(topic: str, mood: str) -> str:
                 f'<rect x="44" y="80" width="32" height="6" rx="3" fill="{YELLOW}" {S}/>')
     if topic == "oil":
         return (f'<path class="drip" d="M92 14 q8 12 0 18 q-8 -6 0 -18z" fill="{INK}"/>'
-                f'<rect x="30" y="24" width="60" height="78" rx="10" fill="{RED}" {S}/><ellipse cx="60" cy="24" rx="30" ry="7" fill="#b51a22" {S}/>'
+                f'<rect x="30" y="24" width="60" height="78" rx="10" fill="{RED}" {S}/><ellipse cx="60" cy="24" rx="30" ry="7" fill="#d9594e" {S}/>'
                 f'<line x1="31" y1="46" x2="89" y2="46" {S}/><line x1="31" y1="84" x2="89" y2="84" {S}/>' + face(60, 62, 1, mood))
     if topic == "fed":
         cols = "".join(f'<rect x="{x}" y="52" width="10" height="36" rx="2" fill="{CREAM}" {S}/>' for x in (26, 44, 66, 84))
@@ -100,27 +100,27 @@ def body(topic: str, mood: str) -> str:
                 + cols + f'<rect x="16" y="88" width="88" height="12" rx="3" fill="{RED}" {S}/>' + face(60, 32, .7, mood))
     if topic == "inflation":
         return (f'<path d="M22 50 L54 18 L100 18 L100 64 L68 96 Z" fill="{YELLOW}" {S}/><circle cx="86" cy="32" r="6" fill="{CREAM}" {S}/>'
-                f'<path class="arrow" d="M30 108 L46 92 M38 92 L46 92 L46 100" fill="none" stroke="{RED}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path class="arrow" d="M30 108 L46 92 M38 92 L46 92 L46 100" fill="none" stroke="{RED}" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>'
                 + face(62, 54, .95, mood))
     if topic == "jobs":
         return (f'<path d="M46 36 V28 a6 6 0 0 1 6 -6 h16 a6 6 0 0 1 6 6 V36" fill="none" {S}/>'
                 f'<rect x="18" y="36" width="84" height="62" rx="12" fill="{ORANGE}" {S}/><rect x="52" y="56" width="16" height="10" rx="3" fill="{YELLOW}" {S}/>'
                 + face(60, 76, .85, mood))
     if topic == "trade":
-        return (f'<path class="wave" d="M8 100 q10 -8 20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#5aa9e6" stroke-width="4" stroke-linecap="round"/>'
+        return (f'<path class="wave" d="M8 100 q10 -8 20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#86bfe8" stroke-width="2.5" stroke-linecap="round"/>'
                 f'<rect x="30" y="36" width="26" height="22" rx="3" fill="{YELLOW}" {S}/><rect x="58" y="30" width="30" height="28" rx="3" fill="{RED}" {S}/>'
                 f'<path d="M14 58 H106 L94 92 H26 Z" fill="{DARK}" {S}/>' + face(60, 70, .8, mood).replace(INK, CREAM).replace('fill="#fff"', f'fill="{INK}"'))
     if topic == "gold":
-        return (f'<path d="M20 86 L34 50 H86 L100 86 Z" fill="{YELLOW}" {S}/><path d="M34 50 L42 38 H78 L86 50" fill="#ffe27a" {S}/>' + face(60, 68, .95, mood))
+        return (f'<path d="M20 86 L34 50 H86 L100 86 Z" fill="{YELLOW}" {S}/><path d="M34 50 L42 38 H78 L86 50" fill="#fbe4a0" {S}/>' + face(60, 68, .95, mood))
     if topic == "crypto":
-        return (f'<circle cx="60" cy="60" r="40" fill="{ORANGE}" {S}/><circle cx="60" cy="60" r="31" fill="none" stroke="#ffd29a" stroke-width="4"/>'
+        return (f'<circle cx="60" cy="60" r="40" fill="{ORANGE}" {S}/><circle cx="60" cy="60" r="31" fill="none" stroke="#ffe0b8" stroke-width="2.5"/>'
                 f'<text x="60" y="44" text-anchor="middle" font-size="20" font-weight="900" fill="{CREAM}" font-family="Arial">₿</text>' + face(60, 64, .9, mood))
     if topic == "house":
         return (f'<path d="M14 58 L60 20 L106 58" fill="none" {S}/><path d="M24 52 L60 24 L96 52 V100 H24 Z" fill="{CREAM}" {S}/>'
                 f'<rect x="72" y="26" width="10" height="18" fill="{RED}" {S}/><rect x="52" y="78" width="16" height="22" rx="3" fill="{RED}" {S}/>' + face(60, 58, .85, mood))
     if topic == "car":
         return (f'<path d="M18 74 Q20 56 36 54 L46 38 H76 L88 54 Q104 56 104 74 V84 H18 Z" fill="{RED}" {S}/>'
-                f'<path d="M50 42 H72 L80 54 H44 Z" fill="#9fd3ff" {S}/><circle cx="38" cy="86" r="10" fill="{DARK}" {S}/><circle cx="84" cy="86" r="10" fill="{DARK}" {S}/>'
+                f'<path d="M50 42 H72 L80 54 H44 Z" fill="#c5e5ff" {S}/><circle cx="38" cy="86" r="10" fill="{DARK}" {S}/><circle cx="84" cy="86" r="10" fill="{DARK}" {S}/>'
                 + face(61, 68, .7, mood))
     if topic == "shop":
         return (f'<path d="M44 40 V34 a16 16 0 0 1 32 0 V40" fill="none" {S}/><path d="M26 40 H94 L100 102 H20 Z" fill="{RED}" {S}/>' + face(60, 68, 1, mood))
@@ -128,8 +128,8 @@ def body(topic: str, mood: str) -> str:
         return (f'<circle cx="46" cy="70" r="30" fill="{GREY}" {S}/><circle cx="72" cy="54" r="32" fill="{YELLOW}" {S}/>'
                 f'<text x="72" y="44" text-anchor="middle" font-size="18" font-weight="900" fill="{INK}" font-family="Arial">$</text>' + face(72, 60, .8, mood))
     if topic == "globe":
-        return (f'<circle cx="60" cy="60" r="42" fill="#5aa9e6" {S}/>'
-                f'<path d="M34 34 q14 6 10 18 q-6 8 4 16 q6 8 -2 18 M74 22 q-6 12 6 16 q14 2 12 16 q-2 10 10 12" fill="#7bd389" stroke="{INK}" stroke-width="3.5" stroke-linejoin="round"/>'
+        return (f'<circle cx="60" cy="60" r="42" fill="#86bfe8" {S}/>'
+                f'<path d="M34 34 q14 6 10 18 q-6 8 4 16 q6 8 -2 18 M74 22 q-6 12 6 16 q14 2 12 16 q-2 10 10 12" fill="#a3dba6" stroke="{INK}" stroke-width="2.2" stroke-linejoin="round"/>'
                 + face(60, 62, 1, mood))
     if topic == "earn":
         return (f'<rect x="26" y="18" width="68" height="86" rx="10" fill="{CREAM}" {S}/><rect x="44" y="12" width="32" height="14" rx="5" fill="{RED}" {S}/>'
@@ -138,22 +138,22 @@ def body(topic: str, mood: str) -> str:
     if topic == "stocks" and mood == "happy":  # 牛
         return (f'<path d="M30 40 Q16 30 20 14 Q30 28 42 32 Z" fill="{CREAM}" {S}/><path d="M90 40 Q104 30 100 14 Q90 28 78 32 Z" fill="{CREAM}" {S}/>'
                 f'<ellipse cx="22" cy="54" rx="12" ry="8" fill="{RED}" {S}/><ellipse cx="98" cy="54" rx="12" ry="8" fill="{RED}" {S}/>'
-                f'<rect x="28" y="30" width="64" height="66" rx="30" fill="{RED}" {S}/><ellipse cx="60" cy="82" rx="22" ry="13" fill="#ffb3a8" {S}/>'
+                f'<rect x="28" y="30" width="64" height="66" rx="30" fill="{RED}" {S}/><ellipse cx="60" cy="82" rx="22" ry="13" fill="#ffc9c0" {S}/>'
                 f'<circle cx="53" cy="82" r="2.6" fill="{INK}"/><circle cx="67" cy="82" r="2.6" fill="{INK}"/>'
-                f'<path class="arrow" d="M96 100 L110 86 M101 86 L110 86 L110 95" fill="none" stroke="{YELLOW}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path class="arrow" d="M96 100 L110 86 M101 86 L110 86 L110 95" fill="none" stroke="{YELLOW}" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>'
                 + face(60, 58, .85, "happy").replace('<path d="M', '<path opacity="0" d="M', 1))
     if topic == "stocks" and mood == "sad":  # 熊
-        return (f'<circle cx="32" cy="32" r="12" fill="#8a6a4f" {S}/><circle cx="88" cy="32" r="12" fill="#8a6a4f" {S}/>'
-                f'<circle cx="32" cy="32" r="5" fill="#c9a27e"/><circle cx="88" cy="32" r="5" fill="#c9a27e"/>'
-                f'<circle cx="60" cy="62" r="38" fill="#8a6a4f" {S}/><ellipse cx="60" cy="76" rx="16" ry="12" fill="#c9a27e" {S}/>'
+        return (f'<circle cx="32" cy="32" r="12" fill="#b08968" {S}/><circle cx="88" cy="32" r="12" fill="#b08968" {S}/>'
+                f'<circle cx="32" cy="32" r="5" fill="#e2c4a4"/><circle cx="88" cy="32" r="5" fill="#e2c4a4"/>'
+                f'<circle cx="60" cy="62" r="38" fill="#b08968" {S}/><ellipse cx="60" cy="76" rx="16" ry="12" fill="#e2c4a4" {S}/>'
                 f'<ellipse cx="60" cy="70" rx="5" ry="3.5" fill="{INK}"/>'
-                f'<path class="arrow" d="M96 86 L110 100 M101 100 L110 100 L110 91" fill="none" stroke="#2fd27a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+                f'<path class="arrow" d="M96 86 L110 100 M101 100 L110 100 L110 91" fill="none" stroke="#6cc58a" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>'
                 + face(60, 56, .85, "sad"))
     # 股市：K 線看板
     return (f'<rect x="16" y="22" width="88" height="76" rx="14" fill="{DARK}" {S}/>'
-            f'<line x1="36" y1="34" x2="36" y2="58" stroke="{RED}" stroke-width="3"/><rect x="31" y="38" width="10" height="14" rx="2" fill="{RED}"/>'
-            f'<line x1="56" y1="30" x2="56" y2="52" stroke="#2fd27a" stroke-width="3"/><rect x="51" y="34" width="10" height="12" rx="2" fill="#2fd27a"/>'
-            f'<line x1="78" y1="26" x2="78" y2="50" stroke="{RED}" stroke-width="3"/><rect x="73" y="28" width="10" height="16" rx="2" fill="{RED}"/>'
+            f'<line x1="36" y1="34" x2="36" y2="58" stroke="{RED}" stroke-width="1.9"/><rect x="31" y="38" width="10" height="14" rx="2" fill="{RED}"/>'
+            f'<line x1="56" y1="30" x2="56" y2="52" stroke="#6cc58a" stroke-width="1.9"/><rect x="51" y="34" width="10" height="12" rx="2" fill="#6cc58a"/>'
+            f'<line x1="78" y1="26" x2="78" y2="50" stroke="{RED}" stroke-width="1.9"/><rect x="73" y="28" width="10" height="16" rx="2" fill="{RED}"/>'
             + face(60, 74, .9, mood).replace(INK, YELLOW).replace('fill="#fff"', f'fill="{DARK}"'))
 
 

@@ -249,7 +249,7 @@
 
   function stockCard(q, ch) {
     const s = ch?.signals;
-    const star = el("button", { type: "button", class: "star", id: "sim-star", title: "加入自選", onclick: toggleWatch }, "☆");
+    const star = el("button", { type: "button", class: "star", id: "sim-star", title: "加入自選", onclick: toggleWatch }, el("img", { src: "/ui/star-off.svg", alt: "加入自選" }));
     const head = el("div", { class: "sim-stock-head" }, logo(q.code, q.name, q.market),
       el("div", {}, el("h3", {}, q.name, " ", el("small", {}, q.code)), el("small", {}, `${q.market}・${q.source === "即時" ? "盤中即時" : `${q.date} 收盤`}`)),
       el("div", { class: "r" }, el("b", { class: cls(q.chg) }, fmt(q.price, 2)), q.pct != null ? el("small", { class: cls(q.chg) }, `${signed(q.chg)}（${pctN(q.pct)}）`) : ""),
@@ -280,7 +280,7 @@
     const s = $("#sim-star");
     if (!s || !quote) return;
     const on = watchSet.has(quote.code);
-    s.textContent = on ? "★" : "☆";
+    s.querySelector("img").src = on ? "/ui/star-on.svg" : "/ui/star-off.svg";
     s.classList.toggle("on", on);
     s.title = on ? "從自選移除" : "加入自選";
   }

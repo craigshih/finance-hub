@@ -29,7 +29,7 @@ def sources_links(keys: list[str]) -> str:
     for k in keys:
         pub, date, title, url, quote = SOURCES[k]
         tip = "　".join(x for x in [f"{pub} {date}".strip(), title, f"原文：「{quote}」" if quote else ""] if x)
-        out.append(f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}">📰 {e(pub)}{" " + e(date[:7]) if date else ""}</a>')
+        out.append(f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}"><img class="ui-ico xs" src="/ui/news.svg" alt=""> {e(pub)}{" " + e(date[:7]) if date else ""}</a>')
     return " ".join(out)
 
 
@@ -80,7 +80,7 @@ def source_link(src: str | None, news: list[dict] | None = None) -> str:
     tip = "　".join(x for x in [f"{pub} {date}".strip(), title, f"原文：「{quote}」" if quote else ""] if x)
     more = (f'<span class="ev" title="{e(chr(10).join(n["date"] + " " + n["title"] for n in news))}">＋{len(news)} 則近期新聞</span>'
             if news else "")
-    return f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}">📰 {e(pub)}{" " + e(date[:7]) if date else ""}</a>{more}'
+    return f'<a class="src-link" href="{e(url)}" target="_blank" rel="noopener" title="{e(tip)}"><img class="ui-ico xs" src="/ui/news.svg" alt=""> {e(pub)}{" " + e(date[:7]) if date else ""}</a>{more}'
 
 
 def network(center: str, center_chg, nodes: list[dict], label: str) -> str:
@@ -260,7 +260,7 @@ def render(data: dict | None, prefix: str = "../") -> str:
                         f'<div class="lchips">{chips}</div>{tpanels}',
                         "反過來看：以台股為中心，看它供應哪些美國龍頭，以及台灣的同業")
         body += section("台股族群今日表現", group_overview(tw_by_code), "同一族群的台灣競爭者，依族群平均漲幅排序")
-    body += ('<p class="obs-disclaimer">每一條供應、客戶、合作關係都附有新聞或公司公告出處（點「📰」看原文），'
+    body += ('<p class="obs-disclaimer">每一條供應、客戶、合作關係都附有新聞或公司公告出處（點報紙圖示看原文），'
              '找不到出處的關係一律不放；「同業」是依產品線分類，不是供應關係。訂單與合作會變動，請留意出處日期。'
              '「近期新聞」是每天從鉅亨網 RSS 自動收集、標題同時點名雙方的新聞，只用來補充既有關係。'
              '股價來自 Yahoo Finance，法人買賣超來自證交所。這是研究素材，不是買賣建議。</p>')

@@ -1159,3 +1159,15 @@ html :is(input, textarea) { cursor: text; }
 #sim-board .rk { text-align: center; font-weight: 700; color: var(--hero-muted); }
 #sim-board .num { font-variant-numeric: tabular-nums; color: var(--text); }
 .sim-account:has(.sim-equity.empty) { grid-template-columns: 1fr; }
+/* いらすとや風小圖示 */
+.ui-ico { display: inline-block; vertical-align: middle; width: 28px; height: 28px; }
+.ui-ico.xs { width: 16px; height: 16px; margin-top: -2px; } .ui-ico.sm { width: 22px; height: 22px; margin-top: -3px; } .ui-ico.md { width: 36px; height: 36px; }
+.locked .lock .ui-ico { width: 44px; height: 44px; transition: transform .3s cubic-bezier(.2,.7,.2,1.4); }
+.locked:hover .lock .ui-ico { transform: scale(1.12) rotate(-6deg); }
+.locked .lock { filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 35%, transparent)); }
+.star img { width: 30px; height: 30px; display: block; }
+/* 科技感：主題插圖底下的淡淡點陣 */
+.qcover::before, .qthumb::before, .qart::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--accent) 22%, transparent) 1px, transparent 1.2px); background-size: 14px 14px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%); opacity: .55; }
+.qcover .qicon, .qthumb .qicon, .qart > * { position: relative; }

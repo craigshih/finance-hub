@@ -103,10 +103,10 @@
   function campCard(kind, c) {
     if (!c) return null;
     const meta = kind === "a"
-      ? ["🛡️", "陣營 A・風控管理", "防守：先保住本金"]
-      : ["📈", "陣營 B・量化回測", "進攻：追求超額報酬"];
+      ? ["shield", "陣營 A・風控管理", "防守：先保住本金"]
+      : ["rocket", "陣營 B・量化回測", "進攻：追求超額報酬"];
     return el("div", { class: `adv-camp ${kind}` },
-      el("div", { class: "adv-camp-head" }, el("span", { class: "adv-icon" }, meta[0]),
+      el("div", { class: "adv-camp-head" }, el("img", { class: "ui-ico md", src: `/ui/${meta[0]}.svg`, alt: "" }),
         el("div", {}, el("b", {}, meta[1]), el("small", {}, meta[2])), stanceChip(c.stance)),
       el("p", {}, c.argument),
       c.points.length ? el("ul", {}, c.points.map((p) => el("li", { class: p.startsWith("（系統註記）") ? "sysnote" : null }, p))) : null);

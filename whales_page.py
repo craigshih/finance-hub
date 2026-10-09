@@ -196,7 +196,7 @@ def to_taiwan(w: dict, supply: dict | None, trump: dict | None = None) -> str:
             mv = moves.get(s["code"]) or {}
             chg = mv.get("chg_1d")
             src = s["source"]
-            link = (f'<a href="{e(src["url"])}" target="_blank" rel="noopener" title="{e(src["title"] or src["publisher"])}">📰 {e(src["publisher"])}</a>'
+            link = (f'<a href="{e(src["url"])}" target="_blank" rel="noopener" title="{e(src["title"] or src["publisher"])}"><img class="ui-ico xs" src="/ui/news.svg" alt=""> {e(src["publisher"])}</a>'
                     if src and src.get("url") else "")
             tws.append(f'<li>{stock_logo(s["code"], s["name"], None, "sm")}<span><b>{e(s["name"])}</b><small>{e(s["code"])}・{e(s["relation"])}・{e(s["note"])}</small></span>'
                        + (f'<i class="{"pos" if chg > 0 else "neg" if chg < 0 else ""}">{chg:+.2f}%</i>' if chg is not None else "")
@@ -208,7 +208,7 @@ def to_taiwan(w: dict, supply: dict | None, trump: dict | None = None) -> str:
                    f'<div><b>{e(t["ticker"])} <span class="wlive"><span data-f="price"></span> <span data-f="pct"></span></span></b>'
                    f'<small>{t["n"]} 位大佬持有・本季買進 {t["buying"]} 位</small><div class="whs">{holder_chips(t["holders"])}{tchip}</div></div></div>'
                    f'<div class="warrow" aria-hidden="true"></div><ul class="wtw">{"".join(tws)}</ul></article>')
-    return ('<div class="wchains">' + "".join(out) + '</div><p class="mk-note">台股端只列供應鏈地圖裡有新聞或公司資料出處的關係（點 📰 看原文）；漲跌為最近交易日。</p>')
+    return ('<div class="wchains">' + "".join(out) + '</div><p class="mk-note">台股端只列供應鏈地圖裡有新聞或公司資料出處的關係（點報紙圖示看原文）；漲跌為最近交易日。</p>')
 
 
 def quarter_moves(w: dict) -> str:
@@ -292,7 +292,7 @@ def trump_section(t: dict | None) -> str:
             label = a["ticker"] or a["name"]
             out.append(f'<li{live_us(a["ticker"]) if a["ticker"] else ""}>{stock_logo(a["ticker"] or label, a["name"], "美股", "sm")}'
                        f'<span><b>{e(label)} <span class="wlive"><span data-f="pct"></span></span></b><small>{e(a["name"].title())}・{n} 筆・合計 {money_range(lo, hi)}・最近 {e(a["last"])}</small></span>'
-                       f'<a class="wsrc" href="{e(a["url"])}" target="_blank" rel="noopener">📄 OGE 原文</a></li>')
+                       f'<a class="wsrc" href="{e(a["url"])}" target="_blank" rel="noopener"><img class="ui-ico xs" src="/ui/doc.svg" alt=""> OGE 原文</a></li>')
         return "".join(out) or '<li class="empty">沒有</li>'
     cols = ('<div class="two-col">'
             f'<div><h3 class="wh3">淨買進（依筆數）</h3><ul class="wlist">{rows(t["net_buys"], "buy")}</ul></div>'
@@ -306,7 +306,7 @@ def trump_section(t: dict | None) -> str:
     chain = (f'<h3 class="wh3" style="margin-top:18px">川普買進的美股，台股供應鏈有誰</h3><div class="whs">{"".join(links)}</div>' if links else "")
     filings = "、".join(f'<a href="{e(f["url"])}" target="_blank" rel="noopener">{e(f["first"])}～{e(f["last"])}（{f["parsed"]}／{f["total"] or "?"} 筆）</a>' for f in fl[-6:])
     note = ('<p class="mk-note">來源：美國政府道德辦公室（OGE）公開的總統財產申報 Form 278-T。申報只列金額「區間」，表中合計是區間加總；'
-            'PDF 是掃描檔，本站用文字辨識解析（括號內是解析出的股票交易數／申報總筆數，總數含債券），解析不到的不會亂猜，每一筆都可點 📄 對照原文。'
+            'PDF 是掃描檔，本站用文字辨識解析（括號內是解析出的股票交易數／申報總筆數，總數含債券），解析不到的不會亂猜，每一筆都可點文件圖示對照原文。'
             'OGE 沒有說明交易是本人決定還是委託帳戶操作；申報最晚可在交易後 45 天提出。依法這些資料不得用於商業或募款用途，本站僅供個人研究。'
             f'</p><p class="mk-note">最近解析的申報：{filings}</p>')
     return head + cols + chain + note
