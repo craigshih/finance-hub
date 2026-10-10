@@ -39,6 +39,35 @@ else
 fi
 echo "✅ AI 投資顧問"
 
+# AI 投資機器人（訪客版）：通關語 → 能用機器人；但這把鑰匙開不了投資頁，資料也不含只因持股才算的股票
+code=$(curl -s -o /tmp/rb.html -w '%{http_code}' "$BASE/robot/"); [ "$code" = 401 ] || fail "機器人沒通關語應該回 401，實際 $code"
+grep -q "通關語" /tmp/rb.html || fail "機器人沒有顯示通關語頁"
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/robot/stocks.json"); [ "$code" = 401 ] || fail "機器人資料沒通關語應該回 401，實際 $code"
+code=$(curl -s -o /dev/null -w '%{http_code}' -X POST --data-urlencode "phrase=hello" "$BASE/robot/__enter"); [ "$code" = 401 ] || fail "錯的通關語應該回 401"
+rcookie=$(curl -s -D - -o /dev/null -X POST --data-urlencode "phrase=I need  investment robot!" "$BASE/robot/__enter" | grep -i '^set-cookie:' | sed 's/^[^:]*: //; s/;.*//' | tr -d '\r')
+[ -n "$rcookie" ] || fail "通關語（大小寫、標點不同）應該也能通過"
+code=$(curl -s -o /tmp/rb.html -w '%{http_code}' -H "Cookie: $rcookie" "$BASE/robot/"); [ "$code" = 200 ] || fail "通關後機器人頁應該 200，實際 $code"
+grep -q "/robot/api/advisor" /tmp/rb.html || fail "機器人頁應該打訪客版 API"
+grep -q "只有你看得到\|持股總覽" /tmp/rb.html && fail "機器人頁不該有站長專屬內容"
+code=$(curl -s -o /dev/null -w '%{http_code}' -H "Cookie: $rcookie" "$BASE/portfolio/"); [ "$code" = 401 ] || fail "機器人通關語不能打開投資頁"
+code=$(curl -s -o /dev/null -w '%{http_code}' -H "Cookie: $rcookie" "$BASE/portfolio/advisor/holdings.json"); [ "$code" = 401 ] || fail "機器人通關語不能拿到持股權重"
+rpost() { curl -s -X POST -H "Cookie: $rcookie" -H "Content-Type: application/json" -d "$1" "$BASE/robot/api/advisor"; }
+need "$(rpost '{"question":""}')" '請輸入問題' "機器人空白問題應該擋下"
+if [ -f site/robot/stocks.json ]; then
+  need "$(rpost '{"question":"台積電和聯電哪個比較好？"}')" '"found":\["2330","2303"\]' "機器人應該找得到台積電與聯電"
+  python3 - <<'PY' || fail "機器人資料不該包含只因站長持股才計算的股票"
+import json
+full = json.load(open("site/portfolio/advisor/stocks.json"))
+guest = json.load(open("site/robot/stocks.json"))
+assert "public_codes" not in guest
+assert set(guest["price_codes"]) <= set(full.get("public_codes") or []), set(guest["price_codes"]) - set(full.get("public_codes") or [])
+hidden = set(full["price_codes"]) - set(guest["price_codes"])
+leak = [c for c in hidden if "risk" in guest["stocks"].get(c, {}) or "backtest" in guest["stocks"].get(c, {})]
+assert not leak, leak
+PY
+fi
+echo "✅ AI 投資機器人"
+
 # 模擬交易（ACCESS_DEV_EMAIL=smoke@example.com）
 me=$(curl -s "$BASE/api/sim/me"); need "$me" '"cash":1000000' "新帳戶應該有 100 萬"
 q=$(curl -s "$BASE/api/sim/quote?code=0050"); need "$q" '"price"' "查不到 0050 報價"

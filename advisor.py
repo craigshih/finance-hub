@@ -398,14 +398,14 @@ def weekly_screen() -> tuple[str | None, dict]:
     return None, {}
 
 
-def universe(stocks: dict, held: list[str], weekly: dict) -> list[str]:
+def universe(stocks: dict, held: list[str], weekly: dict, with_watch: bool = True) -> list[str]:
     from supply_map import ALL_TW
 
     picks = []
     files = sorted(PICKS_DIR.glob("*.json"))[-5:] if PICKS_DIR.is_dir() else []
     for f in files:
         picks += [p["code"] for p in json.loads(f.read_text(encoding="utf-8")).get("picks", []) if p.get("market") == "台股"]
-    watch = json.loads(WATCH.read_text(encoding="utf-8")) if WATCH.exists() else []
+    watch = json.loads(WATCH.read_text(encoding="utf-8")) if WATCH.exists() and with_watch else []
     top = sorted((s for s in stocks.values() if s.get("trade_value") and re.fullmatch(r"\d{4}", s["code"])),
                  key=lambda s: -s["trade_value"])[:TOP_N]
     codes = ["0050", "0056", "006208", "00878", *held, *ALL_TW, *picks, *weekly, *watch, *(s["code"] for s in top)]
@@ -444,7 +444,10 @@ def main() -> int:
 
     out = {
         "generated_at": datetime.now(TAIPEI).isoformat(timespec="minutes"),
-        "price_codes": sorted(prices), "ptt_sample": len(titles), "weekly_date": weekly_date,
+        "price_codes": sorted(prices),
+        # 不靠站長持股與顧問頁提問就會在範圍內的股票；訪客版機器人只對這些顯示風控與回測，避免從範圍反推持股
+        "public_codes": sorted(set(universe(stocks, [], weekly, with_watch=False)) & set(prices)),
+        "ptt_sample": len(titles), "weekly_date": weekly_date,
         "stocks": {c: {k: v for k, v in s.items() if k != "trade_value"} for c, s in stocks.items()
                    if re.fullmatch(r"\d{4}|00\d{2,4}[A-Z]?", c)},
     }

@@ -323,9 +323,9 @@ document.addEventListener("click", (ev) => {
 
 def render(m: dict | None, hero, section) -> str:
     if not m:
-        return hero("市場", "市場資料準備中", "下一次網站更新後就會出現。")
+        return hero("台股", "台股資料準備中", "下一次網站更新後就會出現。")
     date = (m.get("history") or [{}])[-1].get("date") or m["generated_at"][:10]
-    body = hero("市場", "今天市場怎麼走", f"指數、產業熱力圖、法人與融資、強勢股、處置股與除權息，一頁看完・台股資料日 {e(date)}")
+    body = hero("台股", "今天台股怎麼走", f"指數、產業熱力圖、法人與融資、強勢股、處置股與除權息，一頁看完・台股資料日 {e(date)}")
     body += '<main class="wrap">'
     body += section("指數看板", index_board(m.get("indices", [])), '<span class="live-dot"></span><span class="live-stamp">盤中即時更新</span>・點卡片看近半年日 K')
     heat = (tabs("heat", [("ind", "上市櫃產業"), ("theme", "供應鏈題材")], "ind")

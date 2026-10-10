@@ -1,7 +1,9 @@
 // AI 投資顧問頁的前端。數字卡片一律顯示伺服器回傳的原始資料（不是 AI 寫的），AI 的文字另外呈現。
 (() => {
   const $ = (sel) => document.querySelector(sel);
-  const HIST_KEY = "advisor-history-v1";
+  const APP = document.querySelector("#adv-app");
+  const API = APP?.dataset.api || "/portfolio/api/advisor";
+  const HIST_KEY = APP?.dataset.hist || "advisor-history-v1";
   const el = (tag, attrs = {}, ...kids) => {
     const n = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
@@ -198,7 +200,7 @@
     timer = setInterval(() => pipe(Math.min(++step, 4)), 3500);
     try {
       const history = loadHist().slice(0, 2).map((x) => ({ q: x.q, headline: x.res.answer.headline })).reverse();
-      const r = await fetch("/portfolio/api/advisor", {
+      const r = await fetch(API, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q, history }),
       });
       if (r.status === 401) { location.reload(); return; }

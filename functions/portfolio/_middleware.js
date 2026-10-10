@@ -15,7 +15,7 @@ function loginPage(message, status = 401, next = "/portfolio/") {
 <link rel="stylesheet" href="/style.css"></head>
 <body>
 <header class="top"><div class="wrap"><a class="brand" href="/"><span class="mark">C</span><span class="brand-text">Craig 財經站</span></a>
-<nav><a href="/">總覽</a><a href="/news/">即時快報</a><a class="on" href="/portfolio/">投資</a><a href="/daily/">每日總經</a><a href="/weekly/">每週研究</a><a href="/supply/">供應鏈</a><a href="/sim/">模擬交易</a></nav></div></header>
+<nav><a href="/">總覽</a><a href="/market/">台股</a><a href="/us/">美股</a><a href="/news/">即時快報</a><a href="/daily/">每日總經</a><a href="/weekly/">每週研究</a><a href="/supply/">供應鏈</a><a href="/whales/">大佬持股</a><a href="/sim/">模擬交易</a><a href="/robot/">AI 機器人</a><a class="on" href="/portfolio/">投資</a></nav></div></header>
 <section class="hero"><div class="wrap"><div class="kicker">投資總覽</div><h1>這一頁需要密碼</h1>
 <p class="hero-sub">持股與損益只給站長本人看。</p></div></section>
 <main class="wrap"><form class="login" method="post" action="/portfolio/__login">

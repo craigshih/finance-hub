@@ -40,11 +40,11 @@ STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 PICKS_DIR = ROOT / "data" / "picks"
 
 # (路徑, 標籤, 手機上的短標籤)
-NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "市場", "市場"), ("us/index.html", "美股", "美股"), ("news/index.html", "即時快報", "快報"),
-       ("portfolio/index.html", "投資", "投資"),
+NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "台股", "台股"), ("us/index.html", "美股", "美股"), ("news/index.html", "即時快報", "快報"),
        ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
        ("whales/index.html", "大佬持股", "大佬"),
-       ("sim/index.html", "模擬交易", "模擬")]
+       ("sim/index.html", "模擬交易", "模擬"), ("robot/index.html", "AI 機器人", "機器人"),
+       ("portfolio/index.html", "投資", "投資")]
 # 太泛的關鍵字不當作新聞標籤
 GENERIC_KW = {"TOP", "headline", "台股", "美股", "國際股", "科技", "產業", "鉅亨速報", "大盤", "股市", "市場", "經濟", "投資", "個股"}
 WEEKDAYS = "一二三四五六日"
@@ -694,10 +694,18 @@ def advisor_suggestions(sm: dict | None, picks: dict | None) -> list[str]:
     return [q for q in out if not (q in seen or seen.add(q))][:6]
 
 
-def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | None) -> str:
+def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | None, guest: bool = False) -> str:
     body = (ROOT / "static" / "advisor_body.html").read_text(encoding="utf-8")
-    chips = "".join(f'<button type="button" class="chip" data-q="{e(q)}">{e(q)}</button>' for q in advisor_suggestions(sm, picks))
-    return (body.replace("{{TABS}}", portfolio_tabs("advisor")).replace("{{SUGGESTIONS}}", chips)
+    chips = "".join(f'<button type="button" class="chip" data-q="{e(q)}">{e(q)}</button>' for q in advisor_suggestions(None if guest else sm, picks))
+    if guest:
+        body = (body.replace("{{KICKER}}", "AI 投資機器人").replace("{{API}}", "/robot/api/advisor").replace("{{HIST}}", "robot-history-v1")
+                .replace("{{SCOPE}}", "成交值前 250 名、供應鏈、今日觀察、每週研究候選等；每人每天最多 20 題")
+                .replace("{{TABS}}", ""))
+    else:
+        body = (body.replace("{{KICKER}}", "AI 投資顧問・只有你看得到").replace("{{API}}", "/portfolio/api/advisor").replace("{{HIST}}", "advisor-history-v1")
+                .replace("{{SCOPE}}", "持股、供應鏈、成交值前 250 名等；問到其他股票會自動加入，隔天補上")
+                .replace("{{TABS}}", portfolio_tabs("advisor")))
+    return (body.replace("{{SUGGESTIONS}}", chips)
             .replace("{{DATA_DATE}}", e((adv_meta or {}).get("generated_at", "—")[:16].replace("T", " ")))
             .replace("{{PRICED}}", str(len((adv_meta or {}).get("price_codes", [])))))
 
@@ -904,7 +912,7 @@ def main() -> int:
     whales = whales_page.load(ROOT / "data" / "whales" / "latest.json")
     trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
     write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
-    write(OUT_DIR / "market" / "index.html", page("市場", market_page.render(market, hero, section), 1, "market/index.html"))
+    write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section), 1, "market/index.html"))
     import us_page
     us_data = market_page.load(ROOT / "data" / "us" / "latest.json")
     write(OUT_DIR / "us" / "index.html", page("美股", us_page.render(us_data, hero, section, datetime.now(TAIPEI).strftime("%Y-%m-%d")), 1, "us/index.html"))
@@ -964,6 +972,25 @@ def main() -> int:
     shutil.copy(ROOT / "static" / "advisor.js", adv_dir / "advisor.js")
     write(adv_dir / "index.html", page("AI 投資顧問", render_advisor_page(sm, visuals.load_latest_picks(PICKS_DIR), adv_meta), 2, "portfolio/index.html"))
 
+    # AI 投資機器人（訪客版，/robot/ 通關語後面）：同一份每日資料，但只有「公開範圍」的股票保留風控與回測，
+    # 只因為站長持股或站長提問才被計算的股票，降級成跟其他股票一樣，避免從範圍反推持股
+    robot_dir = OUT_DIR / "robot"
+    robot_dir.mkdir(parents=True, exist_ok=True)
+    robot_meta = None
+    if adv_src.exists():
+        full = json.loads(adv_src.read_text(encoding="utf-8"))
+        public = set(full.get("public_codes") or [])
+        priced = set(full["price_codes"])
+        base_keys = set().union(*(s.keys() for c, s in full["stocks"].items() if c not in priced))
+        guest = {**full, "price_codes": sorted(public & priced), "stocks": {
+            c: (s if c in public or c not in priced else {k: v for k, v in s.items() if k in base_keys})
+            for c, s in full["stocks"].items()}}
+        guest.pop("public_codes", None)
+        (robot_dir / "stocks.json").write_text(json.dumps(guest, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        robot_meta = {"generated_at": full["generated_at"], "price_codes": guest["price_codes"]}
+    shutil.copy(ROOT / "static" / "advisor.js", robot_dir / "advisor.js")
+    write(robot_dir / "index.html", page("AI 投資機器人", render_advisor_page(None, visuals.load_latest_picks(PICKS_DIR), robot_meta, guest=True), 1, "robot/index.html"))
+
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
     picks = visuals.load_latest_picks(PICKS_DIR)
@@ -998,7 +1025,7 @@ def main() -> int:
         tw = market["indices"][0]
         b = market["breadth"]
         hot = max(market.get("industries", [])[:15] or [{"name": "—", "pct": 0}], key=lambda g: g["pct"])
-        body += section("市場", home_link_card("market/index.html", ui("map", "/"),
+        body += section("台股", home_link_card("market/index.html", ui("map", "/"),
                         f'{e(tw["name"])} {tw["close"]:,.0f}（{tw["chg_pct"]:+.2f}%）・上漲 {b["up"]} 家／下跌 {b["down"]} 家',
                         f'最強產業：{e(hot["name"])} {hot["pct"]:+.2f}%・處置／注意股 {len(market.get("warnings", []))} 檔',
                         "看熱力圖"))
@@ -1009,6 +1036,8 @@ def main() -> int:
                         "巴菲特、段永平、李錄、Ackman…持股與台股供應鏈連動", "看大佬在買什麼"))
     body += section("即時快報", '<ol class="headlines live" id="live-ticker"><li class="empty">讀取中…</li></ol>',
                     '<span class="live-dot"></span>每 3 分鐘更新', ("news/index.html", "看全部快報"))
+    body += section("AI 投資機器人", home_link_card("robot/index.html", ui("rocket", "/"), "想跟 AI 討論股票？輸入通關語就能用",
+                                                    "風控派 vs 回測派辯論，再給融合後的看法・不會看到站長持股", "開始討論"))
     # 首頁所有登入者都看得到，持股數字只放在有密碼的 /portfolio/
     body += section("我的投資", home_link_card("portfolio/index.html", ui("lock", "/"), "投資總覽需要密碼",
                                                "持股、損益與對帳結果只給站長本人看", "輸入密碼"))

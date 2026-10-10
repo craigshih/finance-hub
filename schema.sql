@@ -68,3 +68,10 @@ CREATE TABLE IF NOT EXISTS sim_realized (
   code     TEXT NOT NULL,
   realized INTEGER NOT NULL              -- 賣出實收 − 對應的持有成本
 );
+-- AI 投資機器人（訪客版）每人每天的題數；who 是 email 的 HMAC，不存 email 本身
+CREATE TABLE IF NOT EXISTS robot_usage (
+  day TEXT NOT NULL,
+  who TEXT NOT NULL,
+  n   INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, who)
+);

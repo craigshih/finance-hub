@@ -5,14 +5,14 @@ const enc = new TextEncoder();
 export const COOKIE = "pf_session";
 export const SESSION_DAYS = 30;
 
-async function hmacHex(key, msg) {
+export async function hmacHex(key, msg) {
   const k = await crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = new Uint8Array(await crypto.subtle.sign("HMAC", k, enc.encode(msg)));
   return [...sig].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 // 長度相同的字串做固定時間比較，避免從回應時間推測內容
-function safeEqual(a, b) {
+export function safeEqual(a, b) {
   if (a.length !== b.length) return false;
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);

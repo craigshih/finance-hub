@@ -1,5 +1,5 @@
 <section class="hero adv-hero"><div class="wrap">
-  <div class="kicker">AI 投資顧問・只有你看得到</div>
+  <div class="kicker">{{KICKER}}</div>
   <h1>這檔值不值得？<br>哪一檔比較好？</h1>
   <p class="hero-sub">籌碼 × 財報 × 輿情，讓「風控派」和「回測派」先辯論，再給你融合後的建言。</p>
   <div class="adv-pipe" id="adv-pipe">
@@ -10,14 +10,14 @@
   </div>
 </div></section>
 {{TABS}}
-<main class="wrap" id="adv-app">
+<main class="wrap" id="adv-app" data-api="{{API}}" data-hist="{{HIST}}">
   <section class="sec">
     <form class="adv-ask" id="adv-form">
-      <textarea id="adv-q" rows="2" maxlength="300" placeholder="例如：臻鼎-KY 還值得續抱嗎？／台積電和聯電哪個比較值得投資？／什麼是最大回撤？" required></textarea>
+      <textarea id="adv-q" rows="2" maxlength="300" placeholder="例如：台積電還值得長抱嗎？／台積電和聯電哪個比較值得投資？／什麼是最大回撤？" required></textarea>
       <button class="btn" type="submit" id="adv-send">問顧問</button>
     </form>
     <div class="adv-sugg" id="adv-sugg">{{SUGGESTIONS}}</div>
-    <p class="adv-meta">資料日期 {{DATA_DATE}}・涵蓋全市場財報估值，其中 {{PRICED}} 檔另有風控與回測（持股、供應鏈、成交值前 250 名等；問到其他股票會自動加入，隔天補上）</p>
+    <p class="adv-meta">資料日期 {{DATA_DATE}}・涵蓋全市場財報估值，其中 {{PRICED}} 檔另有風控與回測（{{SCOPE}}）</p>
   </section>
 
   <div id="adv-out"></div>
