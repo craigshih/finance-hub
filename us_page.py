@@ -44,7 +44,7 @@ def index_cards(ixs: list[dict]) -> str:
         val = f'{ix["price"]:.2f}%' if rate else f'{ix["price"]:,.2f}'
         chg = (f'{ix["chg"] * 100:+.0f} 個基點' if rate else f'{ix["chg"]:+,.2f}（{ix["d1"]:+.2f}%）')
         live = "" if rate else f' data-live-idx="{e(ix["ticker"])}"'
-        out.append(f'<div class="mk-idx us-idx"{live}><span class="mk-idx-top"><b>{e(ix["name"])}</b><small>{md(ix["date"])}</small></span>'
+        out.append(f'<div class="mk-idx us-idx"{live}><span class="mk-idx-top"><b>{e(ix["name"])}</b></span>'
                    f'<span class="mk-idx-val">{val}</span><span class="mk-idx-chg {cls(ix["chg"])}">{chg}</span>{spark(ix["spark"])}</div>')
     return f'<div class="mk-idx-grid">{"".join(out)}</div>'
 

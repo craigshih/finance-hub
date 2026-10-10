@@ -4,6 +4,10 @@
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.add("js");
 
+  // ---- 手機導覽列：把目前所在的分頁捲到看得見的位置（只捲導覽列本身，不動整頁）----
+  const nav = document.querySelector(".top nav"), cur = nav?.querySelector("a.on");
+  if (nav && cur && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = cur.getBoundingClientRect().left - nav.getBoundingClientRect().left - (nav.clientWidth - cur.offsetWidth) / 2;
+
   // ---- 捲動進場：.sec、卡片、表格列依序淡入 ----
   const targets = document.querySelectorAll(".sec, .stat, .pick, .news, .co, .date-card, .locked, .persona, .obs, .digest-hero li, .bubble, .inv, .rcard");
   targets.forEach((el, i) => {
