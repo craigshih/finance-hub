@@ -89,12 +89,13 @@ async function askGroq(env, messages) {
     }
     if (!res.ok) throw new Error(`Groq ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const body = await res.json();
-    return JSON.parse(body.choices[0].message.content);
+    return { raw: JSON.parse(body.choices[0].message.content), tokens: body.usage?.total_tokens || 0 };
   }
   throw new Error("Groq 忙線中");
 }
 
-// opts：{ dataPath, holdingsPath（訪客版為 null）, guest（true 時不寫入 advisor_watch）, beforeAsk（額度檢查，回傳錯誤 Response 或 null） }
+// opts：{ dataPath, holdingsPath（訪客版為 null）, guest（true 時不寫入 advisor_watch）,
+//         beforeAsk（額度檢查，回傳錯誤 Response 或 null）, afterAsk(tokens)（記錄用量） }
 export async function handleAdvisor({ request, env }, opts) {
   let body;
   try {
@@ -147,7 +148,8 @@ export async function handleAdvisor({ request, env }, opts) {
 
   let answer;
   try {
-    const raw = await askGroq(env, buildMessages({ question, data: context, news, history: body.history, portfolio }));
+    const { raw, tokens } = await askGroq(env, buildMessages({ question, data: context, news, history: body.history, portfolio }));
+    if (opts.afterAsk) await opts.afterAsk(tokens).catch((exc) => console.error("usage", exc));
     answer = sanitizeAnswer(raw, codes);
     if (answer.quant_camp) answer.quant_camp.points.push(...backtestNotes(stocks));
   } catch (exc) {

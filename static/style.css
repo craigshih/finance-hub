@@ -1241,3 +1241,16 @@ html :is(input, textarea) { cursor: text; }
   .us-bars li { grid-template-columns: 90px 1fr 60px; }
   .us-tree { aspect-ratio: 1 / 1; }
 }
+
+/* 專屬投資顧問：頁尾免責聲明 */
+.legal { margin: 28px 0 8px; padding: 16px 18px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--surface); }
+.legal h2 { font-size: 15px; margin: 0 0 8px; color: var(--ink); }
+.legal ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+.legal b { color: var(--text); font-weight: 600; }
+
+/* 導覽列 11 項：中等寬度改用短標籤，讓最右邊的「投資」不被擠出畫面 */
+@media (max-width: 1180px) {
+  .top nav .l { display: none; } .top nav .s { display: inline; }
+  .top nav a { padding: 6px 8px; }
+  .top nav a::after { left: 8px; right: 8px; }
+}

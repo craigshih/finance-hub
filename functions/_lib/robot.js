@@ -1,33 +1,14 @@
-// AI 投資機器人（訪客版）的通關語：輸入「i need investment robot」之類的句子就能進 /robot/。
-// 跟投資頁密碼完全分開：通關後只能用機器人討論股票，看不到任何站長持股。
+// 專屬投資顧問（訪客版，/robot/）的用量規則。所有登入網站的人都能直接用，不用通關語。
+// Groq 免費額度是全站共用的，所以訪客有兩道上限：每人每天題數、全體訪客每天的 token 總量；
+// 站長版（/portfolio/api/advisor）不受限制，訪客用到上限後剩下的額度都留給站長。
 
-import { hmacHex, safeEqual } from "./session.js";
+export const DAILY_LIMIT = 10;              // 每人每天最多幾題
+export const GUEST_DAILY_TOKENS = 80_000;   // 全體訪客每天最多用多少 token（可用環境變數 ROBOT_DAILY_TOKENS 調整）
+export const TOKENS_ROW = "_tokens";        // robot_usage 裡記全體訪客 token 的那一列
 
-export const ROBOT_COOKIE = "rb_session";
-export const ROBOT_DAYS = 30;
-export const DEFAULT_PHRASE = "i need investment robot";
-export const DAILY_LIMIT = 20;       // 每位訪客每天最多問幾題（Groq 免費額度有限）
-export const GLOBAL_DAILY_LIMIT = 300;
-
-// 不分大小寫、忽略標點與多餘空白："I need  investment robot!" 也算
-export function normalizePhrase(s) {
-  return String(s || "").toLowerCase().replace(/[^a-z0-9一-鿿]+/g, " ").trim();
-}
-
-export function phraseMatches(env, input) {
-  return normalizePhrase(input) === normalizePhrase(env.ROBOT_PHRASE || DEFAULT_PHRASE);
-}
-
-const key = (env) => `${env.SESSION_SECRET}|robot|${normalizePhrase(env.ROBOT_PHRASE || DEFAULT_PHRASE)}`;
-
-export async function makeRobotToken(env, now = Date.now()) {
-  const exp = now + ROBOT_DAYS * 86400_000;
-  return `${exp}.${await hmacHex(key(env), `rb:${exp}`)}`;
-}
-
-export async function validRobotToken(env, token, now = Date.now()) {
-  if (!token || !env.SESSION_SECRET) return false;
-  const [exp, sig] = token.split(".");
-  if (!exp || !sig || !(Number(exp) > now)) return false;
-  return safeEqual(sig, await hmacHex(key(env), `rb:${exp}`));
+export function guestBlocked({ mine = 0, tokens = 0 }, env = {}) {
+  const cap = Number(env.ROBOT_DAILY_TOKENS) || GUEST_DAILY_TOKENS;
+  if (tokens >= cap) return "今天訪客的 AI 額度已經用完（要留一些給站長），明天再來";
+  if (mine >= DAILY_LIMIT) return `每人每天最多 ${DAILY_LIMIT} 題，明天再來`;
+  return null;
 }
