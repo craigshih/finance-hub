@@ -40,7 +40,7 @@ STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 PICKS_DIR = ROOT / "data" / "picks"
 
 # (路徑, 標籤, 手機上的短標籤)
-NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "市場", "市場"), ("news/index.html", "即時快報", "快報"),
+NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "市場", "市場"), ("us/index.html", "美股", "美股"), ("news/index.html", "即時快報", "快報"),
        ("portfolio/index.html", "投資", "投資"),
        ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
        ("whales/index.html", "大佬持股", "大佬"),
@@ -905,6 +905,9 @@ def main() -> int:
     trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
     write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
     write(OUT_DIR / "market" / "index.html", page("市場", market_page.render(market, hero, section), 1, "market/index.html"))
+    import us_page
+    us_data = market_page.load(ROOT / "data" / "us" / "latest.json")
+    write(OUT_DIR / "us" / "index.html", page("美股", us_page.render(us_data, hero, section, datetime.now(TAIPEI).strftime("%Y-%m-%d")), 1, "us/index.html"))
 
     digests = load_digests()  # 新 → 舊
     for i, d in enumerate(digests):

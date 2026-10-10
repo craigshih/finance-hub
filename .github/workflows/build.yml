@@ -151,6 +151,14 @@ jobs:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python whales.py
 
+      # 美股：Yahoo 報價＋SEC 官方財報與近期申報（排在 13F 之後，才能標出哪些大佬持有）
+      - name: US stocks
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python us.py
+
       # 川普的股票交易：OGE 278-T（只解析新申報；第一次較久）
       - name: Trump trades (OGE 278-T)
         continue-on-error: true
@@ -173,7 +181,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/state && printf '%s' "${{ needs.gate.outputs.digest_sha }}" > data/state/digest_sha.txt
           [ -n "${{ needs.gate.outputs.filings_fp }}" ] && printf '%s' "${{ needs.gate.outputs.filings_fp }}" > data/state/filings_fp.txt
-          git add data/picks/ data/flows/ data/supply/ data/digest_titles/ data/state/ data/market/ data/whales/ 2>/dev/null || exit 0
+          git add data/picks/ data/flows/ data/supply/ data/digest_titles/ data/state/ data/market/ data/whales/ data/us/ 2>/dev/null || exit 0
           git diff --cached --quiet && exit 0
           git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
           git push

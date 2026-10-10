@@ -1203,3 +1203,41 @@ html :is(input, textarea) { cursor: text; }
 .br-pts a{flex:none;color:var(--accent);text-decoration:none;font-weight:700}
 .br-note{margin:12px 0 0;font-size:12px;color:var(--muted)}
 @media (max-width:720px){.br-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.br-lead{font-size:15px}.brief{padding:14px}}
+
+/* 美股頁 */
+.us-idx { cursor: default; }
+.us-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.us-bars li { display: grid; grid-template-columns: 130px 1fr 72px; align-items: center; gap: 10px; }
+.us-bars .nm { display: flex; flex-direction: column; line-height: 1.2; }
+.us-bars .bar { height: 10px; background: var(--chip); border-radius: 5px; overflow: hidden; }
+.us-bars .bar i { display: block; height: 100%; border-radius: 5px; background: var(--muted); }
+.us-bars .bar i.pos { background: var(--pos); } .us-bars .bar i.neg { background: var(--neg); }
+.us-bars li > b { text-align: right; font-variant-numeric: tabular-nums; }
+.us-bars .pos { color: var(--pos); } .us-bars .neg { color: var(--neg); }
+.us-tree { aspect-ratio: 16 / 8; }
+.us-table .thead, .us-table summary { grid-template-columns: minmax(150px, 2fr) repeat(8, minmax(64px, 1fr)); }
+.us-table .pos { color: var(--pos); } .us-table .neg { color: var(--neg); }
+.us-52 { position: relative; display: inline-block; width: 60px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--neg), var(--chip), var(--pos)); vertical-align: middle; }
+.us-52 i { position: absolute; top: -3px; width: 4px; height: 12px; margin-left: -2px; border-radius: 2px; background: var(--accent); }
+.us-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.us-detail > div { display: flex; flex-direction: column; gap: 4px; }
+.us-detail b { color: var(--ink); font-size: 16px; }
+.us-rev rect { fill: var(--accent); } .us-rev text { fill: var(--muted); font-size: 8px; text-anchor: middle; }
+.us-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.us-chip { font-size: 12px; background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.us-chip.tw { border-color: color-mix(in srgb, var(--brand) 50%, var(--line)); }
+.us-chip .pos { color: var(--pos); } .us-chip .neg { color: var(--neg); }
+.us-cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.us-day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.us-day > b { color: var(--accent); font-size: 13px; }
+.us-day span { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.us-filings { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.us-filings li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+.us-filings .time { color: var(--muted); font-size: 12px; min-width: 64px; }
+.us-filings a { margin-left: auto; color: var(--accent); text-decoration: none; font-size: 12px; display: inline-flex; gap: 4px; align-items: center; }
+@media (max-width: 720px) {
+  .us-table .thead, .us-table summary { grid-template-columns: minmax(110px, 2fr) repeat(4, minmax(52px, 1fr)); }
+  .us-table .hide-sm { display: none; }
+  .us-bars li { grid-template-columns: 90px 1fr 60px; }
+  .us-tree { aspect-ratio: 1 / 1; }
+}

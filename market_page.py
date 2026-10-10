@@ -450,7 +450,7 @@ def brief(m: dict | None, extras: list[tuple[str, str, str]] = (), today: str = 
     us = [ix[t] for t in ("^GSPC", "^IXIC", "^SOX", "TSM") if t in ix]
     if us and us[0]["date"] >= tw["date"]:
         pts.append(("美股", f'{_md(us[0]["date"])}：' + "、".join(
-            f'{e(u["name"])} <b class="{cls(u["chg_pct"])}">{u["chg_pct"]:+.2f}%</b>' for u in us), "market/index.html"))
+            f'{e(u["name"])} <b class="{cls(u["chg_pct"])}">{u["chg_pct"]:+.2f}%</b>' for u in us), "us/index.html"))
     risk = []
     if "^VIX" in ix:
         risk.append(f'VIX {ix["^VIX"]["close"]:.1f}')
