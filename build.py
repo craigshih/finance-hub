@@ -964,8 +964,24 @@ def main() -> int:
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
     picks = visuals.load_latest_picks(PICKS_DIR)
-    body = hero("總覽", zh_date(today), "今日觀察標的、即時快報、總經數據與本週研究，一頁看完。")
+    body = hero("總覽", zh_date(today), "本日市場速報、今日觀察、即時快報與研究候選，一頁看完。")
     body += '<main class="wrap">'
+    if market:
+        extras = []
+        if latest_screen:
+            names = {c["code"]: c["name"] for st in STYLE_LABEL for c in latest_screen.get(st, [])}
+            added = [names.get(x, x) for st in STYLE_LABEL
+                     for x in ((latest_screen.get("changes") or {}).get(st) or {}).get("added", [])]
+            n_full = sum(len(bucket(latest_screen.get(st, []))["full"]) for st in STYLE_LABEL)
+            extras.append(("研究候選", f"完全符合 {n_full} 檔" + (f"，新進：{e('、'.join(added))}" if added else "，名單沒有變動"),
+                           "weekly/index.html"))
+        if digests:
+            d0 = digests[0]
+            top = next((a.get("title") for sec in d0.get("news_sections", []) for a in sec.get("articles", [])), None)
+            if top:
+                extras.append(("早報頭條", e(top), f"daily/{d0['date']}.html"))
+        body += section("本日市場速報", market_page.brief(market, extras, today), "收盤數字自動整理・不是投資建議",
+                        ("market/index.html", "看完整市場"))
     body += section("今日觀察", visuals.observations(picks, ""),
                     f"段永平・巴菲特・芒格・李錄的框架・{e(picks['date'])} 產生" if picks else "", ("investors/index.html", "認識四位投資人"))
     if supply and supply.get("leaders"):

@@ -360,3 +360,120 @@ def holdings_alerts(holdings: list[dict], m: dict | None) -> str:
     if not items:
         return '<p class="empty">持股目前沒有處置、注意，近期也沒有除權息。</p>'
     return f'<ul class="mk-alerts">{"".join(items)}</ul>'
+
+
+# ---------- 首頁「本日市場速報」 ----------
+# 全部由 latest.json 的真實數字依固定規則組句，不用 LLM，不寫因果推論（不說「因為…所以跌」）。
+
+WEEK = "一二三四五六日"
+
+
+def _md(iso: str) -> str:
+    from datetime import date
+    d = date.fromisoformat(iso)
+    return f"{d.month}/{d.day}（{WEEK[d.weekday()]}）"
+
+
+def _yi(x: float) -> str:
+    return f"{'買超' if x >= 0 else '賣超'} {abs(x):,.1f} 億"
+
+
+def _streak(hist: list[dict], key: str) -> int:
+    """最近連續同方向的天數（正＝連買、負＝連賣）。"""
+    n, sign = 0, None
+    for h in reversed(hist):
+        v = h.get(key)
+        if v is None or v == 0:
+            break
+        s = v > 0
+        if sign is None:
+            sign = s
+        if s != sign:
+            break
+        n += 1
+    return n if sign else -n
+
+
+def brief(m: dict | None, extras: list[tuple[str, str, str]] = (), today: str = "") -> str:
+    """extras：(標籤, 內文 HTML, 連結)，由 build.py 補上研究候選新進、早報頭條等。"""
+    if not m or not m.get("indices"):
+        return '<p class="empty">市場資料暫時讀不到</p>'
+    ix = {i["ticker"]: i for i in m["indices"]}
+    tw = ix.get("^TWII") or m["indices"][0]
+    b = m.get("breadth") or {}
+    hist = m.get("history") or []
+    h = hist[-1] if hist and hist[-1]["date"] == tw["date"] else None
+    stale = today and tw["date"] != today
+
+    # 一句話總結
+    mood = ("漲多跌少" if b.get("up", 0) > b.get("down", 0) * 1.2 else
+            "跌多漲少" if b.get("down", 0) > b.get("up", 0) * 1.2 else "漲跌互見") if b else ""
+    lead = (f'台股加權收 <b>{tw["close"]:,.0f}</b>，{"上漲" if tw["chg"] >= 0 else "下跌"} '
+            f'<b class="{cls(tw["chg"])}">{abs(tw["chg"]):,.0f} 點（{tw["chg_pct"]:+.2f}%）</b>')
+    if b:
+        lead += f'；{mood}（{b["up"]} 漲／{b["down"]} 跌）'
+    if h:
+        lead += f'，三大法人合計<b class="{cls(h["total"])}">{_yi(h["total"])}</b>'
+        if h.get("margin_chg_yi") is not None:
+            lead += f'，融資{"增加" if h["margin_chg_yi"] >= 0 else "減少"} {abs(h["margin_chg_yi"]):,.1f} 億'
+    lead += "。"
+
+    # 數字磚：加權（盤中即時更新）、漲跌家數、外資、融資
+    tiles = [
+        f'<div class="br-tile br-idx" data-live-idx="^TWII"><small>台股加權</small>'
+        f'<span class="mk-idx-val">{tw["close"]:,.2f}</span>'
+        f'<span class="mk-idx-chg {cls(tw["chg"])}">{tw["chg"]:+,.2f}（{tw["chg_pct"]:+.2f}%）</span></div>']
+    if b:
+        tot = (b["up"] + b["down"] + b["flat"]) or 1
+        tiles.append(f'<div class="br-tile"><small>漲跌家數</small><span><b class="pos">{b["up"]}</b> / <b class="neg">{b["down"]}</b></span>'
+                     f'<div class="br-bar"><i class="up" style="width:{b["up"] / tot * 100:.1f}%"></i><i class="flat" style="width:{b["flat"] / tot * 100:.1f}%"></i>'
+                     f'<i class="down" style="width:{b["down"] / tot * 100:.1f}%"></i></div><small>漲停 {b["limit_up"]}・跌停 {b["limit_down"]}</small></div>')
+    if h:
+        fs = _streak(hist, "foreign")
+        streak = f'連 {abs(fs)} 日{"買" if fs > 0 else "賣"}' if abs(fs) >= 2 else ""
+        tiles.append(f'<div class="br-tile"><small>外資</small><span class="{cls(h["foreign"])}">{_yi(h["foreign"])}</span>'
+                     f'<small>投信 {_yi(h["trust"])}・自營 {_yi(h["dealer"])}{"・" + streak if streak else ""}</small></div>')
+        if h.get("margin_chg_yi") is not None:
+            tiles.append(f'<div class="br-tile"><small>融資餘額</small><span>{h["margin_yi"]:,.0f} 億</span>'
+                         f'<small class="{cls(h["margin_chg_yi"])}">{"增" if h["margin_chg_yi"] >= 0 else "減"} {abs(h["margin_chg_yi"]):,.1f} 億</small></div>')
+
+    # 重點條列
+    pts = []
+    themes = sorted(m.get("themes") or [], key=lambda t: -t["pct"])
+    if themes:
+        hot = "、".join(f'{e(t["name"])} <b class="{cls(t["pct"])}">{t["pct"]:+.1f}%</b>' for t in themes[:3])
+        cold = "、".join(f'{e(t["name"])} <b class="{cls(t["pct"])}">{t["pct"]:+.1f}%</b>' for t in themes[-2:][::-1])
+        pts.append(("族群", f"最強：{hot}；最弱：{cold}", "market/index.html"))
+    sd = (m.get("strong") or {}).get("d") or []
+    if sd:
+        pts.append(("強勢股", "、".join(f'{e(s["name"])} <b class="{cls(s["d"])}">{s["d"]:+.1f}%</b>' for s in sd[:4]), "market/index.html"))
+    us = [ix[t] for t in ("^GSPC", "^IXIC", "^SOX", "TSM") if t in ix]
+    if us and us[0]["date"] >= tw["date"]:
+        pts.append(("美股", f'{_md(us[0]["date"])}：' + "、".join(
+            f'{e(u["name"])} <b class="{cls(u["chg_pct"])}">{u["chg_pct"]:+.2f}%</b>' for u in us), "market/index.html"))
+    risk = []
+    if "^VIX" in ix:
+        risk.append(f'VIX {ix["^VIX"]["close"]:.1f}')
+    if "TWD=X" in ix:
+        risk.append(f'美元兌台幣 {ix["TWD=X"]["close"]:.2f}')
+    ws = m.get("warnings") or []
+    n_dis = sum(1 for w in ws if w["level"] == "處置中")
+    n_may = sum(1 for w in ws if w["level"] == "可能處置")
+    if ws:
+        risk.append(f"處置中 {n_dis} 檔、可能處置 {n_may} 檔")
+    if risk:
+        pts.append(("風險", "・".join(risk), "market/index.html"))
+    upcoming = sorted({x["date"] for x in m.get("ex_dividends") or [] if x["date"] > tw["date"]})
+    if upcoming:
+        d0 = upcoming[0]
+        xs = [x for x in m["ex_dividends"] if x["date"] == d0]
+        names = "、".join(e(x["name"]) for x in xs[:4]) + (f" 等 {len(xs)} 檔" if len(xs) > 4 else "")
+        pts.append(("除權息", f"{_md(d0)}：{names}", "market/index.html"))
+    pts += list(extras)
+
+    items = "".join(f'<li><span class="br-tag">{e(t)}</span><span class="br-txt">{txt}</span>'
+                    f'{f"<a href={chr(34)}{href}{chr(34)}>→</a>" if href else ""}</li>' for t, txt, href in pts)
+    note = (f'{"最近交易日" if stale else "今日"}收盤 {_md(tw["date"])}・盤中加權指數每分鐘更新'
+            f'・資料更新於 {e((m.get("generated_at") or "")[11:16])}')
+    return (f'<div class="brief"><p class="br-lead">{lead}</p><div class="br-tiles">{"".join(tiles)}</div>'
+            f'<ul class="br-pts">{items}</ul><p class="br-note">{note}</p></div>')
