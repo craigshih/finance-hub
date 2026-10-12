@@ -88,7 +88,7 @@ def score_bar(n_pass: int, n_total: int) -> str:
 
 def load_latest_picks(picks_dir: Path) -> dict | None:
     files = sorted(picks_dir.glob("*.json")) if picks_dir.is_dir() else []
-    return json.loads(files[-1].read_text(encoding="utf-8")) if files else None
+    return clean_names(json.loads(files[-1].read_text(encoding="utf-8"))) if files else None
 
 
 def _metric_chip(key: str, value) -> str:
@@ -112,9 +112,23 @@ KEY_METRICS = {
 }
 
 
+def clean_name(name):
+    """證交所／櫃買的股名有時帶「*」（例如「國巨*」，官方用來標示面額不是 10 元的公司），網站上一律拿掉。"""
+    return name.replace("*", "").strip() if isinstance(name, str) else name
+
+
+def clean_names(obj):
+    """把整份 JSON 裡所有 "name" 欄位的「*」拿掉（讀進來的舊資料也一併清掉）。"""
+    if isinstance(obj, dict):
+        return {k: clean_name(v) if k == "name" else clean_names(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_names(x) for x in obj]
+    return obj
+
+
 def short_name(name: str) -> str:
     """Advanced Micro Devices, Inc. → Advanced Micro Devices"""
-    return re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Ltd\.?|plc|Co\.?|Company|COM INC)$", "", name or "", flags=re.I).strip()
+    return re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Ltd\.?|plc|Co\.?|Company|COM INC)$", "", clean_name(name or ""), flags=re.I).strip()
 
 
 def observation_card(p: dict, prefix: str = "") -> str:

@@ -99,7 +99,7 @@ def market_data() -> dict:
     stocks: dict[str, dict] = {}
 
     def base(code, name, market):
-        return stocks.setdefault(code, {"code": code, "name": name, "market": market})
+        return stocks.setdefault(code, {"code": code, "name": (name or "").replace("*", "").strip(), "market": market})
 
     for r in get_json(f"{TWSE}/exchangeReport/STOCK_DAY_ALL"):
         s = base(r["Code"], r["Name"], "上市")

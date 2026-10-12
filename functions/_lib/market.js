@@ -1,6 +1,9 @@
 // 模擬交易的報價與交易成本。
 // 報價：證交所（上市）與櫃買中心（上櫃）OpenAPI 的每日收盤價，跟 investment-team/market.py 同一個來源。
 
+// 證交所／櫃買的股名有時帶「*」（官方標示面額不是 10 元），網站上一律拿掉
+export const cleanName = (name) => (typeof name === "string" ? name.replace(/\*/g, "").trim() : name);
+
 export const INITIAL_CASH = 1_000_000;
 export const FEE_RATE = 0.001425;
 export const MAX_SHARES = 10_000_000;
@@ -51,12 +54,12 @@ export function parseQuotes(twseRows, tpexRows) {
   const out = {};
   for (const r of twseRows || []) {
     const close = Number(String(r.ClosingPrice).replace(/,/g, ""));
-    if (close > 0) out[r.Code] = { code: r.Code, name: r.Name, price: close, date: rocDate(r.Date), market: "上市" };
+    if (close > 0) out[r.Code] = { code: r.Code, name: cleanName(r.Name), price: close, date: rocDate(r.Date), market: "上市" };
   }
   for (const r of tpexRows || []) {
     const close = Number(String(r.Close).replace(/,/g, ""));
     if (close > 0) out[r.SecuritiesCompanyCode] = {
-      code: r.SecuritiesCompanyCode, name: r.CompanyName, price: close, date: rocDate(r.Date), market: "上櫃",
+      code: r.SecuritiesCompanyCode, name: cleanName(r.CompanyName), price: close, date: rocDate(r.Date), market: "上櫃",
     };
   }
   return out;
@@ -94,7 +97,7 @@ export function valuate(holdings, quotes) {
     const mv = price != null ? Math.round(price * h.shares) : h.cost;
     value += mv;
     return {
-      code: h.code, name: h.name || q?.name || h.code, shares: h.shares, cost: h.cost,
+      code: h.code, name: cleanName(h.name || q?.name || h.code), shares: h.shares, cost: h.cost,
       avg_cost: h.shares ? h.cost / h.shares : 0, price, value: mv, pl: mv - h.cost,
       pl_pct: h.cost ? (mv - h.cost) / h.cost : 0,
     };

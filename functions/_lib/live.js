@@ -25,7 +25,7 @@ export function parseMis(json) {
     const code = m.c === "t00" ? "^TWII" : m.c === "o00" ? "^TWOII" : m.c;
     out[code] = {
       price, prev, chg: +(price - prev).toFixed(4), pct: +((price / prev - 1) * 100).toFixed(2),
-      time: m.tlong ? new Date(Number(m.tlong)).toISOString() : null, name: m.n || null,
+      time: m.tlong ? new Date(Number(m.tlong)).toISOString() : null, name: m.n ? m.n.replace(/\*/g, "").trim() : null,
     };
   }
   return out;

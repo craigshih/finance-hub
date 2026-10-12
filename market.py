@@ -41,6 +41,10 @@ INDICES = [
 HISTORY_DAYS = 60
 
 
+def clean(name: str) -> str:
+    return (name or "").replace("*", "").strip()  # 官方股名的「*」（面額非 10 元）不顯示
+
+
 def log(msg: str) -> None:
     print(msg, file=sys.stderr)
 
@@ -107,10 +111,10 @@ def quotes_and_industry() -> list[dict]:
     rows = []
     for r in get_json(f"{TWSE_OPEN}/exchangeReport/STOCK_DAY_ALL") or []:
         close, chg = num(r["ClosingPrice"]), num(r["Change"])
-        rows.append({"code": r["Code"], "name": r["Name"], "market": "上市", "close": close, "chg": chg, "tv": num(r["TradeValue"])})
+        rows.append({"code": r["Code"], "name": clean(r["Name"]), "market": "上市", "close": close, "chg": chg, "tv": num(r["TradeValue"])})
     for r in get_json(f"{TPEX}/tpex_mainboard_quotes") or []:
         close, chg = num(r["Close"]), num(r["Change"])
-        rows.append({"code": r["SecuritiesCompanyCode"], "name": r["CompanyName"], "market": "上櫃", "close": close, "chg": chg,
+        rows.append({"code": r["SecuritiesCompanyCode"], "name": clean(r["CompanyName"]), "market": "上櫃", "close": close, "chg": chg,
                      "tv": num(r["TransactionAmount"])})
     industry = {}
     for url in (f"{TWSE_OPEN}/opendata/t187ap05_L", f"{TPEX}/mopsfin_t187ap05_O"):
@@ -277,25 +281,25 @@ def warnings() -> list[dict]:
     out = []
     for r in get_json(f"{TWSE_OPEN}/announcement/punish") or []:
         if re.fullmatch(r"\d{4}", r.get("Code", "")):
-            out.append({"code": r["Code"], "name": r["Name"], "market": "上市", "level": "處置中",
+            out.append({"code": r["Code"], "name": clean(r["Name"]), "market": "上市", "level": "處置中",
                         "period": r.get("DispositionPeriod"), "detail": f'{r.get("DispositionMeasures", "")}・{r.get("ReasonsOfDisposition", "")}'})
     for r in get_json(f"{TPEX}/tpex_disposal_information") or []:
         p = r.get("DispositionPeriod", "")
         a, _, b = p.partition("~")
-        out.append({"code": r["SecuritiesCompanyCode"], "name": r["CompanyName"], "market": "上櫃", "level": "處置中",
+        out.append({"code": r["SecuritiesCompanyCode"], "name": clean(r["CompanyName"]), "market": "上櫃", "level": "處置中",
                     "period": f"{roc(a) or a} ~ {roc(b) or b}", "detail": r.get("DispositionReasons", "")})
     for r in get_json(f"{TWSE_OPEN}/announcement/notetrans") or []:
-        out.append({"code": r["Code"], "name": r["Name"], "market": "上市", "level": "可能處置",
+        out.append({"code": r["Code"], "name": clean(r["Name"]), "market": "上市", "level": "可能處置",
                     "period": None, "detail": r.get("RecentlyMetAttentionSecuritiesCriteria", "")})
     for r in get_json(f"{TPEX}/tpex_trading_warning_note") or []:
-        out.append({"code": r["SecuritiesCompanyCode"], "name": r["CompanyName"], "market": "上櫃", "level": "可能處置",
+        out.append({"code": r["SecuritiesCompanyCode"], "name": clean(r["CompanyName"]), "market": "上櫃", "level": "可能處置",
                     "period": None, "detail": r.get("AccumulationSituation", "")})
     for r in get_json(f"{TWSE_OPEN}/announcement/notice") or []:
         if re.fullmatch(r"\d{4}", r.get("Code", "")):
-            out.append({"code": r["Code"], "name": r["Name"], "market": "上市", "level": "注意",
+            out.append({"code": r["Code"], "name": clean(r["Name"]), "market": "上市", "level": "注意",
                         "period": None, "detail": r.get("TradingInfoForAttention", "")})
     for r in get_json(f"{TPEX}/tpex_trading_warning_information") or []:
-        out.append({"code": r["SecuritiesCompanyCode"], "name": r["CompanyName"], "market": "上櫃", "level": "注意",
+        out.append({"code": r["SecuritiesCompanyCode"], "name": clean(r["CompanyName"]), "market": "上櫃", "level": "注意",
                     "period": None, "detail": r.get("TradingInformation", "")})
     rank = {"處置中": 0, "可能處置": 1, "注意": 2}
     seen, uniq = set(), []
@@ -312,10 +316,10 @@ def ex_dividends() -> list[dict]:
     today = datetime.now(TAIPEI).date().isoformat()
     out = []
     for r in get_json(f"{TWSE_OPEN}/exchangeReport/TWT48U_ALL") or []:
-        out.append({"date": roc(r["Date"]), "code": r["Code"], "name": r["Name"], "market": "上市",
+        out.append({"date": roc(r["Date"]), "code": r["Code"], "name": clean(r["Name"]), "market": "上市",
                     "type": "除" + r.get("Exdividend", ""), "cash": num(r.get("CashDividend")), "stock": num(r.get("StockDividendRatio"))})
     for r in get_json(f"{TPEX}/tpex_exright_prepost") or []:
-        out.append({"date": roc(r["ExRrightsExDividendDate"]), "code": r["SecuritiesCompanyCode"], "name": r["CompanyName"], "market": "上櫃",
+        out.append({"date": roc(r["ExRrightsExDividendDate"]), "code": r["SecuritiesCompanyCode"], "name": clean(r["CompanyName"]), "market": "上櫃",
                     "type": r.get("ExRrightsExDividend", ""), "cash": num(r.get("CashDividend")), "stock": num(r.get("StockDividendRatio"))})
     return sorted((x for x in out if x["date"] and x["date"] >= today), key=lambda x: (x["date"], x["code"]))
 

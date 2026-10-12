@@ -11,7 +11,7 @@ import math
 from pathlib import Path
 
 from supply_map import LEADERS, PEER_GROUPS, SOURCES
-from visuals import e, sparkline, stock_logo
+from visuals import clean_names, e, sparkline, stock_logo
 
 REL_CLASS = {"供應商": "sup", "客戶": "cus", "同業": "peer", "合作": "part", "台股同業": "twp"}
 REL_NOTE = {
@@ -111,7 +111,7 @@ def legend() -> str:
 
 
 def load(path: Path) -> dict | None:
-    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    return clean_names(json.loads(path.read_text(encoding="utf-8"))) if path.exists() else None
 
 
 def pct_span(x, digits=2) -> str:

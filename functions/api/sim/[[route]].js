@@ -15,13 +15,12 @@
 import { accessEmail } from "../../_lib/auth.js";
 import { misChannels, parseMis } from "../../_lib/live.js";
 import {
-  INITIAL_CASH, PublicError, getQuotes, marketOpen, nextClose, orderCost, searchStocks, validateOrder, valuate,
-} from "../../_lib/market.js";
+  INITIAL_CASH, PublicError, getQuotes, marketOpen, nextClose, orderCost, searchStocks, validateOrder, valuate, cleanName } from "../../_lib/market.js";
 import { computeSignals, maSeries, parseYahooChart } from "../../_lib/signals.js";
 
 const UA = "Mozilla/5.0 (compatible; craig-finance-hub/1.0)";
 const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
+  new Response(JSON.stringify(data, (k, v) => (k === "name" ? cleanName(v) : v)), {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
   });

@@ -209,8 +209,16 @@ def fred_tiles(rows: list[dict]) -> str:
     return '<div class="stats">' + "".join(tiles) + "</div>"
 
 
+# 工商時報那一區是朋友的 AI 摘要；對方額度用完或文章太長時，信裡會直接放錯誤訊息
+SUMMARY_FAILED = re.compile(r"摘要失敗|Error code: \d{3}|Rate limit|Request too large|未知錯誤")
+
+
+def summary_failed(a: dict) -> bool:
+    return bool(a.get("summary_failed") or SUMMARY_FAILED.search(a.get("structured_summary") or ""))
+
+
 def article_lede(a: dict) -> str:
-    if not a.get("structured_summary"):
+    if not a.get("structured_summary") or summary_failed(a):
         return ""
     for sec in parse_structured_summary(a["structured_summary"]):
         if sec["items"]:
@@ -231,7 +239,9 @@ def render_article(a: dict, section_name: str, featured: bool = False) -> str:
     meta = " ・ ".join(x for x in [e(a.get("author")), article_time(a)] if x)
     lede = article_lede(a)
     full = ""
-    if a.get("structured_summary"):
+    if summary_failed(a):
+        full = '<p class="news-nosum">這篇的 AI 摘要沒有產生（來源端的 AI 額度用完或文章太長），請點「原文」閱讀。</p>'
+    elif a.get("structured_summary"):
         parts = ""
         for sec in parse_structured_summary(a["structured_summary"]):
             head = f"<h4>{e(sec['header'])}</h4>" if sec["header"] else ""
@@ -268,7 +278,7 @@ def render_digest_page(d: dict, prev_d, next_d) -> str:
     body += '<main class="wrap">'
     body += section("美國總經數據", fred_tiles(d.get("fred", [])), "FRED")
     for sec in d.get("news_sections", []):
-        arts = sec.get("articles", [])
+        arts = sorted(sec.get("articles", []), key=summary_failed)  # 有摘要的排前面，摘要失敗的放最後
         if arts:
             cards = "".join(render_article(a, sec.get("name") or "", featured=(i == 0)) for i, a in enumerate(arts))
             body += section(e(sec.get("name")), f'<div class="news-list">{cards}</div>', f"{e(sec.get('source'))}・{len(arts)} 則")
@@ -294,6 +304,21 @@ def headline_list(d: dict, limit: int, depth_prefix: str) -> str:
 
 # ---------- 每週研究 ----------
 
+# 完整報告裡的股名也去掉「*」：只拿掉緊接在中文字後、後面不是另一個「*」的那個（不動 Markdown 粗體 **）
+STAR_AFTER_NAME = re.compile(r"(?<=[\u4e00-\u9fff])\*(?!\*)")
+
+
+def strip_stars(obj):
+    """報告 JSON 裡 AI 分析文字也會寫「愛普*」，所有字串一併處理。"""
+    if isinstance(obj, str):
+        return STAR_AFTER_NAME.sub("", obj)
+    if isinstance(obj, dict):
+        return {k: strip_stars(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [strip_stars(x) for x in obj]
+    return obj
+
+
 def load_reports() -> list[dict]:
     if not REPORT_DIR.is_dir():
         print(f"⚠️ 找不到 {REPORT_DIR}，每週研究區塊會是空的", file=sys.stderr)
@@ -301,7 +326,7 @@ def load_reports() -> list[dict]:
     reports = []
     for f in sorted(REPORT_DIR.glob("*.json"), reverse=True):
         try:
-            data = json.loads(f.read_text(encoding="utf-8"))
+            data = strip_stars(visuals.clean_names(json.loads(f.read_text(encoding="utf-8"))))
         except (json.JSONDecodeError, OSError) as exc:
             print(f"⚠️ 略過無法解析的 {f.name}：{exc}", file=sys.stderr)
             continue
@@ -309,7 +334,7 @@ def load_reports() -> list[dict]:
         screen, companies = (data.get("screen"), data.get("companies", [])) if isinstance(data, dict) else (None, data)
         md = f.with_suffix(".md")
         reports.append({"date": f.stem, "screen": screen, "companies": companies,
-                        "md": md.read_text(encoding="utf-8") if md.exists() else None})
+                        "md": STAR_AFTER_NAME.sub("", md.read_text(encoding="utf-8")) if md.exists() else None})
     return reports
 
 
@@ -324,7 +349,7 @@ def load_latest_screen(reports: list[dict]) -> dict | None:
     f = SCREEN_DIR / "latest.json"
     if f.exists():
         try:
-            daily = json.loads(f.read_text(encoding="utf-8"))
+            daily = visuals.clean_names(json.loads(f.read_text(encoding="utf-8")))
             daily["date"] = daily.get("generated_at", "")[:10]
             daily["source"] = "daily"
         except (json.JSONDecodeError, OSError) as exc:
@@ -961,8 +986,8 @@ def main() -> int:
     adv_meta = None
     adv_src = ROOT / "data" / "advisor" / "stocks.json"
     if adv_src.exists():
-        shutil.copy(adv_src, adv_dir / "stocks.json")
-        meta = json.loads(adv_src.read_text(encoding="utf-8"))
+        meta = visuals.clean_names(json.loads(adv_src.read_text(encoding="utf-8")))
+        (adv_dir / "stocks.json").write_text(json.dumps(meta, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         adv_meta = {"generated_at": meta["generated_at"], "price_codes": meta["price_codes"]}
     if sm:
         (adv_dir / "holdings.json").write_text(json.dumps({"as_of": sm["price_date"], "holdings": [
@@ -978,7 +1003,7 @@ def main() -> int:
     robot_dir.mkdir(parents=True, exist_ok=True)
     robot_meta = None
     if adv_src.exists():
-        full = json.loads(adv_src.read_text(encoding="utf-8"))
+        full = meta
         public = set(full.get("public_codes") or [])
         priced = set(full["price_codes"])
         base_keys = set().union(*(s.keys() for c, s in full["stocks"].items() if c not in priced))

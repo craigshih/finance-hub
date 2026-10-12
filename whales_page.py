@@ -8,7 +8,7 @@ from html import escape
 from pathlib import Path
 
 from market_page import TAB_SCRIPT, panel, tabs
-from visuals import stock_logo
+from visuals import clean_names, stock_logo
 
 CHANGE_CLASS = {"新買進": "new", "加碼": "add", "減碼": "cut", "出清": "exit", "持平": "flat"}
 
@@ -19,7 +19,7 @@ def e(x) -> str:
 
 def load(path: Path) -> dict | None:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return clean_names(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, json.JSONDecodeError):
         return None
 

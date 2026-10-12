@@ -1276,3 +1276,4 @@ html :is(input, textarea) { cursor: text; }
 @media (max-width: 760px) {
   .top nav { -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); mask-image: linear-gradient(90deg, #000 82%, transparent); padding-right: 24px; }
 }
+.news-nosum { margin: 8px 0 0; font-size: 13px; color: var(--muted); border-left: 2px solid var(--line); padding-left: 10px; }

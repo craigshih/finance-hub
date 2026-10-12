@@ -8,7 +8,7 @@ import re
 from html import escape
 from pathlib import Path
 
-from visuals import stock_logo
+from visuals import clean_names, stock_logo
 
 
 def e(x) -> str:
@@ -17,7 +17,7 @@ def e(x) -> str:
 
 def load(path: Path) -> dict | None:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return clean_names(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, json.JSONDecodeError):
         return None
 
