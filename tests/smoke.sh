@@ -95,6 +95,7 @@ code=$(curl -s -o /tmp/wh.html -w '%{http_code}' "$BASE/whales/"); [ "$code" = 2
 grep -q "我的持股 × 大佬" /tmp/wh.html && fail "大佬持股頁不該有站長持股"
 code=$(curl -s -o /tmp/us.html -w '%{http_code}' "$BASE/us/"); [ "$code" = 200 ] || fail "美股頁應該 200，實際 $code"
 grep -q "持股提醒\|我的持股" /tmp/us.html && fail "美股頁不該有站長持股"
+need "$(curl -s "$BASE/glossary.js")" '三大法人' "術語註解檔 glossary.js 應該要有內容"
 echo "✅ 市場頁"
 
 # 即時報價 API（來源暫時連不到也要回正常格式）

@@ -106,6 +106,7 @@ def page(title: str, body: str, depth: int, active: str) -> str:
 <div class="tickerbar" aria-label="即時行情"><span class="tk-live"><span class="live-dot"></span><span class="live-stamp">即時行情</span></span><div class="tk-view" id="tk"></div></div>
 {body}
 <footer><div class="wrap">更新於 {built}（台北時間）・{DISCLAIMER}</div></footer>
+<script src="{prefix}glossary.js" defer></script>
 <script src="{prefix}site.js" defer></script>
 </body>
 </html>
@@ -926,6 +927,8 @@ def main() -> int:
     sim_body = (ROOT / "static" / "sim_body.html").read_text(encoding="utf-8")
     shutil.copy(ROOT / "static" / "site.js", OUT_DIR / "site.js")
     (OUT_DIR / "topics.js").write_text(icons.topics_js(), encoding="utf-8")
+    import glossary
+    (OUT_DIR / "glossary.js").write_text(glossary.to_js(), encoding="utf-8")
     write(OUT_DIR / "news" / "index.html", page("即時快報", (ROOT / "static" / "news_body.html").read_text(encoding="utf-8"), 1, "news/index.html"))
     write(OUT_DIR / "sim" / "index.html", page("模擬交易", sim_body, 1, "sim/index.html"))
 

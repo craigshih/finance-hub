@@ -309,3 +309,118 @@
     if (want && supply.querySelector(`.lpanel[data-leader="${CSS.escape(want)}"]`)) pick(want, true);
   }
 })();
+
+// ---- 術語小註解：標題、欄位名稱裡出現 glossary.js 的術語時，旁邊加一個小問號 ----
+// 每個術語每頁只標第一次出現，避免畫面滿是問號；電腦滑過去就顯示，手機點了從下方滑出。
+(() => {
+  const G = window.GLOSS || [];
+  if (!G.length) return;
+  const names = [];
+  G.forEach((g, i) => [g.t, ...g.a].forEach((n) => names.push([n, i])));
+  names.sort((a, b) => b[0].length - a[0].length); // 長的先比：「融資餘額」不會被拆成「融資」
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(names.map(([n]) => (/^[A-Za-z]/.test(n) ? `(?<![A-Za-z])${esc(n)}(?![A-Za-z])` : esc(n))).join("|"));
+  const index = Object.fromEntries(names);
+  const SEL = ".sec-head h2, .stat-label, .br-tile > small, .br-tag, .thead > span, th, .mk-idx-top b, .pick-head, " +
+    ".co-stats small, .us-detail small, .legend span, .sim-tiles small, .ck-grid b, .adv-card small, .mk-chart-head small, .hero .kicker, .ck small, .sec-note, .mk-note";
+  const done = new Set();
+
+  function scan(root = document) {
+    for (const el of root.querySelectorAll(SEL)) {
+      if (el.closest("button, a, summary, .gl-pop") || el.dataset.gl || (el.textContent || "").length > 40) continue;
+      el.dataset.gl = "1";
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        const m = node.nodeValue.match(re);
+        if (!m) continue;
+        const gi = index[m[0]];
+        if (done.has(gi)) continue;
+        done.add(gi);
+        const after = node.splitText(m.index + m[0].length);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "gl-q";
+        b.dataset.g = gi;
+        b.setAttribute("aria-label", `什麼是${G[gi].t}？`);
+        b.textContent = "?";
+        after.parentNode.insertBefore(b, after);
+        break;
+      }
+    }
+  }
+
+  const pop = document.createElement("div");
+  pop.className = "gl-pop";
+  pop.setAttribute("role", "dialog");
+  pop.hidden = true;
+  document.body.appendChild(pop);
+  let owner = null, pinned = false, hideTimer = 0;
+
+  function fill(g) {
+    pop.replaceChildren();
+    const add = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; n.textContent = text; pop.appendChild(n); return n; };
+    const head = add("div", "gl-head", "");
+    const h = document.createElement("b"); h.textContent = g.t; head.appendChild(h);
+    const x = document.createElement("button"); x.type = "button"; x.className = "gl-x"; x.setAttribute("aria-label", "關閉"); x.textContent = "×";
+    x.addEventListener("click", close); head.appendChild(x);
+    add("p", "gl-what", g.what);
+    add("small", "gl-k", "可以看出什麼"); add("p", "", g.see);
+    if (g.warn) { add("small", "gl-k warn", "要注意"); add("p", "", g.warn); }
+  }
+
+  function place(btn) {
+    if (innerWidth < 640) { pop.classList.add("sheet"); pop.style.left = pop.style.top = ""; return; }
+    pop.classList.remove("sheet");
+    // body 在大螢幕有 zoom：getBoundingClientRect 是畫面座標，要除以 zoom 才是 CSS 座標
+    const z = btn.currentCSSZoom || 1;
+    const r = btn.getBoundingClientRect();
+    const W = innerWidth / z, H = innerHeight / z, w = pop.offsetWidth, h = pop.offsetHeight;
+    let left = (r.left + r.width / 2) / z - w / 2;
+    left = Math.max(8, Math.min(left, W - w - 8));
+    let top = r.bottom / z + 8;
+    if (top + h > H - 8) top = Math.max(8, r.top / z - h - 8);
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+  }
+
+  function open(btn, pin) {
+    clearTimeout(hideTimer);
+    if (owner === btn && !pop.hidden) { pinned = pinned || pin; return; }
+    owner?.setAttribute("aria-expanded", "false");
+    owner = btn; pinned = pin;
+    fill(G[btn.dataset.g]);
+    pop.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    place(btn);
+  }
+  function close() {
+    pop.hidden = true; pinned = false;
+    owner?.setAttribute("aria-expanded", "false");
+    owner = null;
+  }
+  const later = () => { clearTimeout(hideTimer); hideTimer = setTimeout(() => { if (!pinned) close(); }, 220); };
+
+  document.addEventListener("click", (ev) => {
+    const b = ev.target.closest(".gl-q");
+    if (b) { ev.preventDefault(); ev.stopPropagation(); (owner === b && pinned) ? close() : open(b, true); return; }
+    if (!pop.hidden && !ev.target.closest(".gl-pop")) close();
+  }, true);
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    document.addEventListener("mouseover", (ev) => {
+      const b = ev.target.closest(".gl-q");
+      if (b) open(b, false);
+      else if (ev.target.closest(".gl-pop")) clearTimeout(hideTimer);
+    });
+    document.addEventListener("mouseout", (ev) => { if (ev.target.closest(".gl-q, .gl-pop") && !pinned) later(); });
+  }
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !pop.hidden) { owner?.focus(); close(); } });
+  addEventListener("scroll", () => { if (!pop.hidden && !pop.classList.contains("sheet")) close(); }, { passive: true });
+  addEventListener("resize", () => { if (!pop.hidden) close(); });
+
+  scan();
+  // 模擬交易、AI 顧問這類事後才畫出來的內容，也一併掃
+  let t = 0;
+  const watch = document.querySelector("#sim-app, #adv-out, #adv-app");
+  if (watch) new MutationObserver(() => { clearTimeout(t); t = setTimeout(() => scan(watch), 300); }).observe(watch, { childList: true, subtree: true });
+})();
