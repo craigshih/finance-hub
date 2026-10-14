@@ -231,6 +231,10 @@ jobs:
           EOF
           sed -i 's/^          //' wrangler.toml
           wrangler d1 execute craig-finance-sim --remote --file schema.sql --yes
+          # 舊資料表補上新欄位（已經有的會報錯，略過即可）
+          for col in "kind TEXT" "session TEXT" "seen_high REAL" "seen_low REAL"; do
+            wrangler d1 execute craig-finance-sim --remote --yes --command "ALTER TABLE sim_orders ADD COLUMN $col" >/dev/null 2>&1 || true
+          done
 
       # 用本機 D1 跑一份完整的網站，模擬登入的使用者下單、測密碼鎖；失敗就不部署
       - name: Smoke test

@@ -46,7 +46,11 @@ CREATE TABLE IF NOT EXISTS sim_orders (
   limit_price REAL NOT NULL,
   status      TEXT NOT NULL,             -- open / filled / cancelled / expired / failed
   note        TEXT,
-  expires     TEXT NOT NULL              -- 當天收盤（台北 13:30）
+  expires     TEXT NOT NULL,             -- 委託交易日的收盤（台北 13:30）
+  kind        TEXT,                      -- market（預約市價單）／limit
+  session     TEXT,                      -- 委託交易日 YYYY-MM-DD（收盤後下的是下一個交易日的預約單）
+  seen_high   REAL,                      -- 盤中下單當下的當日最高、最低價：之後要創新高／新低碰到委託價才算成交
+  seen_low    REAL
 );
 CREATE INDEX IF NOT EXISTS sim_orders_by_email ON sim_orders (email, status);
 CREATE TABLE IF NOT EXISTS sim_watch (

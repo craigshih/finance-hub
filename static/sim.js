@@ -45,8 +45,11 @@
     const tax = side === "sell" ? Math.floor(amount * taxRate(code)) : 0;
     return { amount, fee, tax, total: side === "buy" ? amount + fee : amount - fee - tax };
   };
-  // 台股升降單位（跳動點）
-  const tick = (p) => (p < 10 ? 0.01 : p < 50 ? 0.05 : p < 100 ? 0.1 : p < 500 ? 0.5 : p < 1000 ? 1 : 5);
+  // 台股升降單位（跳動點），跟伺服器 functions/_lib/broker.js 同一套：ETF 未滿 50 元 0.01、以上 0.05
+  const tick = (p, code = quote?.code || "") => (code.startsWith("00") ? (p < 50 ? 0.01 : 0.05)
+    : p < 10 ? 0.01 : p < 50 ? 0.05 : p < 100 ? 0.1 : p < 500 ? 0.5 : p < 1000 ? 1 : 5);
+  const snap = (p) => { const t = tick(p); return +(Math.round(p / t) * t).toFixed(2); };
+  const md = (day) => (day ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}` : "");
 
   async function api(path, body) {
     const res = await fetch(`/api/sim/${path}`, body === undefined ? {} : {
@@ -90,7 +93,9 @@
       "　總報酬 ", el("b", { class: cls(me.return_pct) }, pct(me.return_pct)),
       `　・${me.nickname}`);
     $("#sim-status").className = "sim-status " + (me.market_open ? "open" : "");
-    $("#sim-status").textContent = me.market_open ? "● 盤中・以即時價成交" : `收盤・以 ${me.price_date} 收盤價成交`;
+    $("#sim-status").textContent = me.market_open
+      ? `● 盤中・即時報價 ${me.price_time || ""}`
+      : `${me.session}・${md(me.price_date)} ${me.price_date && me.session === "已收盤" ? "收盤價" : "最近收盤"}・現在下單會排入 ${md(me.next_day)} 開盤`;
     const unreal = me.holdings.reduce((a, h) => a + h.pl, 0);
     const tiles = [
       ["可用現金", fmt(me.cash), ""], ["持股市值", fmt(me.holdings_value), `${me.holdings.length} 檔`],
@@ -135,14 +140,15 @@
   }
 
   const STATUS = { open: "等待成交", filled: "已成交", cancelled: "已取消", expired: "已失效", failed: "失敗" };
+  const ordLabel = (o) => `${o.kind === "market" ? "市價" : "限價"}${o.side === "buy" ? "買" : "賣"}`;
   function renderOrders() {
     const box = $("#sim-orders");
     box.replaceChildren(...(me.orders.length ? me.orders.map((o) => el("li", { class: `ord ${o.status}` },
-      el("span", { class: "pill" }, o.side === "buy" ? "限價買" : "限價賣"),
-      el("span", { class: "ord-main" }, `${o.code} ${o.name || ""} ${fmt(o.shares)} 股 @ ${fmt(o.limit_price, 2)}`),
-      el("small", {}, `${STATUS[o.status]}${o.note ? `・${o.note}` : ""}${o.status === "open" ? `・有效到 ${new Date(o.expires).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}`),
+      el("span", { class: "pill" }, ordLabel(o)),
+      el("span", { class: "ord-main" }, `${o.code} ${o.name || ""} ${fmt(o.shares)} 股 @ ${o.kind === "market" ? "開盤價" : fmt(o.limit_price, 2)}`),
+      el("small", {}, `${STATUS[o.status]}${o.note ? `・${o.note}` : ""}${o.status === "open" ? `・${o.session ? `${md(o.session)} ` : ""}當日有效（13:30 前）` : ""}`),
       o.status === "open" ? el("button", { type: "button", class: "btn ghost", onclick: () => cancel(o.id) }, "取消") : ""))
-      : [el("li", { class: "empty" }, "沒有限價委託。下單時選「限價」就會出現在這裡。")]));
+      : [el("li", { class: "empty" }, "沒有委託。限價單沒有立刻成交、或非交易時間下的預約單，會出現在這裡。")]));
   }
 
   function renderTrades() {
@@ -199,7 +205,7 @@
     const ul = $("#sim-suggest");
     ul.hidden = !rows.length;
     ul.replaceChildren(...rows.map((r, i) => el("li", { role: "option", class: i === active ? "on" : "", onmousedown: (e) => { e.preventDefault(); pick(r); } },
-      logo(r.code, r.name, r.market), el("b", {}, r.name), el("span", {}, r.code), el("small", {}, `${r.market}・${fmt(r.price, 2)}`))));
+      logo(r.code, r.name, r.market), el("b", {}, r.name), el("span", {}, r.code), el("small", {}, r.market))));
   }
   async function search(q) {
     if (!q.trim()) return showSuggest([]);
@@ -251,10 +257,16 @@
     const s = ch?.signals;
     const star = el("button", { type: "button", class: "star", id: "sim-star", title: "加入自選", onclick: toggleWatch }, el("img", { src: "/ui/star-off.svg", alt: "加入自選" }));
     const head = el("div", { class: "sim-stock-head" }, logo(q.code, q.name, q.market),
-      el("div", {}, el("h3", {}, q.name, " ", el("small", {}, q.code)), el("small", {}, `${q.market}・${q.source === "即時" ? "盤中即時" : `${q.date} 收盤`}`)),
+      el("div", {}, el("h3", {}, q.name, " ", el("small", {}, q.code)),
+        el("small", {}, `${q.market}・${q.source === "即時" ? "盤中即時" : `${md(q.date)} 收盤`}${q.time ? `・資料時間 ${new Date(Date.parse(q.time) + 8 * 3600_000).toISOString().slice(11, 19)}` : ""}`)),
       el("div", { class: "r" }, el("b", { class: cls(q.chg) }, fmt(q.price, 2)), q.pct != null ? el("small", { class: cls(q.chg) }, `${signed(q.chg)}（${pctN(q.pct)}）`) : ""),
       star);
     const parts = [head];
+    const cell = (k, v, c = "") => el("div", {}, el("small", {}, k), el("b", { class: c }, v));
+    parts.push(el("div", { class: "sim-book" },
+      cell("開盤", fmt(q.open, 2)), cell("最高", fmt(q.high, 2), "pos"), cell("最低", fmt(q.low, 2), "neg"),
+      cell("昨收", fmt(q.prev, 2)), cell("買進", fmt(q.bid, 2)), cell("賣出", fmt(q.ask, 2)),
+      cell("漲停", fmt(q.upper, 2), "pos"), cell("跌停", fmt(q.lower, 2), "neg"), cell("成交量", q.volume != null ? `${fmt(q.volume)} 張` : "—")));
     if (ch?.rows?.length) {
       const last = ch.rows[ch.rows.length - 1];
       parts.push(el("div", { class: "kwrap" }, chartSvg(ch.rows.slice(-90))),
@@ -310,7 +322,7 @@
       renderTicket();
       return;
     }
-    $("#sim-limit").value = quote.price;
+    $("#sim-limit").value = snap(quote.price);
     $("#sim-stock").replaceChildren(stockCard(quote, null));
     updateStar();
     renderTicket();
@@ -344,9 +356,15 @@
         el("div", { class: "est-total" }, side === "buy" ? "需付" : "實收", el("b", {}, fmt(c.total))),
         el("small", {}, side === "buy" ? `買完剩現金 ${fmt((me?.cash || 0) - c.total)}` : `賣完剩 ${fmt(held - shares)} 股`));
     }
-    $("#sim-note").textContent = type === "limit"
-      ? "限價單：到價才成交，當天 13:30 前沒成交自動取消。"
-      : me?.market_open ? "市價單：以證交所盤中即時成交價成交。" : "市價單：現在是收盤時間，以最近收盤價成交。";
+    const band = quote ? `可委託 ${fmt(quote.order_lower, 2)}～${fmt(quote.order_upper, 2)}・每檔 ${tick(Number($("#sim-limit").value) || quote.price)} 元` : "";
+    const lotWarn = Number.isInteger(shares) && shares >= 1000 && shares % 1000 ? "　⚠️ 整股（1,000 股倍數）和零股（1～999 股）要分開下單。" : "";
+    $("#sim-note").textContent = (me?.market_open
+      ? type === "limit"
+        ? `限價單（ROD 當日有效）：買單在賣價 ≤ 委託價、賣單在買價 ≥ 委託價時成交，13:30 前沒成交自動失效。${band}`
+        : "市價單：買進以當下最佳賣價成交、賣出以最佳買價成交（跟券商一樣，漲停鎖住買不到、跌停鎖住賣不掉）。"
+      : type === "limit"
+        ? `現在是${me?.session || "非交易時間"}：限價單會成為 ${md(quote?.order_day)} 的預約單，開盤價或盤中到價就成交。${band}`
+        : `現在是${me?.session || "非交易時間"}：市價單會成為 ${md(quote?.order_day)} 的預約單，以開盤價成交。`) + lotWarn;
     $("#sim-submit").textContent = `${type === "limit" ? "送出限價" : "送出"}${side === "buy" ? "買單" : "賣單"}`;
   }
 
@@ -368,7 +386,7 @@
       const r = await api("order", body);
       toast(r.filled
         ? `✅ ${r.side === "buy" ? "買進" : "賣出"} ${r.name} ${fmt(r.shares)} 股 @ ${fmt(r.price, 2)}（${r.source}）${r.realized != null ? `・實現損益 ${signed(r.realized)}` : ""}`
-        : `📝 限價委託已送出：${r.name} ${fmt(r.shares)} 股 @ ${fmt(r.limit_price, 2)}`);
+        : `📝 ${r.message}：${r.name} ${fmt(r.shares)} 股${r.kind === "limit" ? ` @ ${fmt(r.limit_price, 2)}` : ""}`);
       await refresh();
       if (!r.filled) switchTab("orders");
     } catch (e) {
@@ -423,12 +441,13 @@
     $$("#sim-type button").forEach((b) => b.addEventListener("click", () => {
       type = b.dataset.type;
       $$("#sim-type button").forEach((x) => x.classList.toggle("on", x === b));
-      if (quote && !$("#sim-limit").value) $("#sim-limit").value = quote.price;
+      if (quote && !$("#sim-limit").value) $("#sim-limit").value = snap(quote.price);
       renderTicket();
     }));
     $$("[data-step]").forEach((b) => b.addEventListener("click", () => {
       const v = Number($("#sim-limit").value) || quote?.price || 0;
-      $("#sim-limit").value = +(v + Number(b.dataset.step) * tick(v)).toFixed(2);
+      const t = tick(Number(b.dataset.step) < 0 ? v - 1e-9 : v); // 往下跳過價位分界時用下一級的跳動點
+      $("#sim-limit").value = snap(+(v + Number(b.dataset.step) * t).toFixed(2));
       renderTicket();
     }));
     $$("[data-shares]").forEach((b) => b.addEventListener("click", () => {
@@ -469,8 +488,9 @@
       $("#sim-app").prepend(el("div", { class: "soon" }, `讀不到帳戶：${e.message}`));
     });
     loadWatch();
-    // 盤中每 30 秒更新帳戶（即時價、限價單撮合）
+    // 盤中每 30 秒更新帳戶（即時價、委託撮合）；切回這個分頁時也立刻更新一次
     setInterval(() => { if (!document.hidden && me?.market_open) refresh().catch(() => {}); }, 30_000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh().catch(() => {}); });
   }
 
   init();

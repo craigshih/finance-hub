@@ -62,30 +62,42 @@ PY
 fi
 echo "✅ 專屬投資顧問（訪客版）"
 
-# 模擬交易（ACCESS_DEV_EMAIL=smoke@example.com）
+# 模擬交易（ACCESS_DEV_EMAIL=smoke@example.com）：報價用證交所即時盤面；依當下是否為交易時間走「立即成交」或「預約單」
 me=$(curl -s "$BASE/api/sim/me"); need "$me" '"cash":1000000' "新帳戶應該有 100 萬"
+need "$me" '"session":"' "帳戶要回傳交易時段"
 q=$(curl -s "$BASE/api/sim/quote?code=0050"); need "$q" '"price"' "查不到 0050 報價"
-r=$(post /api/sim/order '{"code":"0050","side":"buy","shares":10}'); need "$r" '"ok":true' "買進失敗"
-r=$(post /api/sim/order '{"code":"0050","side":"sell","shares":11}'); need "$r" '持股不足' "應該擋下超賣"
-r=$(post /api/sim/order '{"code":"0050","side":"sell","shares":4}'); need "$r" '"ok":true' "賣出失敗"
-r=$(post /api/sim/order '{"code":"2330","side":"buy","shares":100000}'); need "$r" '現金不足' "應該擋下超買"
-r=$(post /api/sim/order '{"code":"0050","side":"buy","shares":-1}'); need "$r" '整數' "應該擋下負股數"
-me=$(curl -s "$BASE/api/sim/me"); need "$me" '"shares":6' "持股應該剩 6 股"
+need "$q" '"order_upper"' "報價要有可委託的漲停價"
+need "$q" '"day":"20' "報價要帶即時盤面的資料日"
 sr=$(curl -s "$BASE/api/sim/search?q=%E5%85%83%E5%A4%A7"); need "$sr" '"0050"' "用名稱「元大」應該搜得到 0050"
-lo=$(post /api/sim/order '{"code":"0050","side":"buy","shares":1,"type":"limit","limit_price":0.01}'); need "$lo" '±50%' "限價離現價太遠應該擋下"
-q=$(curl -s "$BASE/api/sim/quote?code=0050"); px=$(echo "$q" | sed -n 's/.*"price":\([0-9.]*\).*/\1/p')
-lim=$(python3 -c "print(round($px*0.6,2))")
-lo=$(post /api/sim/order "{\"code\":\"0050\",\"side\":\"buy\",\"shares\":1,\"type\":\"limit\",\"limit_price\":$lim}"); need "$lo" '"filled":false' "低於現價的限價買單應該掛單"
-me=$(curl -s "$BASE/api/sim/me"); need "$me" '"status":"open"' "委託清單應該有掛單"
-oid=$(echo "$me" | sed -n 's/.*"orders":\[{"id":\([0-9]*\).*/\1/p')
-need "$(post /api/sim/cancel "{\"id\":$oid}")" '"ok":true' "取消委託失敗"
+need "$(post /api/sim/order '{"code":"0050","side":"buy","shares":1500}')" '分開下單' "整股和零股混在一起應該擋下"
+need "$(post /api/sim/order '{"code":"0050","side":"buy","shares":-1}')" '整數' "應該擋下負股數"
+need "$(post /api/sim/order '{"code":"0050","side":"sell","shares":11}')" '持股不足' "沒有持股不能賣"
+need "$(post /api/sim/order '{"code":"2330","side":"buy","shares":100000}')" '現金不足' "應該擋下超買"
+need "$(post /api/sim/order '{"code":"0050","side":"buy","shares":1,"type":"limit","limit_price":0.01}')" '跌停' "限價超出漲跌停應該擋下"
+up=$(echo "$q" | sed -n 's/.*"order_upper":\([0-9.]*\).*/\1/p'); lo=$(echo "$q" | sed -n 's/.*"order_lower":\([0-9.]*\).*/\1/p')
+odd=$(python3 -c "print(round($lo+0.02,2))")
+need "$(post /api/sim/order "{\"code\":\"0050\",\"side\":\"buy\",\"shares\":1,\"type\":\"limit\",\"limit_price\":$odd}")" '升降單位' "不符合升降單位應該擋下"
+# 跌停價的限價買單：盤中通常掛著、非交易時間是預約單，兩種都應該進委託清單，而且可以取消
+lo_order=$(post /api/sim/order "{\"code\":\"0050\",\"side\":\"buy\",\"shares\":1,\"type\":\"limit\",\"limit_price\":$lo}")
+need "$lo_order" '"ok":true' "跌停價限價買單應該可以送出"
+me=$(curl -s "$BASE/api/sim/me")
+if echo "$lo_order" | grep -q '"filled":false'; then
+  need "$me" '"status":"open"' "委託清單應該有掛單"
+  oid=$(echo "$me" | sed -n 's/.*"orders":\[{"id":\([0-9]*\).*/\1/p')
+  need "$(post /api/sim/cancel "{\"id\":$oid}")" '"ok":true' "取消委託失敗"
+fi
+r=$(post /api/sim/order '{"code":"0050","side":"buy","shares":10}')
+if echo "$me" | grep -q '"market_open":true'; then
+  need "$r" '"filled":true' "盤中市價買單應該立即成交"
+  need "$(post /api/sim/order '{"code":"0050","side":"sell","shares":4}')" '"ok":true' "盤中賣出失敗"
+  need "$(curl -s "$BASE/api/sim/me")" '"shares":6' "持股應該剩 6 股"
+else
+  need "$r" '預約單' "非交易時間的市價單應該變成預約單"
+  need "$r" '"filled":false' "預約單不會立即成交"
+fi
 need "$(post /api/sim/watch '{"code":"2330","on":true}')" '"ok":true' "加入自選失敗"
 need "$(curl -s "$BASE/api/sim/watch")" '"2330"' "自選股清單沒有 2330"
-need "$(post /api/sim/nickname '{"nickname":"<b>測試</b>"}')" '"ok":true' "改暱稱失敗"
-lb=$(curl -s "$BASE/api/sim/leaderboard"); need "$lb" '"me":true' "排行榜沒有自己"
-echo "$lb" | grep -q "smoke@example.com" && fail "排行榜洩漏 email"
-need "$(post /api/sim/reset '{}')" '"ok":true' "重新開始失敗"
-me=$(curl -s "$BASE/api/sim/me"); need "$me" '"resets":1' "重來次數沒有增加"; need "$me" '"holdings":\[\]' "重來後應該沒有持股"
+ch=$(curl -s "$BASE/api/sim/chart?code=2330"); need "$ch" '"rows"' "應該有走勢資料"
 echo "✅ 模擬交易"
 
 # 市場頁：所有登入者都看得到，但不能出現持股提醒

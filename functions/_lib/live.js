@@ -25,7 +25,14 @@ export function parseMis(json) {
     const code = m.c === "t00" ? "^TWII" : m.c === "o00" ? "^TWOII" : m.c;
     out[code] = {
       price, prev, chg: +(price - prev).toFixed(4), pct: +((price / prev - 1) * 100).toFixed(2),
-      time: m.tlong ? new Date(Number(m.tlong)).toISOString() : null, name: m.n ? m.n.replace(/\*/g, "").trim() : null,
+      // 用資料日 d＋時間 t（台北時間）組出成交時間；tlong 實測會差一小時，只當備用
+      time: /^\d{8}$/.test(m.d || "") && /^\d\d:\d\d:\d\d$/.test(m.t || "")
+        ? new Date(`${m.d.slice(0, 4)}-${m.d.slice(4, 6)}-${m.d.slice(6, 8)}T${m.t}+08:00`).toISOString()
+        : m.tlong ? new Date(Number(m.tlong)).toISOString() : null, name: m.n ? m.n.replace(/\*/g, "").trim() : null,
+      // 模擬交易要用的盤面：開高低、漲跌停、最佳一檔買賣價、成交量（張）、資料日
+      open: num(m.o), high: num(m.h), low: num(m.l), upper: num(m.u), lower: num(m.w), ask, bid,
+      volume: num(m.v), day: /^\d{8}$/.test(m.d || "") ? `${m.d.slice(0, 4)}-${m.d.slice(4, 6)}-${m.d.slice(6, 8)}` : null,
+      market: m.ex === "otc" ? "上櫃" : m.ex === "tse" ? "上市" : null,
     };
   }
   return out;

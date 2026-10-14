@@ -17,7 +17,8 @@ const fail = (error, status = 400) => Response.json({ error }, { status });
 async function asset(env, request, path) {
   // 帶上登入 cookie：靜態檔也在密碼保護範圍內
   const res = await env.ASSETS.fetch(new Request(new URL(path, request.url), { headers: { Cookie: request.headers.get("Cookie") || "" } }));
-  return res.ok ? res.json() : null;
+  if (!res.ok || !(res.headers.get("Content-Type") || "").includes("json")) return null; // 沒有這個檔時可能回 HTML 頁
+  return res.json().catch(() => null);
 }
 
 async function loadData(env, request, dataPath, holdingsPath) {
