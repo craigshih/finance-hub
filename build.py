@@ -40,7 +40,7 @@ STATEMENT_DIR = SOURCES_DIR / "kgi-trade-report" / "data" / "statements"
 PICKS_DIR = ROOT / "data" / "picks"
 
 # (路徑, 標籤, 手機上的短標籤)
-NAV = [("index.html", "總覽", "總覽"), ("market/index.html", "台股", "台股"), ("us/index.html", "美股", "美股"), ("news/index.html", "即時快報", "快報"),
+NAV = [("index.html", "總覽", "總覽"), ("pick/index.html", "每日一檔", "一檔"), ("market/index.html", "台股", "台股"), ("us/index.html", "美股", "美股"), ("news/index.html", "即時快報", "快報"),
        ("daily/index.html", "每日總經", "總經"), ("weekly/index.html", "每週研究", "研究"), ("supply/index.html", "供應鏈", "供應鏈"),
        ("whales/index.html", "大佬持股", "大佬"),
        ("sim/index.html", "模擬交易", "模擬"), ("robot/index.html", "專屬投資顧問", "顧問"),
@@ -941,6 +941,17 @@ def main() -> int:
     trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
     write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
     write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section), 1, "market/index.html"))
+    import pick_page
+    picks_all = pick_page.load_all(ROOT / "data" / "daily_pick")
+    for i, pk in enumerate(picks_all):
+        body_pk = (hero("每日一檔", pk["date"], "每天一檔台股：從發展歷史、產業位置講到未來前景，專有名詞都附資料來源。")
+                   + f'<main class="wrap">{pick_page.article(pk)}'
+                   + section("過去的每日一檔", pick_page.archive(picks_all[:30], pk["date"])) + "</main>")
+        write(OUT_DIR / "pick" / f"{pk['date']}.html", page(f"每日一檔 {pk['name']}", body_pk, 1, "pick/index.html"))
+        if i == 0:
+            write(OUT_DIR / "pick" / "index.html", page("每日一檔", body_pk, 1, "pick/index.html"))
+    if not picks_all:
+        write(OUT_DIR / "pick" / "index.html", page("每日一檔", hero("每日一檔", "準備中", "第一篇明天早上 9 點前產生。"), 1, "pick/index.html"))
     import us_page
     us_data = market_page.load(ROOT / "data" / "us" / "latest.json")
     write(OUT_DIR / "us" / "index.html", page("美股", us_page.render(us_data, hero, section, datetime.now(TAIPEI).strftime("%Y-%m-%d")), 1, "us/index.html"))
@@ -1040,6 +1051,9 @@ def main() -> int:
                 extras.append(("早報頭條", e(top), f"daily/{d0['date']}.html"))
         body += section("本日市場速報", market_page.brief(market, extras, today), "收盤數字自動整理・不是投資建議",
                         ("market/index.html", "看完整市場"))
+    if picks_all:
+        body += section("每日一檔", pick_page.home_card(picks_all[0]), "每天早上 9 點更新・研究素材，不是買賣建議",
+                        ("pick/index.html", "看過去的推薦"))
     body += section("今日觀察", visuals.observations(picks, ""),
                     f"段永平・巴菲特・芒格・李錄的框架・{e(picks['date'])} 產生" if picks else "", ("investors/index.html", "認識四位投資人"))
     if supply and supply.get("leaders"):
