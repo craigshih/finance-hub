@@ -7,7 +7,7 @@ from datetime import date
 from html import escape
 
 from market_page import TAB_SCRIPT, cls, heat_color, panel, spark, squarify, tabs
-from visuals import stock_logo
+from visuals import floor5, stock_logo
 
 WEEK = "一二三四五六日"
 
@@ -178,5 +178,5 @@ def render(u: dict | None, hero, section, today: str) -> str:
     body += section("重點個股", stock_tables(u), "點列展開看財報細節")
     body += section("財報行事曆", earnings_calendar(u["stocks"], today), "接下來 5 週")
     body += section("近期 SEC 申報", filings(u["filings"]), "近 3 週・季報、年報與重大訊息（只列有實質 item 的 8-K）")
-    body += f'<p class="mk-note">資料更新於 {e(u["generated_at"][:16].replace("T", " "))}</p></main>' + TAB_SCRIPT
+    body += f'<p class="mk-note">資料更新於 {e(floor5(u["generated_at"], "%Y-%m-%d %H:%M"))}</p></main>' + TAB_SCRIPT
     return body

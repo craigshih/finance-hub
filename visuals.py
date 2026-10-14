@@ -112,6 +112,18 @@ KEY_METRICS = {
 }
 
 
+def floor5(iso: str | None, fmt: str = "%H:%M") -> str:
+    """網站上顯示的「更新於」時間一律往下取到 5 分鐘整（21:07 → 21:05），不顯示秒。"""
+    from datetime import datetime
+    if not iso:
+        return ""
+    try:
+        d = datetime.fromisoformat(str(iso))
+    except ValueError:
+        return str(iso)
+    return d.replace(minute=d.minute - d.minute % 5, second=0, microsecond=0).strftime(fmt)
+
+
 def clean_name(name):
     """證交所／櫃買的股名有時帶「*」（例如「國巨*」，官方用來標示面額不是 10 元的公司），網站上一律拿掉。"""
     return name.replace("*", "").strip() if isinstance(name, str) else name

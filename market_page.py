@@ -8,7 +8,7 @@ import re
 from html import escape
 from pathlib import Path
 
-from visuals import clean_names, stock_logo
+from visuals import clean_names, floor5, stock_logo
 
 
 def e(x) -> str:
@@ -474,6 +474,6 @@ def brief(m: dict | None, extras: list[tuple[str, str, str]] = (), today: str = 
     items = "".join(f'<li><span class="br-tag">{e(t)}</span><span class="br-txt">{txt}</span>'
                     f'{f"<a href={chr(34)}{href}{chr(34)}>→</a>" if href else ""}</li>' for t, txt, href in pts)
     note = (f'{"最近交易日" if stale else "今日"}收盤 {_md(tw["date"])}・盤中加權指數每分鐘更新'
-            f'・資料更新於 {e((m.get("generated_at") or "")[11:16])}')
+            f'・資料更新於 {e(floor5(m.get("generated_at")))}')
     return (f'<div class="brief"><p class="br-lead">{lead}</p><div class="br-tiles">{"".join(tiles)}</div>'
             f'<ul class="br-pts">{items}</ul><p class="br-note">{note}</p></div>')

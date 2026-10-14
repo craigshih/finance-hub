@@ -85,7 +85,7 @@ def page(title: str, body: str, depth: int, active: str) -> str:
         f'<a href="{prefix}{href}"{" class=\"on\"" if href == active else ""}><span class="l">{label}</span><span class="s">{short}</span></a>'
         for href, label, short in NAV
     )
-    built = datetime.now(TAIPEI).strftime("%Y-%m-%d %H:%M")
+    built = visuals.floor5(datetime.now(TAIPEI).isoformat(), "%Y-%m-%d %H:%M")
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -534,7 +534,7 @@ def screen_sections(s: dict, new: dict | None = None) -> str:
 def screen_stamp(ls: dict) -> str:
     if ls["source"] == "daily":
         t = ls.get("generated_at", "")
-        return f"{zh_date(ls['date'])} {t[11:16]} 更新・每個交易日收盤後"
+        return f"{zh_date(ls['date'])} {visuals.floor5(t)} 更新・每個交易日收盤後"
     return f"{zh_date(ls['date'])} 週報篩選"
 
 
@@ -732,7 +732,7 @@ def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | No
                 .replace("{{SCOPE}}", "持股、供應鏈、成交值前 250 名等；問到其他股票會自動加入，隔天補上")
                 .replace("{{TABS}}", portfolio_tabs("advisor")))
     return (body.replace("{{SUGGESTIONS}}", chips)
-            .replace("{{DATA_DATE}}", e((adv_meta or {}).get("generated_at", "—")[:16].replace("T", " ")))
+            .replace("{{DATA_DATE}}", e(visuals.floor5((adv_meta or {}).get("generated_at"), "%Y-%m-%d %H:%M") or "—"))
             .replace("{{PRICED}}", str(len((adv_meta or {}).get("price_codes", [])))))
 
 

@@ -3,6 +3,9 @@
 (() => {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.documentElement.classList.add("js");
+  // 顯示的時間一律往下取到 5 分鐘整、不顯示秒（站長偏好）
+  window.hm5 = (t) => { const d = new Date(new Date(t).getTime() + 8 * 3600_000); const m = d.getUTCMinutes() - (d.getUTCMinutes() % 5);
+    return `${String(d.getUTCHours()).padStart(2, "0")}:${String(m).padStart(2, "0")}`; };
 
   // ---- 手機導覽列：把目前所在的分頁捲到看得見的位置（只捲導覽列本身，不動整頁）----
   const nav = document.querySelector(".top nav"), cur = nav?.querySelector("a.on");
@@ -146,7 +149,7 @@
     const refresh = async () => {
       try {
         data = await loadNews(cat);
-        stamp.textContent = `更新於 ${new Date(data.updated).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}・每 3 分鐘自動更新`;
+        stamp.textContent = `更新於 ${hm5(data.updated)}・每 3 分鐘自動更新`;
         if (kw && !data.items.some((i) => i.keywords.includes(kw))) kw = null;
         renderChips();
         render();
@@ -248,8 +251,7 @@
       pf.hidden = false;
       pf.replaceChildren("盤中即時市值 ", el("b", {}, fmtN(total, 0)), el("span", { class: tone(total - base) }, `（較 Notion 收盤 ${total - base > 0 ? "+" : ""}${fmtN(total - base, 0)}）`));
     }
-    const t = new Date(data.updated).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-    document.querySelectorAll(".live-stamp").forEach((n) => { n.textContent = `即時 ${t}`; });
+    document.querySelectorAll(".live-stamp").forEach((n) => { n.textContent = `即時 ${hm5(data.updated)}`; });
   }
   live(true);
   setInterval(live, 60_000);

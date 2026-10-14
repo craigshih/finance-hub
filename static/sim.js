@@ -94,7 +94,7 @@
       `　・${me.nickname}`);
     $("#sim-status").className = "sim-status " + (me.market_open ? "open" : "");
     $("#sim-status").textContent = me.market_open
-      ? `● 盤中・即時報價 ${me.price_time || ""}`
+      ? `● 盤中・即時報價 ${me.price_time ? me.price_time.slice(0, 3) + String(Number(me.price_time.slice(3, 5)) - (Number(me.price_time.slice(3, 5)) % 5)).padStart(2, "0") : ""}`
       : `${me.session}・${md(me.price_date)} ${me.price_date && me.session === "已收盤" ? "收盤價" : "最近收盤"}・現在下單會排入 ${md(me.next_day)} 開盤`;
     const unreal = me.holdings.reduce((a, h) => a + h.pl, 0);
     const tiles = [
@@ -258,7 +258,7 @@
     const star = el("button", { type: "button", class: "star", id: "sim-star", title: "加入自選", onclick: toggleWatch }, el("img", { src: "/ui/star-off.svg", alt: "加入自選" }));
     const head = el("div", { class: "sim-stock-head" }, logo(q.code, q.name, q.market),
       el("div", {}, el("h3", {}, q.name, " ", el("small", {}, q.code)),
-        el("small", {}, `${q.market}・${q.source === "即時" ? "盤中即時" : `${md(q.date)} 收盤`}${q.time ? `・資料時間 ${new Date(Date.parse(q.time) + 8 * 3600_000).toISOString().slice(11, 19)}` : ""}`)),
+        el("small", {}, `${q.market}・${q.source === "即時" ? "盤中即時" : `${md(q.date)} 收盤`}${q.time ? `・資料時間 ${window.hm5 ? hm5(q.time) : ""}` : ""}`)),
       el("div", { class: "r" }, el("b", { class: cls(q.chg) }, fmt(q.price, 2)), q.pct != null ? el("small", { class: cls(q.chg) }, `${signed(q.chg)}（${pctN(q.pct)}）`) : ""),
       star);
     const parts = [head];
