@@ -68,23 +68,36 @@ export function parseQuotes(twseRows, tpexRows) {
 let memo = { quotes: null, at: 0 };
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error(`${url} ${res.status}`);
-  return res.json();
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`${url} ${res.status}`);
+      const j = await res.json();
+      if (!Array.isArray(j) || !j.length) throw new Error(`${url} 空的`);
+      return j;
+    } catch (exc) {
+      if (attempt >= 1) throw exc;
+      await new Promise((r) => setTimeout(r, 1500)); // 證交所 OpenAPI 偶爾失敗：等一下再試一次
+    }
+  }
 }
 
+// 上市、上櫃兩份清單都要到齊；其中一份讀不到時，用 12 小時內存過的完整清單補（不然搜尋會少掉一整個市場）
+const FULL_KEY = new Request("https://sim.cache/quotes-full");
 export async function getQuotes() {
   if (memo.quotes && Date.now() - memo.at < CACHE_MS) return memo.quotes;
   const [twse, tpex] = await Promise.allSettled([fetchJson(TWSE), fetchJson(TPEX)]);
-  const quotes = parseQuotes(
-    twse.status === "fulfilled" ? twse.value : [],
-    tpex.status === "fulfilled" ? tpex.value : [],
-  );
-  if (!Object.keys(quotes).length) {
-    if (memo.quotes) return memo.quotes; // 來源暫時掛掉時沿用舊報價
-    throw new PublicError("報價暫時無法取得，請稍後再試", 503);
+  const ok = twse.status === "fulfilled" && tpex.status === "fulfilled";
+  let quotes = parseQuotes(twse.status === "fulfilled" ? twse.value : [], tpex.status === "fulfilled" ? tpex.value : []);
+  const cache = typeof caches !== "undefined" ? caches.default : null;
+  if (ok && cache) {
+    await cache.put(FULL_KEY, new Response(JSON.stringify(quotes), { headers: { "Cache-Control": "max-age=43200" } })).catch(() => {});
+  } else if (!ok) {
+    const old = memo.quotes || (cache && (await cache.match(FULL_KEY).then((r) => r && r.json()).catch(() => null)));
+    if (old) quotes = { ...old, ...quotes };
   }
-  memo = { quotes, at: Date.now() };
+  if (!Object.keys(quotes).length) throw new PublicError("報價暫時無法取得，請稍後再試", 503);
+  memo = { quotes, at: ok ? Date.now() : Date.now() - CACHE_MS + 60_000 }; // 不完整時一分鐘後再試
   return quotes;
 }
 
