@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # 安全網：每日一檔沒跑時由這裡補叫
 
 concurrency:
   group: build-site
@@ -33,6 +34,27 @@ jobs:
             whales.py
             scripts
             data/state
+      # 每日一檔的安全網：GitHub 的排程是「盡力而為」，新排程或尖峰時段常常沒觸發。
+      # 建站檢查（早上每 30 分鐘一次）順便確認：08:00 後還沒產生就叫它產生，09:00 後還沒寄就叫它寄
+      - name: Daily pick safety net
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          today=$(TZ=Asia/Taipei date +%F); hm=$(TZ=Asia/Taipei date +%H%M)
+          [ "$hm" -lt 0800 ] && exit 0
+          busy=$(gh run list -R "$GITHUB_REPOSITORY" -w daily_pick.yml -L 5 --json status -q '[.[] | select(.status != "completed")] | length')
+          [ "${busy:-0}" -gt 0 ] && { echo "每日一檔正在跑"; exit 0; }
+          pick=$(gh api "repos/$GITHUB_REPOSITORY/contents/data/daily_pick/$today.json" -q .content 2>/dev/null | base64 -d 2>/dev/null || true)
+          send=false; [ "$hm" -ge 0900 ] && send=true
+          if [ -z "$pick" ]; then
+            echo "🛟 今天的每日一檔還沒產生，叫它跑（寄信：$send）" >> "$GITHUB_STEP_SUMMARY"
+            gh workflow run daily_pick.yml -R "$GITHUB_REPOSITORY" -f send=$send
+          elif [ "$send" = true ] && ! echo "$pick" | grep -q '"emailed_at"'; then
+            echo "🛟 今天的每日一檔還沒寄出，叫它寄" >> "$GITHUB_STEP_SUMMARY"
+            gh workflow run daily_pick.yml -R "$GITHUB_REPOSITORY" -f send=true
+          fi
+
       - id: check
         env:
           GH_TOKEN: ${{ secrets.SOURCES_TOKEN }}
