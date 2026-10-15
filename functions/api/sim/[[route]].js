@@ -82,7 +82,8 @@ async function priceMap(codes, quotes) {
       const s = session(Date.now(), l.day);
       out[c] = { ...l, code: c, name, market, date: l.day, source: s.open ? "即時" : "收盤", session: s.label, tick: tickSize(l.price, c) };
     } else {
-      out[c] = { ...base, source: "收盤", session: session().label, time: null, day: base.date, tick: tickSize(base.price, c) };
+      // 即時盤面讀不到：退回每日收盤檔。這份資料常停在前一天，不能拿來判斷今天有沒有開盤（day 留空），也不能拿來成交
+      out[c] = { ...base, source: "收盤", session: session().label, time: null, day: null, stale: true, tick: tickSize(base.price, c) };
     }
   }
   return out;
@@ -188,6 +189,7 @@ async function placeOrder(db, email, body) {
   const q = await quoteOf(order.code, await getQuotes());
   const ses = orderSession(Date.now(), q.day);
   const live = !ses.reserved; // 盤中
+  if (q.stale && live) throw new PublicError("證交所即時報價暫時讀不到，為了不用舊價格成交，請稍後再試", 503);
   const player = await db.prepare("SELECT cash FROM players WHERE email = ?").bind(email).first();
   if (order.side === "sell") {
     const h = await db.prepare("SELECT shares FROM holdings WHERE email = ? AND code = ?").bind(email, order.code).first();
@@ -239,7 +241,7 @@ async function matchOrders(db, email, quotes) {
     const q = prices[o.code];
     // 舊版限價單沒有 kind／session：當成當天的限價單
     const ord = { ...o, kind: o.kind || "limit", session: o.session || taipeiDay(Date.parse(o.ts)) };
-    const fill = q ? decideFill(ord, { ...q, day: q.day || q.date }) : null;
+    const fill = q && !q.stale ? decideFill(ord, q) : null;
     if (fill) {
       let status = "filled", note = `${fill.note} ${fill.price}`;
       try {
@@ -249,7 +251,7 @@ async function matchOrders(db, email, quotes) {
       }
       await db.prepare("UPDATE sim_orders SET status = ?, note = ? WHERE id = ? AND status = 'open'").bind(status, note, o.id).run();
     } else if (now > o.expires) {
-      if (q && (q.day || q.date) < ord.session) {
+      if (q && !q.stale && q.day < ord.session) {
         // 那天沒開盤（國定假日）：順延到下一個平日
         const day = nextWeekday(ord.session);
         await db.prepare("UPDATE sim_orders SET session = ?, expires = ? WHERE id = ? AND status = 'open'").bind(day, closeAt(day), o.id).run();
