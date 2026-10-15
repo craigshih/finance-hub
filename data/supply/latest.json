@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-10-15T16:23+08:00",
- "flows_date": "2026-10-14",
+ "generated_at": "2026-10-15T20:53+08:00",
+ "flows_date": "2026-10-15",
  "leaders": [
   {
    "code": "NVDA",
@@ -611,8 +611,8 @@
     2440.0
    ],
    "flows": {
-    "foreign_lots": -55283,
-    "trust_lots": 5254,
+    "foreign_lots": -88231,
+    "trust_lots": 8422,
     "buy_days": 0
    },
    "links": {
@@ -720,8 +720,8 @@
     133.5
    ],
    "flows": {
-    "foreign_lots": -67672,
-    "trust_lots": -21836,
+    "foreign_lots": -91547,
+    "trust_lots": -477,
     "buy_days": 0
    },
    "links": {},
@@ -842,8 +842,8 @@
     66.2
    ],
    "flows": {
-    "foreign_lots": -162608,
-    "trust_lots": -363,
+    "foreign_lots": -217068,
+    "trust_lots": -70,
     "buy_days": 1
    },
    "links": {},
@@ -905,8 +905,8 @@
     673.0
    ],
    "flows": {
-    "foreign_lots": -1968,
-    "trust_lots": 3058,
+    "foreign_lots": -21865,
+    "trust_lots": 5562,
     "buy_days": 3
    },
    "links": {
@@ -976,8 +976,8 @@
     270.5
    ],
    "flows": {
-    "foreign_lots": -2577,
-    "trust_lots": 780,
+    "foreign_lots": -8471,
+    "trust_lots": 1079,
     "buy_days": 3
    },
    "links": {},
@@ -1031,8 +1031,8 @@
     272.0
    ],
    "flows": {
-    "foreign_lots": -20808,
-    "trust_lots": -14104,
+    "foreign_lots": -41827,
+    "trust_lots": -14110,
     "buy_days": 1
    },
    "links": {
@@ -1092,9 +1092,9 @@
     3705.0
    ],
    "flows": {
-    "foreign_lots": -459,
-    "trust_lots": 1559,
-    "buy_days": 3
+    "foreign_lots": -1219,
+    "trust_lots": 1507,
+    "buy_days": 2
    },
    "links": {
     "AMZN": [
@@ -1145,8 +1145,8 @@
     7670.0
    ],
    "flows": {
-    "foreign_lots": 374,
-    "trust_lots": 356,
+    "foreign_lots": 547,
+    "trust_lots": 279,
     "buy_days": 5
    },
    "links": {
@@ -1203,8 +1203,8 @@
     239.5
    ],
    "flows": {
-    "foreign_lots": -80104,
-    "trust_lots": 922,
+    "foreign_lots": -81640,
+    "trust_lots": 2792,
     "buy_days": 1
    },
    "links": {
@@ -1288,9 +1288,9 @@
     316.5
    ],
    "flows": {
-    "foreign_lots": -6130,
-    "trust_lots": 840,
-    "buy_days": 2
+    "foreign_lots": -10969,
+    "trust_lots": 1944,
+    "buy_days": 1
    },
    "links": {
     "GOOGL": [
@@ -1370,8 +1370,8 @@
     176.0
    ],
    "flows": {
-    "foreign_lots": 3889,
-    "trust_lots": 2717,
+    "foreign_lots": -29490,
+    "trust_lots": 5498,
     "buy_days": 3
    },
    "links": {
@@ -1447,8 +1447,8 @@
     57.6
    ],
    "flows": {
-    "foreign_lots": -13675,
-    "trust_lots": 272,
+    "foreign_lots": -13485,
+    "trust_lots": 614,
     "buy_days": 0
    },
    "links": {
@@ -1534,8 +1534,8 @@
     98.1
    ],
    "flows": {
-    "foreign_lots": 31449,
-    "trust_lots": -3165,
+    "foreign_lots": 31593,
+    "trust_lots": -3371,
     "buy_days": 3
    },
    "links": {
@@ -1587,8 +1587,8 @@
     5055.0
    ],
    "flows": {
-    "foreign_lots": 14,
-    "trust_lots": -988,
+    "foreign_lots": 653,
+    "trust_lots": -658,
     "buy_days": 2
    },
    "links": {
@@ -1755,8 +1755,8 @@
     1630.0
    ],
    "flows": {
-    "foreign_lots": -12165,
-    "trust_lots": -1924,
+    "foreign_lots": -20928,
+    "trust_lots": -1538,
     "buy_days": 0
    },
    "links": {
@@ -1808,9 +1808,9 @@
     268.0
    ],
    "flows": {
-    "foreign_lots": -9253,
-    "trust_lots": -157,
-    "buy_days": 2
+    "foreign_lots": -19022,
+    "trust_lots": -164,
+    "buy_days": 1
    },
    "links": {},
    "peers": [
@@ -1855,8 +1855,8 @@
     439.5
    ],
    "flows": {
-    "foreign_lots": -52953,
-    "trust_lots": -3890,
+    "foreign_lots": -60643,
+    "trust_lots": -11605,
     "buy_days": 1
    },
    "links": {
@@ -1926,9 +1926,9 @@
     155.0
    ],
    "flows": {
-    "foreign_lots": -23218,
-    "trust_lots": -11609,
-    "buy_days": 2
+    "foreign_lots": -62594,
+    "trust_lots": -4511,
+    "buy_days": 1
    },
    "links": {
     "005930": [
@@ -1997,8 +1997,8 @@
     104.5
    ],
    "flows": {
-    "foreign_lots": -39266,
-    "trust_lots": 619,
+    "foreign_lots": -36585,
+    "trust_lots": 982,
     "buy_days": 1
    },
    "links": {},
@@ -2052,9 +2052,9 @@
     573.0
    ],
    "flows": {
-    "foreign_lots": -10746,
-    "trust_lots": 5024,
-    "buy_days": 3
+    "foreign_lots": -38265,
+    "trust_lots": 3554,
+    "buy_days": 2
    },
    "links": {
     "NVDA": [
@@ -2118,8 +2118,8 @@
     405.5
    ],
    "flows": {
-    "foreign_lots": 8938,
-    "trust_lots": 2571,
+    "foreign_lots": 773,
+    "trust_lots": -90,
     "buy_days": 3
    },
    "links": {
@@ -2179,9 +2179,9 @@
     811.0
    ],
    "flows": {
-    "foreign_lots": 2914,
-    "trust_lots": 1437,
-    "buy_days": 3
+    "foreign_lots": 395,
+    "trust_lots": 778,
+    "buy_days": 2
    },
    "links": {},
    "peers": [
@@ -2234,9 +2234,9 @@
     6605.0
    ],
    "flows": {
-    "foreign_lots": -2467,
-    "trust_lots": 1278,
-    "buy_days": 1
+    "foreign_lots": -2162,
+    "trust_lots": 1392,
+    "buy_days": 2
    },
    "links": {
     "AAPL": [
@@ -2287,9 +2287,9 @@
     1115.0
    ],
    "flows": {
-    "foreign_lots": -2875,
-    "trust_lots": 1656,
-    "buy_days": 2
+    "foreign_lots": -2730,
+    "trust_lots": 1322,
+    "buy_days": 1
    },
    "links": {},
    "peers": [
@@ -2442,9 +2442,9 @@
     483.5
    ],
    "flows": {
-    "foreign_lots": 5650,
-    "trust_lots": -5229,
-    "buy_days": 3
+    "foreign_lots": 4501,
+    "trust_lots": -1759,
+    "buy_days": 4
    },
    "links": {},
    "peers": [
@@ -2497,8 +2497,8 @@
     34.9
    ],
    "flows": {
-    "foreign_lots": -200573,
-    "trust_lots": 151,
+    "foreign_lots": -134095,
+    "trust_lots": 407,
     "buy_days": 1
    },
    "links": {},
@@ -2544,9 +2544,9 @@
     48.3
    ],
    "flows": {
-    "foreign_lots": 22086,
-    "trust_lots": 317,
-    "buy_days": 4
+    "foreign_lots": -26137,
+    "trust_lots": 746,
+    "buy_days": 3
    },
    "links": {
     "034220": [
@@ -2597,8 +2597,8 @@
     975.0
    ],
    "flows": {
-    "foreign_lots": 761,
-    "trust_lots": -39,
+    "foreign_lots": 698,
+    "trust_lots": 129,
     "buy_days": 3
    },
    "links": {
@@ -2658,8 +2658,8 @@
     347.0
    ],
    "flows": {
-    "foreign_lots": -12191,
-    "trust_lots": 495,
+    "foreign_lots": -5982,
+    "trust_lots": 844,
     "buy_days": 0
    },
    "links": {
@@ -2719,8 +2719,8 @@
     158.0
    ],
    "flows": {
-    "foreign_lots": 6392,
-    "trust_lots": -653,
+    "foreign_lots": 9379,
+    "trust_lots": -560,
     "buy_days": 5
    },
    "links": {},
@@ -2774,8 +2774,8 @@
     1950.0
    ],
    "flows": {
-    "foreign_lots": -2330,
-    "trust_lots": 1561,
+    "foreign_lots": -2925,
+    "trust_lots": 2007,
     "buy_days": 1
    },
    "links": {
@@ -2835,9 +2835,9 @@
     31.4
    ],
    "flows": {
-    "foreign_lots": 495,
+    "foreign_lots": 984,
     "trust_lots": 3,
-    "buy_days": 2
+    "buy_days": 3
    },
    "links": {},
    "peers": [
@@ -2890,8 +2890,8 @@
     241.0
    ],
    "flows": {
-    "foreign_lots": -8444,
-    "trust_lots": 45,
+    "foreign_lots": -8259,
+    "trust_lots": 163,
     "buy_days": 2
    },
    "links": {},
@@ -2945,9 +2945,9 @@
     1075.0
    ],
    "flows": {
-    "foreign_lots": 3702,
-    "trust_lots": -2776,
-    "buy_days": 4
+    "foreign_lots": -6641,
+    "trust_lots": -574,
+    "buy_days": 3
    },
    "links": {
     "NVDA": [
@@ -3035,9 +3035,9 @@
     979.0
    ],
    "flows": {
-    "foreign_lots": 2079,
-    "trust_lots": 1053,
-    "buy_days": 3
+    "foreign_lots": -2422,
+    "trust_lots": 1863,
+    "buy_days": 2
    },
    "links": {},
    "peers": [
@@ -3114,9 +3114,9 @@
     1345.0
    ],
    "flows": {
-    "foreign_lots": 1640,
-    "trust_lots": 359,
-    "buy_days": 5
+    "foreign_lots": -552,
+    "trust_lots": 1131,
+    "buy_days": 4
    },
    "links": {},
    "peers": [
@@ -3193,9 +3193,9 @@
     519.0
    ],
    "flows": {
-    "foreign_lots": 3993,
-    "trust_lots": 2522,
-    "buy_days": 3
+    "foreign_lots": -8953,
+    "trust_lots": 3094,
+    "buy_days": 2
    },
    "links": {
     "AAPL": [
@@ -3262,8 +3262,8 @@
     1190.0
    ],
    "flows": {
-    "foreign_lots": -4840,
-    "trust_lots": 7678,
+    "foreign_lots": -6541,
+    "trust_lots": 8313,
     "buy_days": 3
    },
    "links": {
@@ -3323,8 +3323,8 @@
     586.0
    ],
    "flows": {
-    "foreign_lots": 888,
-    "trust_lots": 1028,
+    "foreign_lots": 861,
+    "trust_lots": 965,
     "buy_days": 3
    },
    "links": {},
@@ -3429,9 +3429,9 @@
     9720.0
    ],
    "flows": {
-    "foreign_lots": -285,
-    "trust_lots": -605,
-    "buy_days": 1
+    "foreign_lots": -423,
+    "trust_lots": -643,
+    "buy_days": 0
    },
    "links": {
     "NVDA": [
@@ -3541,8 +3541,8 @@
     2115.0
    ],
    "flows": {
-    "foreign_lots": 1012,
-    "trust_lots": -1361,
+    "foreign_lots": 1135,
+    "trust_lots": -1435,
     "buy_days": 1
    },
    "links": {},
@@ -3596,8 +3596,8 @@
     4165.0
    ],
    "flows": {
-    "foreign_lots": -14420,
-    "trust_lots": 41,
+    "foreign_lots": -18535,
+    "trust_lots": 771,
     "buy_days": 0
    },
    "links": {
@@ -3645,8 +3645,8 @@
     1905.0
    ],
    "flows": {
-    "foreign_lots": 158,
-    "trust_lots": -1703,
+    "foreign_lots": 155,
+    "trust_lots": -4204,
     "buy_days": 0
    },
    "links": {
@@ -3699,8 +3699,8 @@
     1815.0
    ],
    "flows": {
-    "foreign_lots": 1038,
-    "trust_lots": 119,
+    "foreign_lots": 632,
+    "trust_lots": 125,
     "buy_days": 3
    },
    "links": {
@@ -3743,9 +3743,9 @@
     44.3
    ],
    "flows": {
-    "foreign_lots": -1118,
+    "foreign_lots": -1817,
     "trust_lots": 0,
-    "buy_days": 2
+    "buy_days": 1
    },
    "links": {
     "TSLA": [
@@ -3787,8 +3787,8 @@
     546.0
    ],
    "flows": {
-    "foreign_lots": 481,
-    "trust_lots": 17,
+    "foreign_lots": 524,
+    "trust_lots": 13,
     "buy_days": 4
    },
    "links": {
