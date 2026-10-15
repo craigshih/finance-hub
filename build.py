@@ -949,7 +949,8 @@ def main() -> int:
     whales = whales_page.load(ROOT / "data" / "whales" / "latest.json")
     trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
     write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
-    write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section, market_page.load(ROOT / "data" / "market" / "extra.json")), 1, "market/index.html"))
+    write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section, {**(market_page.load(ROOT / "data" / "market" / "extra.json") or {}),
+                                                        "breadth": market_page.load(ROOT / "data" / "market" / "breadth.json")}), 1, "market/index.html"))
     import pick_page
     picks_all = pick_page.load_all(ROOT / "data" / "daily_pick")
     for i, pk in enumerate(picks_all):

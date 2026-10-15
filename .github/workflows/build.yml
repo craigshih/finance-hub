@@ -171,6 +171,12 @@ jobs:
         timeout-minutes: 8
         run: python market_extra.py
 
+      # 市場寬度、加權 vs 等權、成交金額、類股輪動（全部上市櫃股票近兩年日線，每次重算約 2 分鐘）
+      - name: Market breadth
+        continue-on-error: true
+        timeout-minutes: 8
+        run: python breadth.py
+
       # 大佬持股：SEC 13F（每季申報；已下載的不重抓，平常只檢查有沒有新申報）
       - name: Whale holdings (13F)
         continue-on-error: true

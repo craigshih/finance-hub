@@ -1417,3 +1417,27 @@ h2 .gl-q { width: 17px; height: 17px; font-size: 11px; vertical-align: 4px; }
   .cb-bars li { grid-template-columns: 6.5em 1fr 5.5em; } .cb-bars small { display: none; }
   .cb-lists { grid-template-columns: 1fr; }
 }
+
+/* 市場寬度、等權、成交、輪動圖 */
+.lines .ln { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.l-ad { stroke: #b07cff; background: #b07cff; } .l-tx { stroke: var(--muted); background: var(--muted); }
+.l-ew { stroke: var(--accent); background: var(--accent); }
+.l-m20 { stroke: #4f8cff; background: #4f8cff; } .l-m60 { stroke: var(--accent); background: var(--accent); } .l-m240 { stroke: var(--brand); background: var(--brand); }
+.ln.l-ma, .l-ma { stroke: #ff9f43; background: #ff9f43; fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+rect.tv { fill: color-mix(in srgb, var(--muted) 55%, transparent); } .l-tvb { background: color-mix(in srgb, var(--muted) 55%, transparent); }
+.cb-legend i.lg { height: 3px; width: 14px; border-radius: 2px; vertical-align: 3px; }
+.vt > b span.pos { color: var(--pos); } .vt > b span.neg { color: var(--neg); }
+.rrg-wrap { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.rrg { width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.rrg .q { opacity: .07; } .rrg .q.q-lead { fill: var(--pos); } .rrg .q.q-weak { fill: var(--accent); } .rrg .q.q-lag { fill: var(--neg); } .rrg .q.q-imp { fill: #4f8cff; }
+.rrg .axis { stroke: var(--line); stroke-dasharray: 4 4; }
+.rrg .ql { fill: var(--muted); font-size: 13px; font-weight: 700; }
+.rrg .rg polyline { fill: none; stroke: var(--c); stroke-width: 1.6; opacity: .75; }
+.rrg .rg circle { fill: var(--c); opacity: .7; } .rrg .rg circle.head { opacity: 1; stroke: var(--bg); stroke-width: 1.5; }
+.rrg .rg text { fill: var(--ink); font-size: 11px; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+.rrg .rg:hover polyline { stroke-width: 3; opacity: 1; }
+.rrg:hover .rg { opacity: .35; } .rrg:hover .rg:hover { opacity: 1; }
+.rrg-now, .rrg-moved { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+.rrg-now li { display: grid; grid-template-columns: 3.2em 1fr; gap: 8px; }
+.q-lead { color: var(--pos); } .q-weak { color: var(--accent); } .q-lag { color: var(--neg); } .q-imp { color: #4f8cff; }
+@media (max-width: 760px) { .rrg-wrap { grid-template-columns: 1fr; } }

@@ -338,6 +338,12 @@ def render(m: dict | None, hero, section, extra: dict | None = None) -> str:
     body += section("三大法人與融資", institutions(m.get("history", [])), "上市・近 60 個交易日")
     body += section("期貨籌碼", futures(extra.get("futures")), "臺灣期貨交易所盤後資料")
     body += section("估值位置", valuation(extra.get("valuation")), "上市大盤・跟近 10 年比")
+    b = extra.get("breadth")
+    if b:
+        body += section("市場寬度", breadth_block(b), "上市＋上櫃普通股")
+        body += section("加權指數 vs 等權平均", ew_block(b), "近一年累計漲跌")
+        body += section("成交金額", turnover_block(b), "近一年・線是 20 日平均")
+        body += section("類股輪動圖", rrg_block(b.get("rrg") or {}), "跟加權指數比，每週一點")
     body += ('<div class="two-col">' + section("強勢股", strong(m.get("strong", {})))
              + section("大戶加碼", big_holders(m.get("big_holders", {})), "集保・每週") + "</div>")
     body += section("處置／注意股預警", warning_cards(m.get("warnings", [])), "證交所・櫃買中心公告")
@@ -611,3 +617,143 @@ def futures(f: dict | None) -> str:
             '外資手上有大量台股，台指期空單多半是避險，所以常常是淨空，單看看不出外資多空。'
             f'Put/Call 比＝賣權未平倉 ÷ 買權未平倉。資料：臺灣期貨交易所，資料日 {e(f["date"])}；多空比的歷史從現在開始每天累積。</p>')
     return f'<div class="vt-grid">{tiles}</div>' + chart + note
+
+
+# ---------- 市場寬度、加權 vs 等權、成交金額、類股輪動（data/market/breadth.json） ----------
+
+def _lines(series: list[tuple[list, str]], dates: list[str], unit: str = "", w=1000, h=180, right=None) -> str:
+    """多條折線；right＝(values, class, label) 畫在右軸（自己的刻度）。"""
+    allv = [v for vals, _ in series for v in vals if v is not None]
+    if not allv or len(dates) < 2:
+        return ""
+    lo, hi = min(allv), max(allv)
+    span = hi - lo or 1
+    n = len(dates)
+    def path(vals, a, b):
+        sp = b - a or 1
+        return " ".join(f"{i / (n - 1) * w:.1f},{h - 8 - (v - a) / sp * (h - 16):.1f}" for i, v in enumerate(vals) if v is not None)
+    out = [f'<polyline class="ln {c}" points="{path(vals, lo, hi)}"/>' for vals, c in series]
+    if right:
+        rv = [v for v in right[0] if v is not None]
+        out.insert(0, f'<polyline class="ln {right[1]}" points="{path(right[0], min(rv), max(rv))}"/>')
+    zero = f'<line class="grid" x1="0" x2="{w}" y1="{h - 8 - (0 - lo) / span * (h - 16):.1f}" y2="{h - 8 - (0 - lo) / span * (h - 16):.1f}"/>' if lo < 0 < hi else ""
+    return (f'<svg class="mk-bars lines" viewBox="0 0 {w} {h}" preserveAspectRatio="none">{zero}{"".join(out)}</svg>'
+            f'<div class="mk-axis"><span>{e(dates[0])}</span><span>{lo:,.0f}{unit} ～ {hi:,.0f}{unit}</span><span>{e(dates[-1])}</span></div>')
+
+
+def _legend(items: list[tuple[str, str]]) -> str:
+    return '<div class="cb-legend">' + "".join(f'<span><i class="lg {c}"></i>{e(n)}</span>' for n, c in items) + "</div>"
+
+
+def breadth_block(b: dict) -> str:
+    t = b["today"]
+    p = t.get("above60_pct")
+    tiles = (f'<div class="vt"><small>上漲 / 下跌家數</small><b><span class="pos">{t["up"]:,}</span> / <span class="neg">{t["down"]:,}</span></b><span>資料日 {e(b["date"])}・共 {b["n_stocks"]:,} 檔普通股</span></div>'
+             f'<div class="vt"><small>52 週新高 / 新低</small><b><span class="pos">{t["new_hi"]}</span> / <span class="neg">{t["new_lo"]}</span></b><span>收盤創一年新高、新低的家數</span></div>'
+             f'<div class="vt"><small>站上季線的股票</small><b>{t["above60"]}%</b>{pct_bar(p)}<span>月線 {t["above20"]}%・年線 {t["above240"] if t.get("above240") is not None else "—"}%</span></div>')
+    ad = b.get("ad_line") or []
+    tx = {x["date"]: x["v"] for x in b.get("taiex_1y") or []}
+    dates = [x["date"] for x in ad]
+    adc = _lines([([x["v"] for x in ad], "l-ad")], dates, right=([tx.get(d) for d in dates], "l-tx"))
+    hl = b.get("new_hl") or []
+    m = max([max(x["hi"], x["lo"]) for x in hl] or [1]) or 1
+    bw = 1000 / max(len(hl), 1)
+    bars = "".join(f'<rect class="up" x="{i * bw:.1f}" y="{80 - x["hi"] / m * 74:.1f}" width="{bw * 0.8:.1f}" height="{x["hi"] / m * 74:.1f}"><title>{x["date"]} 新高 {x["hi"]}</title></rect>'
+                   f'<rect class="down" x="{i * bw:.1f}" y="80" width="{bw * 0.8:.1f}" height="{x["lo"] / m * 74:.1f}"><title>{x["date"]} 新低 {x["lo"]}</title></rect>' for i, x in enumerate(hl))
+    hlc = (f'<svg class="mk-bars" viewBox="0 0 1000 160" preserveAspectRatio="none"><line class="grid" x1="0" x2="1000" y1="80" y2="80"/>{bars}</svg>'
+           f'<div class="mk-axis"><span>{e(hl[0]["date"]) if hl else ""}</span><span>上＝新高家數、下＝新低家數・最多 {m} 檔</span><span>{e(hl[-1]["date"]) if hl else ""}</span></div>') if hl else ""
+    ab = b.get("above") or []
+    abc = _lines([([x["m20"] for x in ab], "l-m20"), ([x["m60"] for x in ab], "l-m60"), ([x.get("m240") for x in ab], "l-m240")],
+                 [x["date"] for x in ab], "%")
+    return (f'<div class="vt-grid">{tiles}</div>'
+            + '<h4 class="cb-sub">騰落線 vs 加權指數（近一年）</h4>' + adc + _legend([("騰落線（每天上漲−下跌家數，累加）", "l-ad"), ("加權指數（右軸）", "l-tx")])
+            + '<p class="mk-note">指數創高而騰落線沒有跟上，代表上漲集中在少數股票。</p>'
+            + '<h4 class="cb-sub">52 週新高 / 新低家數（近一年）</h4>' + hlc
+            + '<h4 class="cb-sub">站上均線的股票比例（近兩年）</h4>' + abc
+            + _legend([("20 日線", "l-m20"), ("60 日線（季線）", "l-m60"), ("240 日線（年線）", "l-m240")])
+            + f'<p class="mk-note">線越高代表越多股票處在上升趨勢（普漲）；指數上漲但這條線往下，代表只有少數股票在撐。'
+            f'季線比例的百分位是跟近 {round((t.get("above60_days") or 0) / 250, 1)} 年比較。價格用還原權值股價，除權息不會被誤判成跌破均線。'
+            f'資料：Yahoo Finance 全部上市櫃普通股日線。</p>')
+
+
+def ew_block(b: dict) -> str:
+    xs = b.get("ew_vs_cap") or []
+    t = b["today"]
+    chart = _lines([([x["cap"] for x in xs], "l-tx"), ([x["ew"] for x in xs], "l-ew")], [x["date"] for x in xs], "%")
+    return (f'<p class="cb-head">近一年：加權指數 <b class="{cls(t["taiex_1y"])}">{t["taiex_1y"]:+.1f}%</b>，'
+            f'全部上市股票等權平均 <b class="{cls(t["ew_1y"])}">{t["ew_1y"]:+.1f}%</b></p>' + chart
+            + _legend([("加權指數（市值加權，台積電約占四成）", "l-tx"), ("等權平均（每檔一樣重）", "l-ew")])
+            + '<p class="mk-note">兩條線拉開，代表大型權值股和一般股票走得不一樣：加權遠高於等權＝漲幅集中在大公司。</p>')
+
+
+def turnover_block(b: dict) -> str:
+    xs = b.get("turnover") or []
+    if not xs:
+        return ""
+    t = b["today"]
+    m = max(x["v"] for x in xs) or 1
+    bw = 1000 / len(xs)
+    bars = "".join(f'<rect class="tv" x="{i * bw:.1f}" y="{160 - x["v"] / m * 150:.1f}" width="{bw * 0.75:.1f}" height="{x["v"] / m * 150:.1f}"><title>{x["date"]} {x["v"]:,} 億</title></rect>' for i, x in enumerate(xs))
+    ma = " ".join(f'{i * bw + bw / 2:.1f},{160 - x["ma20"] / m * 150:.1f}' for i, x in enumerate(xs) if x.get("ma20"))
+    ratio = t["turnover"] / t["turnover_ma20"] if t.get("turnover_ma20") else None
+    return (f'<p class="cb-head">{e(b["date"])} 成交約 <b>{t["turnover"]:,} 億</b>，是近 20 日平均（{t["turnover_ma20"]:,} 億）的 '
+            f'<b class="{"pos" if (ratio or 1) > 1.2 else "neg" if (ratio or 1) < 0.8 else ""}">{ratio:.2f} 倍</b></p>'
+            f'<svg class="mk-bars" viewBox="0 0 1000 162" preserveAspectRatio="none">{bars}<polyline class="ln l-ma" points="{ma}"/></svg>'
+            f'<div class="mk-axis"><span>{e(xs[0]["date"])}</span><span>最高 {m:,} 億</span><span>{e(xs[-1]["date"])}</span></div>'
+            + _legend([("每日成交金額（上市＋上櫃普通股）", "l-tvb"), ("20 日平均", "l-ma")])
+            + '<p class="mk-note">柱子明顯高過橘線，代表當天交易比平常熱烈，常出現在大漲、大跌或重大消息的日子。成交金額＝每檔收盤價 × 成交股數加總，是約略值。</p>')
+
+
+QUAD = {"領先": "q-lead", "轉弱": "q-weak", "落後": "q-lag", "改善": "q-imp"}
+
+
+def rrg_chart(groups: list[dict], key: str, w=640, h=480) -> str:
+    pts = [p for g in groups for p in g["trail"]]
+    if not pts:
+        return '<p class="empty">資料不足</p>'
+    # 刻度依大多數族群決定（第 85 百分位），少數跑很遠的點貼在邊框上，不讓一條線把其他全部擠在中間
+    q85 = lambda vals: sorted(vals)[int(len(vals) * 0.85)] if vals else 2
+    rx = max(q85([abs(p["x"] - 100) for p in pts]), 1.5) * 1.25
+    ry = max(q85([abs(p["y"] - 100) for p in pts]), 1.5) * 1.25
+    clamp = lambda v, lim: max(-lim, min(lim, v))
+    X = lambda v: w / 2 + clamp((v - 100) / rx, 1) * (w / 2 - 14)
+    Y = lambda v: h / 2 - clamp((v - 100) / ry, 1) * (h / 2 - 14)
+    bg = (f'<rect class="q q-lead" x="{w / 2}" y="0" width="{w / 2}" height="{h / 2}"/><rect class="q q-weak" x="{w / 2}" y="{h / 2}" width="{w / 2}" height="{h / 2}"/>'
+          f'<rect class="q q-lag" x="0" y="{h / 2}" width="{w / 2}" height="{h / 2}"/><rect class="q q-imp" x="0" y="0" width="{w / 2}" height="{h / 2}"/>'
+          f'<line class="axis" x1="{w / 2}" x2="{w / 2}" y1="0" y2="{h}"/><line class="axis" x1="0" x2="{w}" y1="{h / 2}" y2="{h / 2}"/>'
+          f'<text class="ql" x="{w - 8}" y="18" text-anchor="end">領先</text><text class="ql" x="{w - 8}" y="{h - 8}" text-anchor="end">轉弱</text>'
+          f'<text class="ql" x="8" y="{h - 8}">落後</text><text class="ql" x="8" y="18">改善</text>')
+    lines = []
+    for i, g in enumerate(groups):
+        tr = g["trail"][-6:]
+        hue = (i * 47) % 360
+        path = " ".join(f'{X(p["x"]):.1f},{Y(p["y"]):.1f}' for p in tr)
+        dots = "".join(f'<circle cx="{X(p["x"]):.1f}" cy="{Y(p["y"]):.1f}" r="2"/>' for p in tr[:-1])
+        last = tr[-1]
+        lines.append(f'<g class="rg" data-g="{e(g["name"])}" style="--c:hsl({hue} 80% 62%)"><title>{e(g["name"])}：相對強弱 {last["x"]}、動能 {last["y"]}（{g["quadrant"]}）</title>'
+                     f'<polyline points="{path}"/>{dots}<circle class="head" cx="{X(last["x"]):.1f}" cy="{Y(last["y"]):.1f}" r="5"/>'
+                     + (f'<text x="{X(last["x"]) - 7:.1f}" y="{Y(last["y"]) + 4:.1f}" text-anchor="end">{e(g["name"])}</text></g>'
+                        if X(last["x"]) > w - 130 else f'<text x="{X(last["x"]) + 7:.1f}" y="{Y(last["y"]) + 4:.1f}">{e(g["name"])}</text></g>'))
+    return f'<svg class="rrg" viewBox="0 0 {w} {h}" data-rrg="{key}">{bg}{"".join(lines)}</svg>'
+
+
+def rrg_lists(groups: list[dict]) -> str:
+    rows = "".join(f'<li><b class="{QUAD[q]}">{q}</b><span>{e("、".join(g["name"] for g in groups if g["quadrant"] == q) or "—")}</span></li>'
+                   for q in ("領先", "轉弱", "落後", "改善"))
+    moved = [g for g in groups if g.get("prev_quadrant") and g["prev_quadrant"] != g["quadrant"]]
+    mv = "".join(f'<li>{e(g["name"])}：{g["prev_quadrant"]} → <b class="{QUAD[g["quadrant"]]}">{g["quadrant"]}</b></li>' for g in moved)
+    return (f'<ul class="rrg-now">{rows}</ul>'
+            + (f'<h4 class="cb-sub">這一週換了區的</h4><ul class="rrg-moved">{mv}</ul>' if mv else ""))
+
+
+def rrg_block(r: dict) -> str:
+    peer, ind = r.get("peer") or [], r.get("industry") or []
+    # 產業別太多會擠在一起：圖上只畫離中心最遠（最有方向性）的 12 個，下面清單列全部
+    far = sorted(ind, key=lambda g: -abs(g["trail"][-1]["x"] - 100) - abs(g["trail"][-1]["y"] - 100))[:12]
+    items = [("peer", "AI 供應鏈族群"), ("ind", "交易所產業別")]
+    return (tabs("rrg", items, "peer")
+            + panel("rrg", "peer", f'<div class="rrg-wrap">{rrg_chart(peer, "peer")}<div>{rrg_lists(peer)}</div></div>', True)
+            + panel("rrg", "ind", f'<div class="rrg-wrap">{rrg_chart(far, "ind")}<div>{rrg_lists(ind)}</div></div>', False)
+            + '<p class="mk-note">一條線＝一個族群最近 6 週的路徑，每週一點，有名字的大圓點是今天。越右邊＝最近比大盤強；越上面＝跟大盤比越來越強。'
+            '常見的走法是順時針：改善 → 領先 → 轉弱 → 落後。相對強弱＝族群等權指數 ÷ 加權指數，再跟自己近 50 個交易日平均比（100 為分界）；'
+            '動能＝相對強弱跟 10 個交易日前比（100 為分界）。只描述位置與方向，不代表買賣時機。滑鼠移到線上看數字。</p>')
