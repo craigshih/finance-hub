@@ -66,7 +66,7 @@ jobs:
           git add data/daily_pick/
           if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           git commit -m "daily pick: $(TZ=Asia/Taipei date +%F)"
-          git pull -q --rebase --autostash && git push
+          for i in 1 2 3; do git pull -q --rebase --autostash && git push && break; sleep $((i * 5)); done
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       # 用 GITHUB_TOKEN 推上去的 commit 不會觸發其他 workflow，所以直接叫網站重建

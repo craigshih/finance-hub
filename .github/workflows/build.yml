@@ -206,7 +206,8 @@ jobs:
           git add data/picks/ data/flows/ data/supply/ data/digest_titles/ data/state/ data/market/ data/whales/ data/us/ 2>/dev/null || exit 0
           git diff --cached --quiet && exit 0
           git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
-          git push
+          # 每日一檔等其他 workflow 可能同時推送：先同步再推，失敗重試幾次
+          for i in 1 2 3; do git pull -q --rebase --autostash && git push && break; sleep $((i * 5)); done
 
       - run: python build.py
         env:
