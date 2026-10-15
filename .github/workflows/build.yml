@@ -80,7 +80,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -164,6 +164,12 @@ jobs:
         continue-on-error: true
         timeout-minutes: 8
         run: python market.py
+
+      # 台股進階：誰在推指數、估值歷史位置、期貨籌碼（歷史檔存在 data/market/，每次只補新的）
+      - name: Market extras
+        continue-on-error: true
+        timeout-minutes: 8
+        run: python market_extra.py
 
       # 大佬持股：SEC 13F（每季申報；已下載的不重抓，平常只檢查有沒有新申報）
       - name: Whale holdings (13F)

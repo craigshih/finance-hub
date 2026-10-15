@@ -14,14 +14,14 @@ const memo = {};
 
 const fail = (error, status = 400) => Response.json({ error }, { status });
 
-async function asset(env, request, path) {
+export async function asset(env, request, path) {
   // 帶上登入 cookie：靜態檔也在密碼保護範圍內
   const res = await env.ASSETS.fetch(new Request(new URL(path, request.url), { headers: { Cookie: request.headers.get("Cookie") || "" } }));
   if (!res.ok || !(res.headers.get("Content-Type") || "").includes("json")) return null; // 沒有這個檔時可能回 HTML 頁
   return res.json().catch(() => null);
 }
 
-async function loadData(env, request, dataPath, holdingsPath) {
+export async function loadData(env, request, dataPath, holdingsPath) {
   const m = memo[dataPath];
   if (m?.data && Date.now() - m.at < 10 * 60_000) return m;
   const [data, holdings] = await Promise.all([
@@ -74,13 +74,13 @@ async function pttTitles() {
   return titles;
 }
 
-async function askGroq(env, messages) {
+export async function askGroq(env, messages, { max = 3500, effort = "medium" } = {}) {
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${env.GROQ_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: MODEL, messages, max_completion_tokens: 3500, reasoning_effort: "medium",
+        model: MODEL, messages, max_completion_tokens: max, reasoning_effort: effort,
         temperature: 0.3, response_format: { type: "json_object" },
       }),
     });

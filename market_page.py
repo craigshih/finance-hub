@@ -321,7 +321,7 @@ document.addEventListener("click", (ev) => {
 </script>"""
 
 
-def render(m: dict | None, hero, section) -> str:
+def render(m: dict | None, hero, section, extra: dict | None = None) -> str:
     if not m:
         return hero("台股", "台股資料準備中", "下一次網站更新後就會出現。")
     date = (m.get("history") or [{}])[-1].get("date") or m["generated_at"][:10]
@@ -332,8 +332,12 @@ def render(m: dict | None, hero, section) -> str:
             + panel("heat", "ind", treemap(m.get("industries", [])), True)
             + panel("heat", "theme", treemap(m.get("themes", [])), False)
             + breadth_bar(m["breadth"]))
+    extra = extra or {}
+    body += section("誰在推指數", contrib(extra.get("contrib")), "上市普通股・指數漲跌拆給每一檔股票")
     body += section("市場熱力圖", heat, "面積＝成交值・顏色＝成交值加權漲跌（紅漲綠跌）")
     body += section("三大法人與融資", institutions(m.get("history", [])), "上市・近 60 個交易日")
+    body += section("期貨籌碼", futures(extra.get("futures")), "臺灣期貨交易所盤後資料")
+    body += section("估值位置", valuation(extra.get("valuation")), "上市大盤・跟近 10 年比")
     body += ('<div class="two-col">' + section("強勢股", strong(m.get("strong", {})))
              + section("大戶加碼", big_holders(m.get("big_holders", {})), "集保・每週") + "</div>")
     body += section("處置／注意股預警", warning_cards(m.get("warnings", [])), "證交所・櫃買中心公告")
@@ -477,3 +481,133 @@ def brief(m: dict | None, extras: list[tuple[str, str, str]] = (), today: str = 
             f'・資料更新於 {e(floor5(m.get("generated_at")))}')
     return (f'<div class="brief"><p class="br-lead">{lead}</p><div class="br-tiles">{"".join(tiles)}</div>'
             f'<ul class="br-pts">{items}</ul><p class="br-note">{note}</p></div>')
+
+
+# ---------- 進階：誰在推指數、估值位置、期貨籌碼（data/market/extra.json） ----------
+
+PARTS = [("tsmc", "台積電", "p-tsmc"), ("top10", "其他前十大權值股", "p-top"), ("rest", "其餘上市股票", "p-rest")]
+
+
+def _share(v: float, total: float) -> str:
+    return "–" if abs(total) < 30 else f"{v / total * 100:.0f}%"
+
+
+def contrib_panel(row: dict, label: str, push=None, drag=None) -> str:
+    total = row["index"]
+    scale = max(abs(row[k]) for k, _, _ in PARTS) or 1
+    bars = "".join(
+        f'<li><span class="nm">{n}</span><span class="cb-track"><i class="{c} {"up" if row[k] >= 0 else "down"}" '
+        f'style="width:{abs(row[k]) / scale * 100:.1f}%"></i></span><b class="{cls(row[k])}">{row[k]:+,.1f} 點</b>'
+        f'<small>{_share(row[k], total)}</small></li>' for k, n, c in PARTS)
+    head = f'<p class="cb-head">加權指數 <b class="{cls(total)}">{total:+,.1f} 點</b>（{e(label)}）</p>'
+    lists = ""
+    if push or drag:
+        li = lambda xs: "".join(f'<li>{stock_logo(x["code"], x["name"], "上市", "sm")}<span>{e(x["name"])}</span>'
+                                f'<b class="{cls(x["pts"])}">{x["pts"]:+.1f} 點</b><small class="{cls(x["pct"])}">{x["pct"]:+.2f}%</small></li>' for x in xs)
+        lists = (f'<div class="cb-lists"><div><h4>推升最多</h4><ol>{li(push) or "<li class=empty>—</li>"}</ol></div>'
+                 f'<div><h4>拖累最多</h4><ol>{li(drag) or "<li class=empty>—</li>"}</ol></div></div>')
+    return head + f'<ol class="cb-bars">{bars}</ol>' + lists
+
+
+def contrib_chart(hist: list[dict], w=1000, h=200) -> str:
+    if len(hist) < 2:
+        return ""
+    m = max(max(sum(max(d[k], 0) for k, _, _ in PARTS), -sum(min(d[k], 0) for k, _, _ in PARTS), abs(d["index"])) for d in hist) or 1
+    bw, mid = w / len(hist), h / 2
+    out = []
+    for i, d in enumerate(hist):
+        up = dn = 0.0
+        for k, _, c in PARTS:
+            v = d[k]
+            bh = abs(v) / m * (mid - 6)
+            if v >= 0:
+                y = mid - up - bh
+                up += bh
+            else:
+                y = mid + dn
+                dn += bh
+            out.append(f'<rect class="{c}" x="{i * bw + bw * 0.15:.1f}" y="{y:.1f}" width="{bw * 0.7:.1f}" height="{max(bh, 0.4):.1f}">'
+                       f'<title>{d["date"]} 台積電 {d["tsmc"]:+.0f}・前十大 {d["top10"]:+.0f}・其餘 {d["rest"]:+.0f}（指數 {d["index"]:+.0f}）</title></rect>')
+        out.append(f'<circle class="cb-dot" cx="{i * bw + bw / 2:.1f}" cy="{mid - d["index"] / m * (mid - 6):.1f}" r="2.6"/>')
+    legend = "".join(f'<span><i class="{c}"></i>{n}</span>' for _, n, c in PARTS) + '<span><i class="cb-dot"></i>指數實際漲跌</span>'
+    return (f'<svg class="mk-bars cb-chart" viewBox="0 0 {w} {h}" preserveAspectRatio="none"><line class="grid" x1="0" x2="{w}" y1="{mid}" y2="{mid}"/>{"".join(out)}</svg>'
+            f'<div class="mk-axis"><span>{e(hist[0]["date"])}</span><span>單位：指數點數・最大 {m:,.0f} 點</span><span>{e(hist[-1]["date"])}</span></div>'
+            f'<div class="cb-legend">{legend}</div>')
+
+
+def contrib(c: dict | None) -> str:
+    if not c:
+        return '<p class="empty">資料準備中</p>'
+    items = [("d", "今日")] + [(k, k) for k in (c.get("periods") or {})]
+    panels = panel("cb", "d", contrib_panel(c, f'{c["date"]}，與前一交易日收盤相比', c.get("push"), c.get("drag")), True)
+    for k, row in (c.get("periods") or {}).items():
+        panels += panel("cb", k, contrib_panel(row, f"近 {k}累計"), False)
+    note = (f'<p class="mk-note">貢獻點數＝個股市值變化 ÷ 指數除數（前一日上市總市值 ÷ 前一日指數）。台積電目前約占上市市值 {c.get("tsmc_weight") or "—"}%。'
+            "股數用目前已發行股數，歷史日期是近似值；「其餘上市股票」與指數實際漲跌的小差異來自除數調整與四捨五入。</p>")
+    return (tabs("cb", items, "d") + panels
+            + '<h4 class="cb-sub">近 60 個交易日，每天的漲跌從哪裡來</h4>' + contrib_chart(c.get("history") or []) + note)
+
+
+def pct_bar(p: int | None, reverse: bool = False) -> str:
+    if p is None:
+        return ""
+    hot = p >= 80 if not reverse else p <= 20
+    cold = p <= 20 if not reverse else p >= 80
+    return (f'<div class="pb"><span class="pb-track"><i style="left:{p}%"></i></span>'
+            f'<small class="{"hot" if hot else "cold" if cold else ""}">近 10 年第 {p} 百分位</small></div>')
+
+
+def pe_chart(series: list[dict], median: float | None, w=1000, h=170) -> str:
+    pts = [(s["date"], s["pe"]) for s in series if s.get("pe")]
+    if len(pts) < 3:
+        return ""
+    lo, hi = min(v for _, v in pts), max(v for _, v in pts)
+    span = hi - lo or 1
+    y = lambda v: h - 10 - (v - lo) / span * (h - 20)
+    line = " ".join(f"{i / (len(pts) - 1) * w:.1f},{y(v):.1f}" for i, (_, v) in enumerate(pts))
+    med = f'<line class="pe-med" x1="0" x2="{w}" y1="{y(median):.1f}" y2="{y(median):.1f}"/>' if median else ""
+    return (f'<svg class="mk-bars pe-chart" viewBox="0 0 {w} {h}" preserveAspectRatio="none">{med}<polyline points="{line}"/></svg>'
+            f'<div class="mk-axis"><span>{e(pts[0][0][:7])}</span><span>本益比 {lo:.1f}～{hi:.1f} 倍・虛線＝中位數 {median or "—"} 倍</span><span>{e(pts[-1][0])}</span></div>')
+
+
+def valuation(v: dict | None) -> str:
+    if not v:
+        return '<p class="empty">資料準備中</p>'
+    p, md = v.get("pct") or {}, v.get("median") or {}
+    tiles = (f'<div class="vt"><small>上市大盤本益比</small><b>{v["pe"]} 倍</b>{pct_bar(p.get("pe"))}<span>10 年中位數 {md.get("pe") or "—"} 倍</span></div>'
+             f'<div class="vt"><small>股價淨值比</small><b>{v["pb"]} 倍</b>{pct_bar(p.get("pb"))}<span>10 年中位數 {md.get("pb") or "—"} 倍</span></div>'
+             f'<div class="vt"><small>現金殖利率</small><b>{v["yield"]}%</b>{pct_bar(p.get("yield"), reverse=True)}<span>10 年中位數 {md.get("yield") or "—"}%</span></div>'
+             f'<div class="vt"><small>上市總市值</small><b>{v["cap_trillion"]} 兆</b><span>資料日 {e(v["date"])}</span></div>')
+    note = (f'<p class="mk-note">「近 10 年第 X 百分位」＝近 10 年有 X% 的時候比今天低或一樣：本益比、淨值比越高代表越貴；殖利率相反，越低越貴。'
+            f'市值加權，本益比只算有獲利的公司。歷史從 {e(v.get("since", "")[:7])} 起每月取一點（共 {v.get("n_points")} 點），'
+            f'股數用目前的已發行股數，是近似值。資料：證交所每日本益比、殖利率及股價淨值比。</p>')
+    return f'<div class="vt-grid">{tiles}</div>' + pe_chart(v.get("series") or [], md.get("pe")) + note
+
+
+def futures(f: dict | None) -> str:
+    if not f:
+        return '<p class="empty">資料準備中</p>'
+    prev = f.get("prev") or {}
+    d = lambda k, unit="": (f'前一日 {prev[k]:+,}{unit}' if isinstance(prev.get(k), int) else f'前一日 {prev[k]:+.2f}{unit}') if prev.get(k) is not None else ""
+    rr = f.get("retail_ratio")
+    tiles = (f'<div class="vt"><small>散戶小台＋微台多空比</small><b class="{cls(rr)}">{rr:+.2f}%</b>'
+             f'<span>{d("retail_ratio", "%")}{"・小台 " + format(f["retail_mtx"], "+.2f") + "%" if f.get("retail_mtx") is not None else ""}'
+             f'{"・微台 " + format(f["retail_tmf"], "+.2f") + "%" if f.get("retail_tmf") is not None else ""}</span>'
+             + (f'<span>累積 {f["n_days"]} 天中第 {f["retail_pct"]} 百分位</span>' if f.get("retail_pct") is not None and f.get("n_days", 0) >= 20 else "")
+             + '</div>'
+             f'<div class="vt"><small>外資台指期淨未平倉</small><b class="{cls(f["foreign_tx"])}">{f["foreign_tx"]:+,} 口</b><span>{d("foreign_tx", " 口")}</span></div>'
+             f'<div class="vt"><small>Put/Call 比（未平倉）</small><b>{f["pc_oi"] or "—"}%</b><span>{d("pc_oi", "%")}</span></div>')
+    pcs = f.get("pc_series") or []
+    chart = ""
+    if len(pcs) >= 3:
+        lo, hi = min(x["v"] for x in pcs), max(x["v"] for x in pcs)
+        span = hi - lo or 1
+        line = " ".join(f'{i / (len(pcs) - 1) * 1000:.1f},{150 - (x["v"] - lo) / span * 130:.1f}' for i, x in enumerate(pcs))
+        chart = (f'<h4 class="cb-sub">Put/Call 比（未平倉）近 {len(pcs)} 個交易日</h4>'
+                 f'<svg class="mk-bars pe-chart" viewBox="0 0 1000 160" preserveAspectRatio="none"><polyline points="{line}"/></svg>'
+                 f'<div class="mk-axis"><span>{e(pcs[0]["date"])}</span><span>{lo:.0f}%～{hi:.0f}%</span><span>{e(pcs[-1]["date"])}</span></div>')
+    note = ('<p class="mk-note">散戶多空比＝散戶手上小台、微台的多單減空單，占全市場未平倉的比例：正的代表散戶整體偏多。'
+            '期交所沒有直接公布散戶部位，這裡用全市場未平倉扣掉外資、投信、自營商算出來；微台 5 口算 1 口小台。'
+            '外資手上有大量台股，台指期空單多半是避險，所以常常是淨空，單看看不出外資多空。'
+            f'Put/Call 比＝賣權未平倉 ÷ 買權未平倉。資料：臺灣期貨交易所，資料日 {e(f["date"])}；多空比的歷史從現在開始每天累積。</p>')
+    return f'<div class="vt-grid">{tiles}</div>' + chart + note

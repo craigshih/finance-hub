@@ -60,6 +60,13 @@ leak = [c for c in hidden if "risk" in guest["stocks"].get(c, {}) or "backtest" 
 assert not leak, leak
 PY
 fi
+# 幫我找股票（選股機器人）：訪客版直接用；站長版在投資頁密碼後面
+code=$(curl -s -o /tmp/fd.html -w '%{http_code}' "$BASE/robot/find/"); [ "$code" = 200 ] || fail "幫我找股票（訪客）應該 200，實際 $code"
+grep -q "/robot/api/finder" /tmp/fd.html || fail "訪客版選股頁應該打 /robot/api/finder"
+grep -q "免責聲明" /tmp/fd.html || fail "選股頁要有免責聲明"
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/portfolio/advisor/find/"); [ "$code" = 401 ] || fail "站長版選股頁沒密碼應該 401，實際 $code"
+r=$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":"龍頭股"}' "$BASE/portfolio/api/finder"); need "$r" '請重新輸入密碼' "沒登入不能用站長版選股"
+need "$(curl -s -X POST -H "Content-Type: application/json" -d '{"question":""}' "$BASE/robot/api/finder")" '請描述' "選股空白問題應該擋下"
 echo "✅ 專屬投資顧問（訪客版）"
 
 # 模擬交易（ACCESS_DEV_EMAIL=smoke@example.com）：報價用證交所即時盤面；依當下是否為交易時間走「立即成交」或「預約單」

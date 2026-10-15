@@ -233,4 +233,7 @@
   });
   $("#adv-clear").addEventListener("click", () => { saveHist([]); drawHist(); });
   drawHist();
+  // 從「幫我找股票」點「問顧問這檔」過來：先把問題填好，按送出才問（不自動用掉額度）
+  const pre = new URLSearchParams(location.search).get("q");
+  if (pre) { $("#adv-q").value = pre.slice(0, 300); $("#adv-q").focus(); }
 })();

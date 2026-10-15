@@ -95,6 +95,17 @@ def roc_day(s: str) -> str | None:
 
 # ---------- 全市場資料（便宜，一次一個請求） ----------
 
+# 證交所／櫃買的產業別代碼
+INDUSTRY_CODES = {
+    "01": "水泥工業", "02": "食品工業", "03": "塑膠工業", "04": "紡織纖維", "05": "電機機械", "06": "電器電纜", "08": "玻璃陶瓷",
+    "09": "造紙工業", "10": "鋼鐵工業", "11": "橡膠工業", "12": "汽車工業", "14": "建材營造業", "15": "航運業", "16": "觀光餐旅",
+    "17": "金融保險業", "18": "貿易百貨業", "19": "綜合", "20": "其他業", "21": "化學工業", "22": "生技醫療業", "23": "油電燃氣業",
+    "24": "半導體業", "25": "電腦及週邊設備業", "26": "光電業", "27": "通信網路業", "28": "電子零組件業", "29": "電子通路業",
+    "30": "資訊服務業", "31": "其他電子業", "32": "文化創意業", "33": "農業科技業", "34": "電子商務", "35": "綠能環保",
+    "36": "數位雲端", "37": "運動休閒", "38": "居家生活",
+}
+
+
 def market_data() -> dict:
     stocks: dict[str, dict] = {}
 
@@ -107,6 +118,17 @@ def market_data() -> dict:
     for r in get_json(f"{TPEX}/tpex_mainboard_quotes"):
         s = base(r["SecuritiesCompanyCode"], r["CompanyName"], "上櫃")
         s["close"], s["trade_value"] = num(r["Close"]), num(r["TransactionAmount"])
+
+    # 已發行股數 → 市值（選股機器人用來判斷產業龍頭）；產業別也從這裡補（金融股沒有月營收檔，原本會沒有產業）
+    for url, key, field, ind in ((f"{TWSE}/opendata/t187ap03_L", "公司代號", "已發行普通股數或TDR原股發行股數", "產業別"),
+                                 (f"{TPEX}/mopsfin_t187ap03_O", "SecuritiesCompanyCode", "IssueShares", "SecuritiesIndustryCode")):
+        for r in get_json(url):
+            s = stocks.get(r.get(key))
+            n = num(r.get(field))
+            if s and n and s.get("close"):
+                s["mcap_yi"] = round(s["close"] * n / 1e8, 1)
+            if s and not s.get("industry"):
+                s["industry"] = INDUSTRY_CODES.get(str(r.get(ind) or "").strip().zfill(2))
 
     for url, key in ((f"{TWSE}/opendata/t187ap05_L", "公司代號"), (f"{TPEX}/mopsfin_t187ap05_O", "公司代號")):
         for r in get_json(url):

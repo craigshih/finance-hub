@@ -736,6 +736,15 @@ def render_advisor_page(sm: dict | None, picks: dict | None, adv_meta: dict | No
             .replace("{{PRICED}}", str(len((adv_meta or {}).get("price_codes", [])))))
 
 
+def render_finder_page(adv_meta: dict | None, guest: bool) -> str:
+    body = (ROOT / "static" / "finder_body.html").read_text(encoding="utf-8")
+    body = body.replace("{{KICKER}}", "專屬投資顧問" if guest else "AI 投資顧問・只有你看得到")
+    body = body.replace("{{API}}", "/robot/api/finder" if guest else "/portfolio/api/finder")
+    body = body.replace("{{TABS}}", "" if guest else portfolio_tabs("advisor"))
+    body = body.replace("{{SCOPE}}", "全市場上市櫃股票；跟「問個股」共用每人每天 10 題" if guest else "全市場上市櫃股票；你已持有的會標出來")
+    return body.replace("{{DATA_DATE}}", e(visuals.floor5((adv_meta or {}).get("generated_at"), "%Y-%m-%d %H:%M") or "—"))
+
+
 def render_portfolio_page(sm: dict | None, rc: dict | None, error: str | None, supply: dict | None = None,
                           market: dict | None = None, whales: dict | None = None) -> str:
     if sm is None:
@@ -940,7 +949,7 @@ def main() -> int:
     whales = whales_page.load(ROOT / "data" / "whales" / "latest.json")
     trump = whales_page.load(ROOT / "data" / "whales" / "trump.json")
     write(OUT_DIR / "whales" / "index.html", page("大佬持股", whales_page.render(whales, supply, hero, section, trump), 1, "whales/index.html"))
-    write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section), 1, "market/index.html"))
+    write(OUT_DIR / "market" / "index.html", page("台股", market_page.render(market, hero, section, market_page.load(ROOT / "data" / "market" / "extra.json")), 1, "market/index.html"))
     import pick_page
     picks_all = pick_page.load_all(ROOT / "data" / "daily_pick")
     for i, pk in enumerate(picks_all):
@@ -1010,6 +1019,9 @@ def main() -> int:
             ensure_ascii=False), encoding="utf-8")
     shutil.copy(ROOT / "static" / "advisor.js", adv_dir / "advisor.js")
     write(adv_dir / "index.html", page("AI 投資顧問", render_advisor_page(sm, visuals.load_latest_picks(PICKS_DIR), adv_meta), 2, "portfolio/index.html"))
+    (adv_dir / "find").mkdir(parents=True, exist_ok=True)
+    shutil.copy(ROOT / "static" / "finder.js", adv_dir / "find" / "finder.js")
+    write(adv_dir / "find" / "index.html", page("幫我找股票", render_finder_page(adv_meta, False), 3, "portfolio/index.html"))
 
     # 專屬投資顧問（訪客版，/robot/，所有登入網站的人都能用）：同一份每日資料，但只有「公開範圍」的股票保留風控與回測，
     # 只因為站長持股或站長提問才被計算的股票，降級成跟其他股票一樣，避免從範圍反推持股
@@ -1029,6 +1041,9 @@ def main() -> int:
         robot_meta = {"generated_at": full["generated_at"], "price_codes": guest["price_codes"]}
     shutil.copy(ROOT / "static" / "advisor.js", robot_dir / "advisor.js")
     write(robot_dir / "index.html", page("專屬投資顧問", render_advisor_page(None, visuals.load_latest_picks(PICKS_DIR), robot_meta, guest=True), 1, "robot/index.html"))
+    (robot_dir / "find").mkdir(parents=True, exist_ok=True)
+    shutil.copy(ROOT / "static" / "finder.js", robot_dir / "find" / "finder.js")
+    write(robot_dir / "find" / "index.html", page("幫我找股票", render_finder_page(robot_meta, True), 2, "robot/index.html"))
 
     # 總覽
     today = datetime.now(TAIPEI).strftime("%Y-%m-%d")
