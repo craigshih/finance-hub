@@ -554,13 +554,13 @@ def contrib(c: dict | None) -> str:
             + '<h4 class="cb-sub">近 60 個交易日，每天的漲跌從哪裡來</h4>' + contrib_chart(c.get("history") or []) + note)
 
 
-def pct_bar(p: int | None, reverse: bool = False) -> str:
+def pct_bar(p: int | None, reverse: bool = False, span: str = "近 10 年") -> str:
     if p is None:
         return ""
     hot = p >= 80 if not reverse else p <= 20
     cold = p <= 20 if not reverse else p >= 80
     return (f'<div class="pb"><span class="pb-track"><i style="left:{p}%"></i></span>'
-            f'<small class="{"hot" if hot else "cold" if cold else ""}">近 10 年第 {p} 百分位</small></div>')
+            f'<small class="{"hot" if hot else "cold" if cold else ""}">{span}第 {p} 百分位</small></div>')
 
 
 def pe_chart(series: list[dict], median: float | None, w=1000, h=170) -> str:
@@ -650,7 +650,7 @@ def breadth_block(b: dict) -> str:
     p = t.get("above60_pct")
     tiles = (f'<div class="vt"><small>上漲 / 下跌家數</small><b><span class="pos">{t["up"]:,}</span> / <span class="neg">{t["down"]:,}</span></b><span>資料日 {e(b["date"])}・共 {b["n_stocks"]:,} 檔普通股</span></div>'
              f'<div class="vt"><small>52 週新高 / 新低</small><b><span class="pos">{t["new_hi"]}</span> / <span class="neg">{t["new_lo"]}</span></b><span>收盤創一年新高、新低的家數</span></div>'
-             f'<div class="vt"><small>站上季線的股票</small><b>{t["above60"]}%</b>{pct_bar(p)}<span>月線 {t["above20"]}%・年線 {t["above240"] if t.get("above240") is not None else "—"}%</span></div>')
+             f'<div class="vt"><small>站上季線的股票</small><b>{t["above60"]}%</b>{pct_bar(p, span=f"近 {round((t.get('above60_days') or 0) / 250, 1):g} 年")}<span>月線 {t["above20"]}%・年線 {t["above240"] if t.get("above240") is not None else "—"}%</span></div>')
     ad = b.get("ad_line") or []
     tx = {x["date"]: x["v"] for x in b.get("taiex_1y") or []}
     dates = [x["date"] for x in ad]

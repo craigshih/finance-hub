@@ -324,7 +324,8 @@
   const re = new RegExp(names.map(([n]) => (/^[A-Za-z]/.test(n) ? `(?<![A-Za-z])${esc(n)}(?![A-Za-z])` : esc(n))).join("|"));
   const index = Object.fromEntries(names);
   const SEL = ".sec-head h2, .stat-label, .br-tile > small, .br-tag, .thead > span, th, .mk-idx-top b, .pick-head, " +
-    ".co-stats small, .us-detail small, .legend span, .sim-tiles small, .ck-grid b, .adv-card small, .mk-chart-head small, .hero .kicker, .ck small, .sec-note, .mk-note";
+    ".co-stats small, .us-detail small, .legend span, .sim-tiles small, .ck-grid b, .adv-card small, .mk-chart-head small, .hero .kicker, .ck small, .sec-note, .mk-note, " +
+    ".vt > small, .cb-sub, .sim-book small, #sim-form label, .fd-cells small, .pk-sec h2, .pk-tile small";
   const done = new Set();
 
   function scan(root = document) {
@@ -339,14 +340,14 @@
         const gi = index[m[0]];
         if (done.has(gi)) continue;
         done.add(gi);
-        const after = node.splitText(m.index + m[0].length);
         const b = document.createElement("button");
         b.type = "button";
         b.className = "gl-q";
         b.dataset.g = gi;
         b.setAttribute("aria-label", `什麼是${G[gi].t}？`);
         b.textContent = "?";
-        after.parentNode.insertBefore(b, after);
+        // 問號放在這段文字的結尾（不插在字詞中間，也不跑到後面不相干的小字後面）
+        node.parentNode.insertBefore(b, node.nextSibling);
         break;
       }
     }
@@ -367,7 +368,9 @@
     const x = document.createElement("button"); x.type = "button"; x.className = "gl-x"; x.setAttribute("aria-label", "關閉"); x.textContent = "×";
     x.addEventListener("click", close); head.appendChild(x);
     add("p", "gl-what", g.what);
-    add("small", "gl-k", "可以看出什麼"); add("p", "", g.see);
+    if (g.calc) { add("small", "gl-k", "怎麼算"); add("p", "gl-calc", g.calc); }
+    if (g.see) { add("small", "gl-k", "可以看出什麼"); add("p", "", g.see); }
+    if (g.ex) { add("small", "gl-k ex", "舉例"); add("p", "gl-ex", g.ex); }
     if (g.warn) { add("small", "gl-k warn", "要注意"); add("p", "", g.warn); }
   }
 
@@ -423,6 +426,6 @@
   scan();
   // 模擬交易、AI 顧問這類事後才畫出來的內容，也一併掃
   let t = 0;
-  const watch = document.querySelector("#sim-app, #adv-out, #adv-app");
+  const watch = document.querySelector("#sim-app, #adv-out, #adv-app, #fd-app");
   if (watch) new MutationObserver(() => { clearTimeout(t); t = setTimeout(() => scan(watch), 300); }).observe(watch, { childList: true, subtree: true });
 })();
