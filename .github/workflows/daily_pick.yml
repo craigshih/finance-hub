@@ -49,12 +49,31 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
 
+      # LINE：查出已開通的群組（存在 D1，機器人被邀進群組時由 webhook 寫入）
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install -g wrangler@3
+      - name: LINE groups
+        id: line
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          ids=$(bash scripts/d1.sh "SELECT group_id FROM line_groups WHERE approved = 1 AND active = 1" | jq -r '[.[].group_id] | join(",")' || true)
+          echo "::add-mask::$ids"
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+          echo "LINE 群組：$(echo "$ids" | tr ',' '\n' | grep -c . || true) 個"
+
       - name: Pick and write (and send at 09:00)
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_GROUP_IDS: ${{ steps.line.outputs.ids }}
           SEND: ${{ (github.event.schedule == '2 1 * * *' || github.event.schedule == '40 1 * * *' || inputs.send) && '1' || '0' }}
         run: python daily_pick.py
 
@@ -66,7 +85,8 @@ jobs:
           git add data/daily_pick/
           if git diff --cached --quiet; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           git commit -m "daily pick: $(TZ=Asia/Taipei date +%F)"
-          for i in 1 2 3; do git pull -q --rebase --autostash && git push && break; sleep $((i * 5)); done
+          # 資料檔每次都重新產生：撞到別的執行剛推上去的版本時，以這次的為準（-X theirs）；失敗就整個退回，不留下衝突標記
+          for i in 1 2 3; do git fetch -q origin main && { git rebase -q -X theirs origin/main || { git rebase --abort; false; }; } && git push -q && break; sleep $((i * 5)); done
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       # 用 GITHUB_TOKEN 推上去的 commit 不會觸發其他 workflow，所以直接叫網站重建

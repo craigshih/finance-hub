@@ -960,6 +960,10 @@ def main() -> int:
         write(OUT_DIR / "pick" / f"{pk['date']}.html", page(f"每日一檔 {pk['name']}", body_pk, 1, "pick/index.html"))
         if i == 0:
             write(OUT_DIR / "pick" / "index.html", page("每日一檔", body_pk, 1, "pick/index.html"))
+            # LINE 機器人有人打「今日一檔」時回覆用（functions/api/line/webhook.js 讀這個檔）
+            import daily_pick
+            (OUT_DIR / "pick" / "latest_line.json").write_text(json.dumps(
+                {"date": pk["date"], "messages": daily_pick.line_messages(pk)}, ensure_ascii=False), encoding="utf-8")
     if not picks_all:
         write(OUT_DIR / "pick" / "index.html", page("每日一檔", hero("每日一檔", "準備中", "第一篇明天早上 9 點前產生。"), 1, "pick/index.html"))
     import us_page

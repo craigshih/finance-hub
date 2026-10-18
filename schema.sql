@@ -79,3 +79,10 @@ CREATE TABLE IF NOT EXISTS robot_usage (
   n   INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (day, who)
 );
+-- LINE 機器人加入的群組。第一個加入的群組自動開通（approved=1），之後別人把機器人拉進其他群組不會推播
+CREATE TABLE IF NOT EXISTS line_groups (
+  group_id  TEXT PRIMARY KEY,
+  joined_at TEXT NOT NULL,
+  active    INTEGER NOT NULL DEFAULT 1,
+  approved  INTEGER NOT NULL DEFAULT 0
+);

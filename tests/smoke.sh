@@ -126,4 +126,7 @@ echo "✅ 即時報價"
 # 即時快報
 n=$(curl -s "$BASE/api/news?cat=tw_stock"); need "$n" '"items":\[{' "即時快報沒有新聞"
 need "$(curl -s "$BASE/api/news?cat=nope")" '沒有這個分類' "未知分類應該回錯誤"
+# LINE webhook：沒有正確簽章一律拒絕
+code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "Content-Type: application/json" -d '{"events":[]}' "$BASE/api/line/webhook"); [ "$code" = 401 ] || fail "LINE webhook 沒簽章應該 401，實際 $code"
+need "$(curl -s "$BASE/pick/latest_line.json")" '"messages"' "應該有 LINE 用的今日一檔文字"
 echo "✅ 即時快報"

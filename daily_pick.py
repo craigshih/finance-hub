@@ -311,7 +311,7 @@ def clean_story(raw: dict, allowed: set[str]) -> tuple[dict, int]:
 
     def s(x):
         nonlocal dropped
-        t, d = scrub(str(x or ""), allowed)
+        t, d = scrub(str(x or "").replace("\u2011", "-").replace("\u2010", "-"), allowed)  # AI 常寫不換行連字號，維基搜尋會找不到
         dropped += d
         return t
 
@@ -320,7 +320,7 @@ def clean_story(raw: dict, allowed: set[str]) -> tuple[dict, int]:
                       if h["when"] and h["what"]]
     for k in ("now", "opportunities", "risks", "watch"):
         out[k] = [t for t in (s(x) for x in raw.get(k) or []) if t]
-    out["terms"] = [{"term": str(t.get("term", ""))[:20], "plain": s(t.get("plain"))}
+    out["terms"] = [{"term": str(t.get("term", "")).replace("\u2011", "-").replace("\u2010", "-")[:20], "plain": s(t.get("plain"))}
                     for t in raw.get("terms") or [] if isinstance(t, dict) and t.get("term")]
     return out, dropped
 
@@ -378,6 +378,68 @@ def send_email(p: dict) -> bool:
         s.sendmail(user, [x.strip() for x in to.split(",")], msg.as_string())
     log(f"📧 已寄到 {to}")
     return True
+
+
+# ---------------------------------------------------------------- LINE
+
+WEEK = "一二三四五六日"
+LINE_MAX = 5000
+
+
+def line_messages(p: dict) -> list[str]:
+    """LINE 群組用的純文字：第 1 則是主要內容，第 2 則是名詞小辭典與資料來源（一次推播送出，只算 1 則額度）。"""
+    st, k = p["story"], p.get("snapshot") or {}
+    d = datetime.fromisoformat(p["date"])
+    dot = lambda xs: "\n".join(f"・{x}" for x in xs)
+    snap = "・".join(x for x in [
+        f'收盤 {k["close"]:,}' if k.get("close") else "",
+        f'月營收年增 {k["rev_yoy"]:+.1f}%' if k.get("rev_yoy") is not None else "",
+        f'毛利率 {k["gross"]:.1f}%' if k.get("gross") is not None else "",
+        f'本益比 {k["pe"]:.1f}' if k.get("pe") else "", f'殖利率 {k["yield"]:.2f}%' if k.get("yield") else ""] if x)
+    parts = [f"📈 每日一檔｜{d.month}/{d.day}（{WEEK[d.weekday()]}）", f"{p['name']}（{p['code']}・{p.get('industry') or p['market']}）",
+             f"「{st['title']}」", "", f"💡 一句話看懂\n{st['one_liner']}"]
+    if snap:
+        parts += ["", f"📊 數字快照\n{snap}"]
+    if st["history"]:
+        parts += ["", "🏛 發展歷史\n" + "\n".join(f"・{h['when']}｜{h['what']}" for h in st["history"])]
+    for icon, title, key in (("🏭", "產業位置", "industry"), ("📰", "最近在做什麼", "now"), ("🚀", "未來的機會", "opportunities"),
+                             ("⚠️", "需要注意的風險", "risks"), ("👀", "之後可以追蹤", "watch")):
+        v = st.get(key)
+        if v:
+            parts += ["", f"{icon} {title}\n" + (v if isinstance(v, str) else dot(v))]
+    first = "\n".join(parts)[:LINE_MAX]
+
+    second = []
+    if st["terms"]:
+        second.append("📖 名詞小辭典\n" + "\n".join(f"・{t['term']}：{t['plain']}\n  {t['url']}" for t in st["terms"]))
+    if p.get("sources"):
+        second.append("🔗 資料來源\n" + "\n".join(f"{i}. {x['label']}\n   {x['url']}" for i, x in enumerate(p["sources"][:6], 1)))
+    second.append("※ 本文由 AI 依公開資料整理，僅供學習研究，不構成任何投資建議；內容可能有誤，請以原始資料為準。")
+    text2 = "\n\n".join(second)
+    if len(text2) > LINE_MAX:  # 太長就少列幾個來源
+        text2 = text2[:LINE_MAX - 3] + "…"
+    return [first, text2]
+
+
+def send_line(p: dict) -> bool:
+    token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
+    groups = [g for g in (os.environ.get("LINE_GROUP_IDS") or "").split(",") if g.strip()]
+    if not token or not groups:
+        log("⚠️ 沒有 LINE_CHANNEL_ACCESS_TOKEN 或還沒有開通的群組，不推 LINE")
+        return False
+    msgs = [{"type": "text", "text": t} for t in line_messages(p)]
+    ok = True
+    for g in groups:
+        r = requests.post("https://api.line.me/v2/bot/message/push", timeout=30,
+                          headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
+                                   "X-Line-Retry-Key": __import__("uuid").uuid5(__import__("uuid").NAMESPACE_URL, f"{p['date']}-{g}").__str__()},
+                          json={"to": g.strip(), "messages": msgs})
+        if r.status_code in (200, 409):  # 409＝同一個 retry key 已經送過，不會重複
+            log(f"💬 已推到 LINE 群組 {g[:6]}…")
+        else:
+            ok = False
+            log(f"⚠️ LINE 推播失敗 {r.status_code}：{r.text[:200]}")
+    return ok
 
 
 # ---------------------------------------------------------------- 主程式
@@ -465,6 +527,10 @@ def main() -> int:
     if os.environ.get("SEND") == "1" and not pick.get("emailed_at"):
         if send_email(pick):
             pick["emailed_at"] = datetime.now(TAIPEI).isoformat(timespec="minutes")
+            path.write_text(json.dumps(pick, ensure_ascii=False, indent=1), encoding="utf-8")
+    if os.environ.get("SEND") == "1" and not pick.get("line_sent_at"):
+        if send_line(pick):
+            pick["line_sent_at"] = datetime.now(TAIPEI).isoformat(timespec="minutes")
             path.write_text(json.dumps(pick, ensure_ascii=False, indent=1), encoding="utf-8")
     return 0
 

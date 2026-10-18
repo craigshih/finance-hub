@@ -131,8 +131,8 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           mkdir -p data/advisor
-          wrangler d1 execute craig-finance-sim --remote --json --command "SELECT code FROM advisor_watch" > /tmp/watch.json 2>/dev/null \
-            && jq '[.[0].results[].code]' /tmp/watch.json > data/advisor/watch.json \
+          bash scripts/d1.sh "SELECT code FROM advisor_watch" > /tmp/watch.json \
+            && jq '[.[].code]' /tmp/watch.json > data/advisor/watch.json \
             || echo '[]' > data/advisor/watch.json
           echo "追蹤清單：$(cat data/advisor/watch.json)"
 
@@ -219,7 +219,8 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "picks: $(TZ=Asia/Taipei date +%F)"
           # 每日一檔等其他 workflow 可能同時推送：先同步再推，失敗重試幾次
-          for i in 1 2 3; do git pull -q --rebase --autostash && git push && break; sleep $((i * 5)); done
+          # 資料檔每次都重新產生：撞到別的執行剛推上去的版本時，以這次的為準（-X theirs）；失敗就整個退回，不留下衝突標記
+          for i in 1 2 3; do git fetch -q origin main && { git rebase -q -X theirs origin/main || { git rebase --abort; false; }; } && git push -q && break; sleep $((i * 5)); done
 
       - run: python build.py
         env:
@@ -292,7 +293,13 @@ jobs:
           PORTFOLIO_PASSWORD: ${{ secrets.PORTFOLIO_PASSWORD }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
         run: |
+          # LINE 機器人（每日一檔推到群組）：webhook 驗簽章與回覆用
+          for n in LINE_CHANNEL_SECRET LINE_CHANNEL_ACCESS_TOKEN; do
+            [ -n "${!n}" ] && printf '%s' "${!n}" | wrangler pages secret put "$n" --project-name craig-finance
+          done
           if [ -z "$PORTFOLIO_PASSWORD" ] || [ -z "$SESSION_SECRET" ]; then
             echo "::warning::還沒設定 PORTFOLIO_PASSWORD，投資頁會維持鎖住"
             exit 0
