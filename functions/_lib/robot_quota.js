@@ -11,8 +11,9 @@ export async function guestQuota(request, env) {
 }
 
 // LINE 機器人：用 LINE 的 userId 計算每人題數（只存雜湊），擋下時 beforeAsk 回傳一句話（不是 Response）
-export async function lineQuota(env, userId) {
-  const q = await quota(env, `line:${userId || "anon"}`, LINE_DAILY_LIMIT);
+// kind："line"＝投資問答、"line-chat"＝閒聊，各算各的題數
+export async function lineQuota(env, userId, kind = "line", limit = LINE_DAILY_LIMIT) {
+  const q = await quota(env, `${kind}:${userId || "anon"}`, limit);
   return {
     ...q,
     beforeAsk: async () => {

@@ -94,3 +94,33 @@ test("AI 回答濃縮：名詞解釋與個股分析都有免責聲明", () => {
   assert.match(stock, /先觀察\n\n・台積電（2330）偏保守：回撤大\n\n🔄 什麼情況會改變看法\n・外資回補\n\n⚠️ 回答裡有 1 個數字/);
   assert.ok(stock.endsWith("不構成投資建議。"));
 });
+
+// ---------- 韭菜仔人設 ----------
+import { callName, formatChat, fortune, isAnalysis } from "../functions/_lib/persona.js";
+
+test("叫名字：開頭的名字拿掉，句中的名字整句保留", () => {
+  assert.deepEqual(callName("韭菜仔，2330"), { text: "2330", called: true });
+  assert.deepEqual(callName("韭菜仔"), { text: "", called: true });
+  assert.deepEqual(callName("你這韭菜仔很廢"), { text: "你這韭菜仔很廢", called: true });
+  assert.deepEqual(callName("今天好熱"), { text: "今天好熱", called: false });
+});
+
+test("點名股票而且在問問題才算分析題", () => {
+  assert.ok(isAnalysis("台積電值得買嗎", ["2330"]));
+  assert.ok(!isAnalysis("台積電害我住套房", ["2330"]));
+  assert.ok(!isAnalysis("什麼是本益比？", []));
+});
+
+test("聊天回答：拿掉引號與禁語，聊投資才加免責", () => {
+  assert.equal(formatChat("你好爛", "「你才爛，被套還敢講話」"), "你才爛，被套還敢講話");
+  assert.match(formatChat("ETF 是什麼", "一籃子股票啦"), /不構成投資建議/);
+  assert.equal(formatChat("報明牌", "這檔保證穩賺。自己做功課啦。"), "自己做功課啦。");
+});
+
+test("抽籤：同一人同一天固定，換天會變（12 支籤至少抽到 2 種）", () => {
+  const day = Date.parse("2026-10-19T03:00:00Z");
+  assert.equal(fortune("U1", day), fortune("U1", day + 3600_000));
+  const seen = new Set(Array.from({ length: 10 }, (_, i) => fortune("U1", day + i * 86400_000).split("\n")[1]));
+  assert.ok(seen.size >= 2);
+  assert.match(fortune("U1", day), /^🎋 今日股運（10\/19）/);
+});

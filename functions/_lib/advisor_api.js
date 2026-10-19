@@ -74,14 +74,15 @@ async function pttTitles() {
   return titles;
 }
 
-export async function askGroq(env, messages, { max = 3500, effort = "medium" } = {}) {
+// json=false 時回傳純文字 { text, tokens }（LINE 機器人聊天用）
+export async function askGroq(env, messages, { max = 3500, effort = "medium", json = true, temperature = 0.3, model = MODEL } = {}) {
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${env.GROQ_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: MODEL, messages, max_completion_tokens: max, reasoning_effort: effort,
-        temperature: 0.3, response_format: { type: "json_object" },
+        model, messages, max_completion_tokens: max, reasoning_effort: effort,
+        temperature, ...(json ? { response_format: { type: "json_object" } } : {}),
       }),
     });
     if (res.status === 429 && attempt === 0) {
@@ -90,7 +91,9 @@ export async function askGroq(env, messages, { max = 3500, effort = "medium" } =
     }
     if (!res.ok) throw new Error(`Groq ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const body = await res.json();
-    return { raw: JSON.parse(body.choices[0].message.content), tokens: body.usage?.total_tokens || 0 };
+    const content = body.choices[0].message.content;
+    const tokens = body.usage?.total_tokens || 0;
+    return json ? { raw: JSON.parse(content), tokens } : { text: String(content || "").trim(), tokens };
   }
   throw new Error("Groq 忙線中");
 }

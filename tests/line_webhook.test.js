@@ -28,8 +28,11 @@ globalThis.fetch = async (input, init = {}) => {
   }
   if (url.includes("finance.yahoo.com")) return Response.json({ spark: { result: [] } });
   if (url.includes("api.groq.com")) {
-    groqCalls.push(JSON.parse(init.body));
-    const content = JSON.stringify({ mode: "coach", headline: "本益比是股價除以每股盈餘", coach: "用來看股價貴不貴。", follow_ups: [] });
+    const req = JSON.parse(init.body);
+    groqCalls.push(req);
+    const content = req.response_format
+      ? JSON.stringify({ mode: "stock", headline: "台積電偏中性", stocks: [{ code: "2330", stance: "中性", summary: "波動不小" }], synthesis: { conclusion: "分批觀察" } })
+      : "「笑死，你連本益比都不知道還敢歐印？股價除以每股盈餘啦 🙄」";
     return Response.json({ choices: [{ message: { content } }], usage: { total_tokens: 900 } });
   }
   return new Response("", { status: 404 }); // 新聞、PTT 抓不到也要能回答
@@ -74,34 +77,64 @@ test("群組一般聊天、查不到的數字：不出聲；@ 機器人才回查
   assert.match((await send(atBot("1234")))[0], /查不到 1234 的報價/);
 });
 
-test("大盤、說明、只 @ 不打字", async () => {
+test("大盤、說明、抽籤；只叫名字不打字會嘴一句", async () => {
   assert.match((await send({ text: "大盤" }))[0], /台股加權　23,456.78　▲0.53%/);
   replies = [];
-  assert.match((await send({ text: "說明" }))[0], /查股價/);
+  assert.match((await send({ text: "說明" }))[0], /韭菜仔.*\n📈 查股價/);
   replies = [];
-  assert.match((await send(atBot("")))[0], /查股價/);
+  const { CALL_REPLIES } = await import("../functions/_lib/persona.js");
+  assert.ok(CALL_REPLIES.includes((await send(atBot("")))[0]));
+  replies = [];
+  assert.ok(CALL_REPLIES.includes((await send({ text: "韭菜仔" }))[0]));
+  replies = [];
+  const [f1] = await send({ text: "抽籤" });
+  replies = [];
+  const [f2] = await send({ text: "今日股運" });
+  assert.match(f1, /🎋 今日股運.*\n【.+】/);
+  assert.equal(f1, f2); // 同一個人同一天抽到同一支
+  assert.equal(groqCalls.length, 0);
 });
 
-test("@機器人問問題：交給 AI，回答有免責聲明；沒 @ 不會花 AI 額度", async () => {
-  const [out] = await send(atBot("什麼是本益比？"));
-  assert.match(out, /💬 本益比是股價除以每股盈餘\n\n用來看股價貴不貴。/);
+test("叫名字＋代號：一樣查價", async () => {
+  assert.match((await send({ text: "韭菜仔 2330" }))[0], /📈 台積電 2330/);
+});
+
+test("點名股票又在問問題：交給投資顧問，開頭先嘴一句、結尾有免責", async () => {
+  const [out] = await send({ text: "韭菜仔 台積電值得買嗎？" });
+  const { ANALYSIS_OPENERS } = await import("../functions/_lib/persona.js");
+  assert.ok(ANALYSIS_OPENERS.some((o) => out.startsWith(`${o}\n💬 台積電偏中性`)), out);
+  assert.match(out, /・台積電（2330）中性：波動不小/);
   assert.match(out, /不構成投資建議/);
-  assert.equal(groqCalls.length, 1);
-  assert.match(groqCalls[0].messages.at(-1).content, /問題：什麼是本益比？$/);
+  assert.ok(groqCalls[0].response_format);
+});
+
+test("聊天、嗆它：韭菜仔人設回嘴；聊到投資才加免責；名字在句中也算", async () => {
+  const [a] = await send(atBot("什麼是本益比？"));
+  assert.equal(a, "笑死，你連本益比都不知道還敢歐印？股價除以每股盈餘啦 🙄\n\n※ 韭菜仔的話聽聽就好，不構成投資建議。");
+  assert.match(groqCalls[0].messages[0].content, /你是「韭菜仔」/);
+  assert.equal(groqCalls[0].messages[1].content, "什麼是本益比？");
+  assert.equal(groqCalls[0].response_format, undefined);
   replies = [];
-  assert.deepEqual(await send({ text: "什麼是本益比？" }), []);
-  assert.equal(groqCalls.length, 1);
+  await send({ text: "你這個韭菜仔很廢欸" });
+  assert.equal(groqCalls.length, 2);
+  assert.equal(groqCalls[1].messages[1].content, "你這個韭菜仔很廢欸");
+  replies = [];
+  assert.deepEqual(await send({ text: "你很廢欸" }), []); // 沒叫它就不出聲
+  assert.equal(groqCalls.length, 2);
 });
 
-test("私訊不用 @ 就能問", async () => {
-  const [out] = await send({ text: "什麼是本益比" }, { type: "user", userId: "U2" });
-  assert.match(out, /本益比/);
+test("私訊不用叫名字就能聊", async () => {
+  const [out] = await send({ text: "嗨" }, { type: "user", userId: "U2" });
+  assert.match(out, /笑死/);
 });
 
-test("題數用完：回說明、不呼叫 AI", async () => {
+test("額度用完：聊天跟投資問答各自擋，不呼叫 AI", async () => {
   const { hmacHex } = await import("../functions/_lib/session.js");
-  usage = [{ who: (await hmacHex("s", "line:U1")).slice(0, 24), n: 5 }];
-  assert.match((await send(atBot("什麼是本益比？")))[0], /每人每天最多 5 題/);
+  const id = async (k) => (await hmacHex("s", k)).slice(0, 24);
+  usage = [{ who: await id("line:U1"), n: 5 }, { who: await id("line-chat:U1"), n: 30 }];
+  assert.match((await send({ text: "韭菜仔 台積電值得買嗎？" }))[0], /每人每天最多 5 題/);
+  replies = [];
+  assert.match((await send({ text: "韭菜仔 你好爛" }))[0], /明天再來吵/);
   assert.equal(groqCalls.length, 0);
 });
 

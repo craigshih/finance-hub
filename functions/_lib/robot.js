@@ -4,6 +4,7 @@
 
 export const DAILY_LIMIT = 10;              // 每人每天最多幾題
 export const LINE_DAILY_LIMIT = 5;          // LINE 機器人：每位朋友每天最多幾題（跟網站分開算，token 總量共用）
+export const LINE_CHAT_LIMIT = 30;          // LINE 機器人：每位朋友每天最多聊幾句（閒聊回嗆，跟投資問答分開算）
 export const GUEST_DAILY_TOKENS = 80_000;   // 全體訪客每天最多用多少 token（可用環境變數 ROBOT_DAILY_TOKENS 調整）
 export const TOKENS_ROW = "_tokens";        // robot_usage 裡記全體訪客 token 的那一列
 

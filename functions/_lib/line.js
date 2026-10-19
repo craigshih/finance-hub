@@ -46,16 +46,18 @@ const END = "[!！?？。.\\s]*$";
 export const ASK_WORDS = new RegExp(`^(今日一檔|每日一檔|一檔|今天一檔)${END}`);
 export const HELP_WORDS = new RegExp(`^(說明|使用說明|幫助|指令|功能|help)${END}`, "i");
 export const MARKET_WORDS = new RegExp(`^(大盤|今日大盤|台股大盤|指數|盤勢)${END}`);
+export const FORTUNE_WORDS = new RegExp(`^(抽籤|求籤|抽一支|今日股運|股運|今日運勢|運勢)${END}`);
 export const MAX_QUOTES = 5;
 
 export const HELP = [
-  "我是 Craig 財經站的小幫手 🤖 可以這樣用：",
+  "我是韭菜仔 🥬 被割過無數次的老韭菜，Craig 財經站的吉祥物。會這些：",
   "📈 查股價：打代號或名稱，例如「2330」「台積電」「2330 2317」",
   "🌏 看大盤：打「大盤」",
   "📰 今日一檔：打「今日一檔」",
-  "💬 問問題：先 @我 再打問題，例如「@我 什麼是本益比？」「@我 聯電跟台積電哪個風險高？」（私訊我不用 @）",
-  "AI 問答每人每天 5 題。",
-  "※ 僅供學習研究，不構成投資建議。",
+  "🎋 今日股運：打「抽籤」，每人每天一支",
+  "💬 找我聊天、嗆我：句子裡有「韭菜仔」或 @我 就好（私訊不用叫）",
+  "🔍 認真問股票：例如「韭菜仔 聯電跟台積電哪個風險高？」我會翻資料認真回（每人每天 5 題）",
+  "※ 我講的聽聽就好，不構成投資建議。",
 ].join("\n");
 
 // 把 @機器人 從訊息裡拿掉；mentioned＝這句話有沒有 @ 到機器人自己
@@ -135,10 +137,10 @@ export function formatIndices(idx, now = Date.now()) {
 export const AI_FOOTER = "※ AI 依公開資料整理，僅供學習研究，不構成投資建議。";
 
 // 網站顧問的回答（兩派辯論）濃縮成 LINE 好讀的長度
-export function formatAnswer(body) {
+export function formatAnswer(body, opener = "") {
   const a = body?.answer || {};
   const names = Object.fromEntries((body?.stocks || []).map((s) => [s.code, shortName(s.name)]));
-  const parts = [`💬 ${a.headline || "（AI 沒有給出結論）"}`];
+  const parts = [`${opener ? `${opener}\n` : ""}💬 ${a.headline || "（AI 沒有給出結論）"}`];
   if (a.mode === "coach" && a.coach) parts.push(a.coach);
   else if (a.synthesis?.conclusion) parts.push(a.synthesis.conclusion);
   else if (a.coach) parts.push(a.coach);
