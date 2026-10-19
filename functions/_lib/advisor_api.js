@@ -104,23 +104,29 @@ export async function handleAdvisor({ request, env }, opts) {
   } catch {
     return fail("格式不正確");
   }
-  const question = String(body?.question || "").trim();
-  if (!question) return fail("請輸入問題");
-  if (question.length > MAX_QUESTION) return fail(`問題請在 ${MAX_QUESTION} 字以內`);
+  const r = await advise({ request, env }, { question: body?.question, history: body?.history }, opts);
+  return r.blocked || Response.json(r.body, { status: r.status });
+}
+
+const err = (error, status = 400, extra = {}) => ({ status, body: { error, ...extra } });
+
+// 網站顧問與 LINE 機器人共用的核心：回傳 { status, body }；beforeAsk 擋下時回傳 { blocked: beforeAsk 的回傳值 }
+export async function advise({ request, env }, { question: q, history }, opts) {
+  const question = String(q || "").trim();
+  if (!question) return err("請輸入問題");
+  if (question.length > MAX_QUESTION) return err(`問題請在 ${MAX_QUESTION} 字以內`);
   const { data, holdings } = await loadData(env, request, opts.dataPath, opts.holdingsPath);
-  if (!data) return fail("今天的顧問資料還沒產生，請等下一次網站更新", 503);
+  if (!data) return err("今天的顧問資料還沒產生，請等下一次網站更新", 503);
 
   let codes = findStocks(question, data.stocks);
   // 問整體持股（集中度、配置）時，帶入權重最大的幾檔持股的資料
   if (!codes.length && holdings && /持股|部位|配置|投資組合|集中|我的股票/.test(question)) {
     codes = holdings.holdings.map((h) => h.code).filter((c) => data.stocks[c]).slice(0, MAX_STOCKS);
   }
-  if (!env.GROQ_API_KEY) {
-    return Response.json({ error: "AI 金鑰還沒設定（GROQ_API_KEY），暫時無法回答", found: codes }, { status: 503 });
-  }
+  if (!env.GROQ_API_KEY) return err("AI 金鑰還沒設定（GROQ_API_KEY），暫時無法回答", 503, { found: codes });
   if (opts.beforeAsk) {
     const blocked = await opts.beforeAsk();
-    if (blocked) return blocked;
+    if (blocked) return { blocked };
   }
   const priced = new Set(data.price_codes || []);
   const held = Object.fromEntries((holdings?.holdings || []).map((h) => [h.code, h]));
@@ -149,21 +155,21 @@ export async function handleAdvisor({ request, env }, opts) {
 
   let answer;
   try {
-    const { raw, tokens } = await askGroq(env, buildMessages({ question, data: context, news, history: body.history, portfolio }));
+    const { raw, tokens } = await askGroq(env, buildMessages({ question, data: context, news, history, portfolio }));
     if (opts.afterAsk) await opts.afterAsk(tokens).catch((exc) => console.error("usage", exc));
     answer = sanitizeAnswer(raw, codes);
     if (answer.quant_camp) answer.quant_camp.points.push(...backtestNotes(stocks));
   } catch (exc) {
     console.error(exc);
-    return fail("AI 暫時沒有回應，請稍後再試", 502);
+    return err("AI 暫時沒有回應，請稍後再試", 502);
   }
 
   const known = [...collectNumbers(context), ...collectNumbers(portfolio), ...PROMPT_NUMBERS];
-  return Response.json({
+  return { status: 200, body: {
     answer,
     unverified: unverifiedNumbers(answer, known),
     stocks: full.map((s) => ({ ...s, held: held[s.code] || null, news: news[s.code] || [] })),
     missing_metrics: missing,
     data_date: data.generated_at,
-  });
+  } };
 }

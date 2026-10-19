@@ -6,7 +6,7 @@ import { INDEX_SYMBOLS, misChannels, parseMis, parseSpark, validCodes, validUs }
 const UA = "Mozilla/5.0 (compatible; craig-finance-hub/1.0)";
 const TTL = 60;
 
-async function cached(key, fetcher) {
+export async function cached(key, fetcher) {
   const cache = caches.default;
   const req = new Request(`https://live.cache/${key}`);
   const hit = await cache.match(req);
@@ -18,7 +18,7 @@ async function cached(key, fetcher) {
   return data;
 }
 
-async function mis(channels) {
+export async function mis(channels) {
   const out = {};
   for (let i = 0; i < channels.length; i += 60) {
     const url = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?json=1&delay=0&ex_ch=${channels.slice(i, i + 60).join("|")}`;
@@ -46,7 +46,7 @@ async function spark(symbols) {
   return out;
 }
 
-async function indices() {
+export async function indices() {
   const intl = Object.keys(INDEX_SYMBOLS).filter((s) => s !== "^TWII" && s !== "^TWOII");
   const [tw, spark] = await Promise.all([
     mis(["tse_t00.tw", "otc_o00.tw"]),
