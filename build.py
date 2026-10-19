@@ -969,6 +969,11 @@ def main() -> int:
     import us_page
     us_data = market_page.load(ROOT / "data" / "us" / "latest.json")
     write(OUT_DIR / "us" / "index.html", page("美股", us_page.render(us_data, hero, section, datetime.now(TAIPEI).strftime("%Y-%m-%d")), 1, "us/index.html"))
+    # 公開資料出口（朋友串 Discord 用）：只放公開資料，不含任何站長相關資訊
+    import feed
+    import daily_pick
+    feed.write_all(OUT_DIR / "feed", picks_all, daily_pick.line_messages, market,
+                   market_page.load(ROOT / "data" / "market" / "extra.json"), us_data)
 
     digests = load_digests()  # 新 → 舊
     for i, d in enumerate(digests):
