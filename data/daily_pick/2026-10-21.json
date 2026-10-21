@@ -1,0 +1,130 @@
+{
+ "date": "2026-10-21",
+ "code": "3008",
+ "name": "大立光",
+ "market": "上市",
+ "industry": "光電業",
+ "story": {
+  "title": "大立光為什麼從相機鏡頭變身光通訊？",
+  "one_liner": "從手機鏡頭王者到光纖模組供應商，大立光的演變全在這裡。",
+  "industry": "大立光是光學鏡頭與光電模組製造商，主要供應手機、相機的鏡頭（客戶包括Apple iPhone），同時布局光纖陣列與光通訊模組。上游是光學玻璃與精密機械，下游則是手機、相機、光通訊設備廠商，競爭對手包括玉晶光等光電公司。",
+  "history": [
+   {
+    "when": "1987",
+    "what": "大根精密再成立大立光電股份有限公司。"
+   },
+   {
+    "when": "2002",
+    "what": "在臺灣證券交易所掛牌上市。"
+   },
+   {
+    "when": "2014",
+    "what": "股價突破1,990元，成為台股股王。"
+   },
+   {
+    "when": "2017",
+    "what": "股價一度衝到6,075元的歷史天價。"
+   }
+  ],
+  "now": [
+   "2026-10-13 法說透露光纖陣列模組已通過認證，FAU產線已建好，預計2027年中完成建置。",
+   "2026-10-18 林恩平正面回應友達彭双浪，指出Micro LED光通訊短距傳輸具優勢。",
+   "2026-10-17 大立光跨足CPO（光通訊模組），被美國巨頭稱缺貨率70%。"
+  ],
+  "opportunities": [
+   "光纖模組量產後，可直接供應AI伺服器與高速傳輸設備，開拓新客戶。",
+   "Micro LED光通訊短距傳輸技術有望應用於AR/VR與車載顯示，市場潛力大。",
+   "持續擴大iPhone鏡頭供應比例，受惠高階手機升級需求。"
+  ],
+  "risks": [
+   "光通訊市場競爭激烈，技術門檻與產能擴張成本高。",
+   "手機鏡頭需求受市場景氣與替代方案（如感測器整合）影響。",
+   "研發支出若無法快速轉化為量產，可能拖累毛利率。"
+  ],
+  "watch": [
+   "2027年中FAU產線完工進度。",
+   "下一季營收與毛利率變化，觀察光纖模組貢獻比重。",
+   "主要客戶（如Apple）訂單變化與新產品發布。"
+  ],
+  "terms": [
+   {
+    "term": "FAU",
+    "plain": "光纖陣列模組的自動化組裝線，用於大量生產光通訊元件。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=FAU&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "CPO",
+    "plain": "光通訊模組（Communication Photonic Optical），提供高速光訊號傳輸的關鍵零組件。",
+    "url": "https://zh.wikipedia.org/zh-tw/CPO",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "Micro LED",
+    "plain": "微型發光二極體，尺寸極小、亮度高，可用於短距離光通訊與顯示技術。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=Micro%20LED&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：大立光電",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%A4%A7%E7%AB%8B%E5%85%89%E9%9B%BB"
+  },
+  {
+   "label": "鉅亨網 2026-10-21：鉅亨速報 - Factset 最新調查：大立光(3008-TW)EPS預估下修至163.72元，預估目標價為8250元",
+   "url": "https://news.cnyes.com/news/id/6634682"
+  },
+  {
+   "label": "鉅亨網 2026-10-18：正面回應大立光林恩平 友達彭双浪：Micro LED光通訊短距傳輸有優勢",
+   "url": "https://news.cnyes.com/news/id/6632880"
+  },
+  {
+   "label": "鉅亨網 2026-10-17：光通訊水很深 !? 大立光跨足CPO真能變萬金股？美巨頭爆「缺貨率70%」！法人：不只台積電，還有這幾檔吃不完！",
+   "url": "https://news.cnyes.com/news/id/6632765"
+  },
+  {
+   "label": "鉅亨網 2026-10-15：暴跌隔壁藏著暴利、大立光、建榮、金像電、國巨、矽力-ky",
+   "url": "https://news.cnyes.com/news/id/6631349"
+  },
+  {
+   "label": "鉅亨網 2026-10-13：拿出賺大錢的霸氣!!大立光、天二科⊕、冠西電⊕、其陽⊕",
+   "url": "https://news.cnyes.com/news/id/6629538"
+  },
+  {
+   "label": "鉅亨網 2026-10-13：《價值型投資 最新產業研究報告》大立光 (3008-TW) 光纖陣列通過認證，完整模組開啟新商機",
+   "url": "https://news.cnyes.com/news/id/6629279"
+  },
+  {
+   "label": "聯合報 2026-03-24：iPhone零組件完整曝光 這三家台廠最受矚目",
+   "url": "https://udn.com/news/story/7251/9400072"
+  },
+  {
+   "label": "大立光 官方網站",
+   "url": "https://www.largan.com.tw"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 6,
+  "news_7d": 4,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 5975.0,
+  "rev_yoy": -7.3,
+  "rev_month": "2026-09",
+  "gross": 49.41,
+  "pe": 31.78,
+  "yield": 1.34
+ },
+ "generated_at": "2026-10-21T09:12+08:00",
+ "emailed_at": "2026-10-21T09:12+08:00",
+ "line_sent_at": "2026-10-21T09:12+08:00"
+}
