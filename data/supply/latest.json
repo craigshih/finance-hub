@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-21T16:57+08:00",
+ "generated_at": "2026-10-21T21:15+08:00",
  "flows_date": "2026-10-21",
  "leaders": [
   {
@@ -612,7 +612,7 @@
    ],
    "flows": {
     "foreign_lots": -81511,
-    "trust_lots": 10247,
+    "trust_lots": 10257,
     "buy_days": 0
    },
    "links": {
@@ -1856,7 +1856,7 @@
    ],
    "flows": {
     "foreign_lots": -28580,
-    "trust_lots": -11428,
+    "trust_lots": -11453,
     "buy_days": 1
    },
    "links": {
@@ -1927,7 +1927,7 @@
    ],
    "flows": {
     "foreign_lots": -5489,
-    "trust_lots": -4171,
+    "trust_lots": -4196,
     "buy_days": 2
    },
    "links": {
@@ -3596,7 +3596,7 @@
     4140.0
    ],
    "flows": {
-    "foreign_lots": -12411,
+    "foreign_lots": -12387,
     "trust_lots": 1545,
     "buy_days": 0
    },
@@ -3646,7 +3646,7 @@
    ],
    "flows": {
     "foreign_lots": 5221,
-    "trust_lots": -8355,
+    "trust_lots": -8282,
     "buy_days": 2
    },
    "links": {
@@ -3801,5 +3801,20 @@
    "peers": []
   }
  ],
- "evidence": {}
+ "evidence": {
+  "2317|NVDA": [
+   {
+    "title": "輝達發表DSX POD AI工廠 鴻海、台達電等6台廠入列合作夥伴",
+    "url": "https://news.cnyes.com/news/id/6635276",
+    "date": "21 Oct 2026"
+   }
+  ],
+  "2308|NVDA": [
+   {
+    "title": "輝達發表DSX POD AI工廠 鴻海、台達電等6台廠入列合作夥伴",
+    "url": "https://news.cnyes.com/news/id/6635276",
+    "date": "21 Oct 2026"
+   }
+  ]
+ }
 }
