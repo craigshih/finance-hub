@@ -1,0 +1,149 @@
+{
+ "date": "2026-10-22",
+ "code": "6669",
+ "name": "緯穎",
+ "market": "上市",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "緯穎如何從子公司變身AI伺服器大玩家？",
+  "one_liner": "緯穎是緯創子公司，專供大型雲端與AI伺服器，營收年增近100%。",
+  "industry": "緯穎屬於電腦及週邊設備業，主要提供超大型資料中心（Hyperscale）與雲端基礎架構的伺服器整機、液冷與整櫃解決方案。上游包括NVIDIA、AMD等AI晶片供應商，下游是Meta、Microsoft、Amazon等雲端服務商，與緯創同屬同一集團，競爭者主要是其他伺服器OEM如華碩、鴻海等。",
+  "history": [
+   {
+    "when": "2012",
+    "what": "公司於3月3日成立，開始提供資料中心基礎設備。"
+   },
+   {
+    "when": "2013",
+    "what": "加入台灣開放運算計畫（OCPT），與多家業者共同推動開源硬體。"
+   },
+   {
+    "when": "2019",
+    "what": "於3月27日上市，正式在臺證所掛牌。"
+   },
+   {
+    "when": "2020",
+    "what": "成為台灣50指數成分股，與緯創共同成為台灣伺服器出貨量第一的集團。"
+   },
+   {
+    "when": "2023",
+    "what": "AI伺服器佔全球伺服器採購量近50%，客戶包括Meta、Microsoft、Amazon。"
+   },
+   {
+    "when": "2024",
+    "what": "在NVIDIA GTC展示基於Grace超級晶片的AI解決方案，獲TIME永續評選。"
+   }
+  ],
+  "now": [
+   "9月營收1,726.2億元，季增約56%，創單月與單季新高，顯示AI伺服器需求強勁（新聞2026-10-20）。",
+   "持續推動液冷與整櫃交付，亞馬遜Trainium 3放量，成為明年重點產品（新聞2026-10-20）。",
+   "參與NVIDIA Vera Rubin NVL72試產，展示AMD Helio等新技術，提升產品競爭力（新聞2026-10-20）。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續成長，機架級AI與自研ASIC需求上升，帶動整機售價提升。",
+   "液冷技術與整櫃交付擴大，可抓住高效能運算中心的市場。",
+   "與全球雲端巨頭的長期供應關係，提供穩定訂單與技術合作機會。"
+  ],
+  "risks": [
+   "AI晶片價格波動與供應緊張，可能影響成本與交期。",
+   "全球經濟不確定性導致資料中心投資延後，需求可能出現波動。"
+  ],
+  "watch": [
+   "每月營收與季增率變化，觀察AI伺服器出貨成長。",
+   "公司法說會與新產品發布會，特別是液冷與AI加速卡的進度。",
+   "主要客戶（Meta、Microsoft、Amazon）訂單變動與合約更新情形。"
+  ],
+  "terms": [
+   {
+    "term": "Hyperscale Data Cent",
+    "plain": "超大型資料中心，提供雲端服務商大規模運算與儲存需求的設施。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=Hyperscale%20Data%20Cent&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "液冷",
+    "plain": "利用液體直接冷卻伺服器元件，提高散熱效率，降低能耗。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E6%B6%B2%E5%86%B7%E5%BC%8F%E7%99%BC%E5%8B%95%E6%A9%9F",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "整櫃交付",
+    "plain": "一次交付完整機櫃的伺服器系統，縮短客戶部署時間。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%95%B4%E6%AB%83%E4%BA%A4%E4%BB%98&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "Grace Blackwell",
+    "plain": "NVIDIA最新的AI超級晶片，專為高效能推理與訓練設計。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=Grace%20Blackwell&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "ASIC",
+    "plain": "應用專用積體電路，為特定運算任務（如AI推理）最佳化的晶片。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%89%B9%E5%AE%9A%E6%87%89%E7%94%A8%E7%A9%8D%E9%AB%94%E9%9B%BB%E8%B7%AF",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：緯穎科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E7%B7%AF%E7%A9%8E%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-10-22：鉅亨速報 - Factset 最新調查：緯穎(6669-TW)EPS預估上修至123.83元，預估目標價為2727.31元",
+   "url": "https://news.cnyes.com/news/id/6635508"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：《價值型投資 最新產業研究報告》緯穎 (6669-TW) 人工智慧伺服器需求延續，液冷與整櫃交付擴大商機",
+   "url": "https://news.cnyes.com/news/id/6634151"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：高盛再上調AI伺服器展望 點名鴻海、緯穎等供應鏈受惠",
+   "url": "https://news.cnyes.com/news/id/6634126"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：緯穎:公告補正本公司國內第一次無擔保可轉換公司債公開說明書部分內容",
+   "url": "https://news.cnyes.com/news/id/6634185"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：鉅亨速報 - Factset 最新調查：緯穎(6669-TW)EPS預估下修至121.6元，預估目標價為2739.04元",
+   "url": "https://news.cnyes.com/news/id/6633899"
+  },
+  {
+   "label": "鉅亨網 2026-10-17：鉅亨速報 - Factset 最新調查：緯穎(6669-TW)EPS預估上修至122.85元，預估目標價為2739.04元",
+   "url": "https://news.cnyes.com/news/id/6632607"
+  },
+  {
+   "label": "自由時報 2023-08-08：緯穎3大AI客戶佔有率提升 馬國新廠強化出貨中東",
+   "url": "https://ec.ltn.com.tw/article/breakingnews/4390146"
+  },
+  {
+   "label": "緯穎 官方網站",
+   "url": "https://www.wiwynn.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 10,
+  "weekly": true,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 1880.0,
+  "rev_yoy": 100.0,
+  "rev_month": "2026-09",
+  "gross": 8.41,
+  "pe": 6.03,
+  "yield": 8.74
+ },
+ "generated_at": "2026-10-22T09:09+08:00",
+ "emailed_at": "2026-10-22T09:09+08:00",
+ "line_sent_at": "2026-10-22T09:09+08:00"
+}
