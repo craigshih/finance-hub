@@ -1,0 +1,128 @@
+{
+ "date": "2026-10-23",
+ "code": "8021",
+ "name": "尖點",
+ "market": "上市",
+ "industry": "其他電子業",
+ "story": {
+  "title": "尖點怎麼從小廠變AI伺服器關鍵零件供應商？",
+  "one_liner": "尖點專攻高階PCB鑽孔，服務AI伺服器與高效能運算需求。",
+  "industry": "尖點屬於其他電子業，主要產品是高階PCB精密鑽孔與鑽針。上游供應商包括高純度金屬線材與精密機械設備，下游客戶以AI伺服器、資料中心與高效能運算廠商為主，競爭對手多為同業的PCB專業廠商。",
+  "history": [
+   {
+    "when": "1996",
+    "what": "公司於1996年4月成立，起初以一般電子零件代工起家。"
+   },
+   {
+    "when": "2008",
+    "what": "2008年1月上市，開始布局高階印刷電路板（PCB）市場。"
+   },
+   {
+    "when": "2026",
+    "what": "2026年營收突破55億元，鑽針佔比超過六成。"
+   }
+  ],
+  "now": [
+   "2026-10-20 直擊M9鑽針新挑戰，推出抗磨耗技術以延長鑽針壽命。",
+   "2026-10-20 在TPCA Show 2026亮相，展示AI伺服器高階PCB精密鑽孔解決方案。",
+   "2026-10-22 公布115年度現金增資因颱風調整繳款方式，持續加強資本結構。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續成長，帶動高階PCB與鑽針需求上升。",
+   "抗磨耗鑽針技術可開拓高頻率更換成本敏感的資料中心市場。",
+   "與中央大學合作培育PCB人才，提升研發與製程創新能力。"
+  ],
+  "risks": [
+   "鑽針技術高度依賴材料與製程，原料價格波動可能影響毛利。",
+   "AI伺服器市場競爭激烈，客戶轉向其他供應商風險存在。",
+   "資金募集受天災（如颱風）影響，可能延遲營運擴張計畫。"
+  ],
+  "watch": [
+   "下季營收與毛利率變化，觀察高階PCB訂單成長情形。",
+   "新一輪無擔保公司債募集進度與資金使用情況。",
+   "抗磨耗鑽針量產測試結果與客戶回饋。"
+  ],
+  "terms": [
+   {
+    "term": "AI伺服器",
+    "plain": "利用人工智慧運算需求的伺服器，需高效能與大量資料處理。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E4%BC%BA%E6%9C%8D%E5%99%A8&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "PCB",
+    "plain": "印刷電路板，電子元件的載體與連接平台。",
+    "url": "https://zh.wikipedia.org/zh-tw/PCB",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "鑽針",
+    "plain": "在PCB上鑽孔的精密工具，孔徑與位置精度直接影響電路品質。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E9%91%BD%E9%87%9D&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "抗磨耗技術",
+    "plain": "提升鑽針耐用度的材料或表面處理，降低更換頻率與成本。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%8A%97%E7%A3%A8%E8%80%97%E6%8A%80%E8%A1%93&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：尖點",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%B0%96%E9%BB%9E"
+  },
+  {
+   "label": "鉅亨網 2026-10-22：尖點:本公司115年度現金增資遇颱風影響繳款期間調整方式",
+   "url": "https://news.cnyes.com/news/id/6636164"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：尖點(8021)直擊M9鑽針新挑戰！AI伺服器高階板鑽針壽命大減，抗磨耗技術成關鍵",
+   "url": "https://news.cnyes.com/news/id/6634269"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：尖點亮相 TPCA Show 2026 聚焦AI伺服器高階PCB精密鑽孔",
+   "url": "https://news.cnyes.com/news/id/6633986"
+  },
+  {
+   "label": "鉅亨網 2026-10-19：臻鼎攜大量、尖點等夥伴 與中央大學成立「前瞻PCB人才培育講座」",
+   "url": "https://news.cnyes.com/news/id/6633417"
+  },
+  {
+   "label": "鉅亨網 2026-10-16：尖點:公告本公司國內第三次無擔保轉換公司債收足應募價款",
+   "url": "https://news.cnyes.com/news/id/6632105"
+  },
+  {
+   "label": "鉅亨網 2026-10-08：尖點(8021) 高階鑽針已占六成，獲利還能往上修？看懂供需結構，就知道市場在等什麼！",
+   "url": "https://news.cnyes.com/news/id/6625995"
+  },
+  {
+   "label": "尖點 官方網站",
+   "url": "http://www.topoint.tw/"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 5,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 479.0,
+  "rev_yoy": 98.3,
+  "rev_month": "2026-09",
+  "gross": 39.58,
+  "pe": 96.57,
+  "yield": 0.41
+ },
+ "generated_at": "2026-10-23T09:08+08:00",
+ "emailed_at": "2026-10-23T09:08+08:00",
+ "line_sent_at": "2026-10-23T09:09+08:00"
+}
