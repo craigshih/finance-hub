@@ -1,0 +1,41 @@
+name: LINE owner
+
+# 每日股價快報（含持股）只私訊站長本人：站長私訊機器人「綁定股價快報」後，手動跑這個 workflow。
+# list：列出申請綁定的帳號；approve：只有「剛好一筆待開通」時才開通，避免開通到別人
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: list 或 approve
+        default: list
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  owner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install -g wrangler@3
+      - name: Owner
+        run: |
+          if [ "${{ inputs.action }}" = "approve" ]; then
+            pending=$(bash scripts/d1.sh "SELECT user_id FROM line_users WHERE approved = 0")
+            n=$(echo "$pending" | jq length)
+            [ "$n" = 1 ] || { echo "::error::待開通的帳號有 $n 個，必須剛好 1 個才自動開通"; exit 1; }
+            uid=$(echo "$pending" | jq -r '.[0].user_id')
+            [[ "$uid" =~ ^U[0-9a-f]{32}$ ]] || { echo "::error::不是 LINE userId 的格式"; exit 1; }
+            bash scripts/d1.sh "UPDATE line_users SET approved = 1 WHERE user_id = '$uid'" >/dev/null
+          fi
+          bash scripts/d1.sh "SELECT user_id, requested_at, approved FROM line_users ORDER BY requested_at"
