@@ -86,3 +86,9 @@ CREATE TABLE IF NOT EXISTS line_groups (
   active    INTEGER NOT NULL DEFAULT 1,
   approved  INTEGER NOT NULL DEFAULT 0
 );
+-- 私訊機器人「綁定股價快報」的人。approved=1 由站長手動開通（UPDATE），每日股價快報（含持股）只推給開通的人
+CREATE TABLE IF NOT EXISTS line_users (
+  user_id      TEXT PRIMARY KEY,
+  requested_at TEXT NOT NULL,
+  approved     INTEGER NOT NULL DEFAULT 0
+);

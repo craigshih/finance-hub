@@ -143,3 +143,15 @@ test("沒開通的群組：什麼都不回", async () => {
   assert.deepEqual(await send({ text: "2330" }), []);
   assert.deepEqual(await send(atBot("什麼是本益比？")), []);
 });
+
+test("私訊「綁定股價快報」：記下帳號；群組裡打不會綁定", async () => {
+  approved = 0;
+  const dm = { type: "user", userId: "Uowner" };
+  assert.match((await send({ text: "綁定股價快報" }, dm))[0], /等站長確認/);
+  approved = 1;
+  replies = [];
+  assert.match((await send({ text: "綁定" }, dm))[0], /已經綁定好了/);
+  replies = [];
+  const inGroup = await send({ text: "綁定股價快報" });
+  assert.ok(!inGroup.some((t) => /綁定/.test(t)));
+});

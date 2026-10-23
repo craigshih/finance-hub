@@ -85,6 +85,6 @@ for n in "${names[@]}"; do
       *)   echo "$n：❌ HTTP $code"; echo "$n：未儲存"; unset value; continue ;;
     esac
   fi
-  printf '%s' "$value" | gh secret set "$n" -R craigshih/finance-hub && echo "$n：✅ 已存進 GitHub Secrets"
+  printf '%s' "$value" | gh secret set "$n" -R "${TARGET_REPO:-craigshih/finance-hub}" && echo "$n：✅ 已存進 ${TARGET_REPO:-craigshih/finance-hub} 的 GitHub Secrets"
   unset value
 done

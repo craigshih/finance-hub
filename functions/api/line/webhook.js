@@ -3,6 +3,7 @@
 // - 被移出群組（leave）：停用
 // - 群組裡有人打「今日一檔」：回覆今天的內容（回覆不算推播額度）
 // - 「說明」：用法；「大盤」：加權、櫃買與國際指數；「2330」「台積電」：即時報價（整句符合才回，查不到就不出聲）
+// - 私訊「綁定股價快報」：記下自己的 LINE 帳號，站長在 D1 開通後，每日股價快報（含持股）只私訊給這個人
 // - 「抽籤」：今日股運（每人每天固定一支，不花 AI 額度）
 // - 叫「韭菜仔」或 @機器人（私訊不用叫）：點名股票又在問問題 → 專屬投資顧問（訪客版資料，不帶站長持股）；
 //   其他 → 韭菜仔人設的 AI 聊天（北爛、會回嗆，規則在 _lib/persona.js）。兩種各有每人每天上限
@@ -23,6 +24,7 @@ import { lineQuota } from "../../_lib/robot_quota.js";
 import { cached, indices, mis } from "../live.js";
 
 const DATA = "/robot/stocks.json";
+const BIND_WORDS = /^綁定(股價快報)?[!！。.\s]*$/;
 
 const WELCOME_ON = "韭菜仔來了 🥬 以後被套可以找我哭。\n每天早上 9 點左右會在這裡貼一檔台股介紹（發展歷史、產業位置、未來機會與風險、名詞小辭典與資料來源）。\n想再看一次今天的內容，打「今日一檔」就好。\n※ AI 依公開資料整理，僅供學習研究，不構成投資建議。";
 const WELCOME_OFF = "嗨！這個群組還沒有開通，韭菜仔先閉嘴，請聯絡站長。";
@@ -79,6 +81,15 @@ async function handleEvent(ev, env, request) {
   const addressed = stripped.mentioned || called || direct; // 有叫韭菜仔、@ 或私訊，才會回「查不到」或交給 AI
   const isCommand = ASK_WORDS.test(text) || HELP_WORDS.test(text) || MARKET_WORDS.test(text) || FORTUNE_WORDS.test(text);
   if (!addressed && !isCommand && text.length > 40) return; // 群組裡的一般聊天，不用查資料庫
+
+  if (direct && BIND_WORDS.test(text) && env.DB) {
+    await env.DB.prepare(`INSERT INTO line_users (user_id, requested_at, approved) VALUES (?, ?, 0)
+                          ON CONFLICT(user_id) DO UPDATE SET requested_at = excluded.requested_at`)
+      .bind(ev.source.userId, new Date().toISOString()).run();
+    const row = await env.DB.prepare("SELECT approved FROM line_users WHERE user_id = ?").bind(ev.source.userId).first();
+    await reply(token, ev.replyToken, [row?.approved ? "已經綁定好了，每天收盤後股價快報會私訊給你 📈" : "收到 👌 等站長確認後，每天收盤後的股價快報就會私訊給你。"]);
+    return;
+  }
 
   const allowed = !gid || !env.DB || (await env.DB.prepare("SELECT approved FROM line_groups WHERE group_id = ?").bind(gid).first())?.approved;
   if (!allowed) return;
