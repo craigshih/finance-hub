@@ -1,0 +1,136 @@
+{
+ "date": "2026-10-24",
+ "code": "2317",
+ "name": "鴻海",
+ "market": "上市",
+ "industry": "其他電子業",
+ "story": {
+  "title": "鴻海要怎麼從組裝 iPhone 變身 AI 伺服器大廠？",
+  "one_liner": "從 1974 年黑白電視旋鈕起家，現在正布局 AI 伺服器與歐洲製造版圖。",
+  "industry": "鴻海是全球 3C（電腦、通訊、消費性電子）代工龍頭，主要提供組裝、測試與供應鏈管理服務。上游包括半導體、零組件供應商（如 NVIDIA、Apple），下游客戶遍及蘋果、微軟、索尼等品牌，競爭者有廣達、緯創、英業達、和碩。",
+  "history": [
+   {
+    "when": "1974",
+    "what": "郭台銘以 10 萬元創立鴻海塑膠企業，主打模具與黑白電視旋鈕"
+   },
+   {
+    "when": "1982",
+    "what": "更名鴻海精密工業，開始代工電腦機殼與電源供應器"
+   },
+   {
+    "when": "2001",
+    "what": "營業額超越台積電，成為台灣第一大民營企業"
+   },
+   {
+    "when": "2016",
+    "what": "收購夏普 66% 股權，進軍高階顯示與智慧製造"
+   }
+  ],
+  "now": [
+   "斥資 12.03 億美元增資新加坡、法國、捷克子公司，擴大歐洲製造能量",
+   "取得 Foxconn AI Solution (FR) SAS 股權，深化 AI 伺服器解決方案",
+   "成為 NVIDIA AI 工廠合作夥伴，協助 DSX POD AI 伺服器明年交付"
+  ],
+  "opportunities": [
+   "AI 伺服器需求快速成長，可望在 2 年內超越 iPhone 相關營收",
+   "歐洲製造基地布局，降低供應鏈風險並取得當地大客戶",
+   "結合 5G、半導體與機器人技術，開發高價值智慧製造服務"
+  ],
+  "risks": [
+   "AI 伺服器市場競爭激烈，需持續投入研發與客製化能力",
+   "歐洲投資成本高，匯率與政治因素可能影響獲利",
+   "過度依賴少數大客戶（如 Apple）仍是營收風險"
+  ],
+  "watch": [
+   "2027 年第一季 AI 伺服器營收成長率",
+   "歐洲子公司營運損益與產能利用率",
+   "與 NVIDIA、Apple 的合作合約更新情形"
+  ],
+  "terms": [
+   {
+    "term": "AI 伺服器",
+    "plain": "專為人工智慧運算設計的高效能伺服器，具備大量 GPU 與高速互聯",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%20%E4%BC%BA%E6%9C%8D%E5%99%A8&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "DSX POD",
+    "plain": "NVIDIA 推出的模組化 AI 超級電腦解決方案，鴻海負責製造與交付",
+    "url": "https://zh.wikipedia.org/w/index.php?search=DSX%20POD&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "增資",
+    "plain": "公司向外部募集新資金，通常用於擴大產能或併購投資",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E5%A2%9E%E8%B3%87&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "供應鏈管理",
+    "plain": "協調上游零件供應與下游產品組裝的全流程控制",
+    "url": "https://zh.wikipedia.org/zh-tw/CSCP%E5%9C%8B%E9%9A%9B%E4%BE%9B%E6%87%89%E9%8F%88%E7%AE%A1%E7%90%86%E5%B8%AB%E8%AA%8D%E8%AD%89",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：鴻海精密",
+   "url": "https://zh.wikipedia.org/zh-tw/%E9%B4%BB%E6%B5%B7%E7%B2%BE%E5%AF%86"
+  },
+  {
+   "label": "鉅亨網 2026-10-23：鴻海斥12.03億美元 增資新加坡、法國及捷克子公司",
+   "url": "https://news.cnyes.com/news/id/6636818"
+  },
+  {
+   "label": "鉅亨網 2026-10-23：鴻海:公告本公司取得Foxconn European Manufacturing Services s.r.o.股權",
+   "url": "https://news.cnyes.com/news/id/6636633"
+  },
+  {
+   "label": "鉅亨網 2026-10-23：鴻海:公告本公司取得Foxconn AI Solution (FR) SAS股份",
+   "url": "https://news.cnyes.com/news/id/6636632"
+  },
+  {
+   "label": "鉅亨網 2026-10-23：鴻海:公告本公司取得eCMMS Precision Singapore Pte. Ltd.股份",
+   "url": "https://news.cnyes.com/news/id/6636631"
+  },
+  {
+   "label": "鉅亨網 2026-10-21：輝達AI工廠拚14天上線，鴻海、廣達等台廠列合作夥伴",
+   "url": "https://news.cnyes.com/news/id/6635334"
+  },
+  {
+   "label": "鉅亨網 2026-10-21：輝達發表DSX POD AI工廠明年初開始交付 鴻海、台達電等6台廠入列合作夥伴",
+   "url": "https://news.cnyes.com/news/id/6635276"
+  },
+  {
+   "label": "科技新報 2025-03-19：劉揚偉現身 GTC：兩年內鴻海伺服器營收超越 iPhone",
+   "url": "https://technews.tw/2025/03/19/2025-gtc-honhai/"
+  },
+  {
+   "label": "鴻海 官方網站",
+   "url": "https://www.honhai.com/zh-tw"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 9,
+  "news_7d": 7,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 245.0,
+  "rev_yoy": 38.4,
+  "rev_month": "2026-09",
+  "gross": 6.15,
+  "pe": 16.15,
+  "yield": 2.93
+ },
+ "generated_at": "2026-10-24T09:18+08:00",
+ "emailed_at": "2026-10-24T09:19+08:00",
+ "line_sent_at": "2026-10-24T09:19+08:00"
+}
