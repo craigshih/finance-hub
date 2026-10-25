@@ -1128,10 +1128,9 @@ def main() -> int:
     body += "</main>"
     write(OUT_DIR / "index.html", page("總覽", body, 0, "index.html"))
 
-    # log 只印筆數，不印金額（Actions log 雖然是 private，也不放持股數字）
-    pf = f"{len(sm['holdings'])} 檔持股" if sm else "投資總覽略過"
-    rcs = (f"對帳 {len(rc['months'])} 個月、{len(rc['positions'])} 檔持股、不一致 {portfolio.issue_count(rc)} 項"
-           if rc else "未對帳")
+    # repo 公開、Actions log 所有人都看得到：持股相關只印「有沒有產生」，不印檔數、月份或不一致項目
+    pf = "投資總覽已產生" if sm else "投資總覽略過"
+    rcs = ("對帳" + ("一致" if not portfolio.issue_count(rc) else "有不一致，請到投資頁看")) if rc else "未對帳"
     print(f"✅ 產生 {len(digests)} 份每日總經、{len(reports)} 份每週研究、{pf}、{rcs} → {OUT_DIR}")
     return 0
 

@@ -337,13 +337,15 @@ def price_data(codes: list[str], stocks: dict) -> dict:
         if attempt < 2:
             time.sleep(30)
     bench = closes.get("0050.TW")
-    out = {}
+    out, bad = {}, 0
     for t, c in closes.items():
         code = tickers[t]
         try:
             out[code] = {"risk": risk_metrics(c, bench if code != "0050" else None), "backtest": backtest(c)}
-        except Exception as exc:  # 單一檔資料異常不影響其他
-            log(f"⚠️ {code} 計算失敗：{exc}")
+        except Exception:  # 單一檔資料異常不影響其他；log 公開，不印代號（範圍裡有持股）
+            bad += 1
+    if bad:
+        log(f"⚠️ {bad} 檔風控／回測計算失敗")
     return out
 
 
@@ -446,7 +448,7 @@ def main() -> int:
     held = holdings_codes()
     weekly_date, weekly = weekly_screen()
     codes = universe(stocks, held, weekly)
-    log(f"價格範圍 {len(codes)} 檔（持股 {len(held)}、每週研究 {len(weekly)}）")
+    log(f"價格範圍 {len(codes)} 檔")  # log 公開，不拆出持股檔數
     prices = price_data(codes, stocks)
     titles = ptt_titles()
 

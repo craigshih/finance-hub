@@ -143,7 +143,7 @@ jobs:
           bash scripts/d1.sh "SELECT code FROM advisor_watch" > /tmp/watch.json \
             && jq '[.[].code]' /tmp/watch.json > data/advisor/watch.json \
             || echo '[]' > data/advisor/watch.json
-          echo "追蹤清單：$(cat data/advisor/watch.json)"
+          echo "追蹤清單：$(jq length data/advisor/watch.json) 檔"   # repo 公開，不印代號
 
       # 今日觀察標的（台股收盤後的法人資料＋美股前一交易日）；失敗不影響建站
       - name: Daily observation picks
