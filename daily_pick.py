@@ -8,7 +8,7 @@
 內容只能用這些資料（AI 不准自己補數字）：
   證交所／櫃買公司基本資料（成立、上市日期、董事長…）、中文維基百科簡介、鉅亨網新聞、供應鏈地圖（有出處的關係）、
   月營收、毛利率、本益比、殖利率、法人籌碼。寫完後含有「資料裡沒有的數字」的句子一律刪掉。
-輸出 data/daily_pick/{date}.json；SEND=1 時把同一份內容寄到 MAIL_TO（Gmail SMTP）。
+輸出 data/daily_pick/{date}.json；SEND=1（或 SEND=auto 且已過台北 09:00）時寄到 MAIL_TO 並推 LINE 群組。
 這是研究素材，不是買賣建議。
 """
 
@@ -524,11 +524,15 @@ def main() -> int:
             return 1
         pick = generate(today)
         path.write_text(json.dumps(pick, ensure_ascii=False, indent=1), encoding="utf-8")
-    if os.environ.get("SEND") == "1" and not pick.get("emailed_at"):
+    # SEND=1 立刻寄；SEND=auto（排程）台北 09:00 以後就寄。GitHub 排程常晚好幾小時甚至漏跑，
+    # 所以不靠「是哪一個排程觸發的」判斷，任何一次 09:00 後的執行都會補寄（emailed_at／line_sent_at 防重複）
+    mode = os.environ.get("SEND")
+    send = mode == "1" or (mode == "auto" and datetime.now(TAIPEI).strftime("%H%M") >= "0900")
+    if send and not pick.get("emailed_at"):
         if send_email(pick):
             pick["emailed_at"] = datetime.now(TAIPEI).isoformat(timespec="minutes")
             path.write_text(json.dumps(pick, ensure_ascii=False, indent=1), encoding="utf-8")
-    if os.environ.get("SEND") == "1" and not pick.get("line_sent_at"):
+    if send and not pick.get("line_sent_at"):
         if send_line(pick):
             pick["line_sent_at"] = datetime.now(TAIPEI).isoformat(timespec="minutes")
             path.write_text(json.dumps(pick, ensure_ascii=False, indent=1), encoding="utf-8")
