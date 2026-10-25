@@ -1,4 +1,5 @@
 // 即時財經快報：鉅亨網 RSS（robots.txt 允許），伺服器端每個分類最多 3 分鐘抓一次，所有讀者共用。
+// 只放「台北時間今天 00:00 以後」的新聞：每天半夜自動清空，從零開始累積當天的。
 //   GET /api/news?cat=all|tw_stock|wd_stock|headline
 
 const FEEDS = { tw_stock: "台股", wd_stock: "國際", headline: "頭條" };
@@ -32,6 +33,12 @@ export function parseRss(xml, feed) {
   }).filter((i) => i.title && i.url.startsWith("https://news.cnyes.com/"));
 }
 
+// 台北時間今天 00:00 的 ISO 字串（台灣沒有日光節約，固定 UTC+8）
+export function taipeiMidnight(now = new Date()) {
+  const day = new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+  return new Date(`${day}T00:00:00+08:00`).toISOString();
+}
+
 async function feedItems(feed) {
   const m = memo[feed];
   if (m && Date.now() - m.at < CACHE_MS) return m.items;
@@ -52,10 +59,11 @@ export async function onRequestGet({ request }) {
   const feeds = cat === "all" ? Object.keys(FEEDS) : FEEDS[cat] ? [cat] : null;
   if (!feeds) return Response.json({ error: "沒有這個分類" }, { status: 400 });
   const seen = new Set();
+  const since = taipeiMidnight();
   const items = (await Promise.all(feeds.map(feedItems))).flat()
-    .filter((i) => !seen.has(i.url) && seen.add(i.url))
+    .filter((i) => i.time >= since && !seen.has(i.url) && seen.add(i.url))
     .sort((a, b) => b.time.localeCompare(a.time))
     .slice(0, 80);
-  return Response.json({ updated: new Date().toISOString(), items },
+  return Response.json({ updated: new Date().toISOString(), since, items },
     { headers: { "Cache-Control": "public, max-age=60" } });
 }

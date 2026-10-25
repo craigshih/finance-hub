@@ -131,3 +131,9 @@ test("解析鉅亨網 RSS：標題、縮圖、關鍵字、只留鉅亨網連結"
   assert.equal(items[0].summary, "摘要內容");
   assert.equal(items[0].time, "2026-10-05T14:30:07.000Z");
 });
+
+test("即時快報只放台北時間今天 00:00 以後的新聞", async () => {
+  const { taipeiMidnight } = await import("../functions/api/news.js");
+  assert.equal(taipeiMidnight(new Date("2026-10-26T15:59:00Z")), "2026-10-25T16:00:00.000Z"); // 台北 10/26 23:59
+  assert.equal(taipeiMidnight(new Date("2026-10-26T16:01:00Z")), "2026-10-26T16:00:00.000Z"); // 台北 10/27 00:01 → 重新開始
+});

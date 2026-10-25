@@ -110,6 +110,7 @@
     const fill = async () => {
       try {
         const { items } = await loadNews("all");
+        if (!items.length) return ticker.replaceChildren(el("li", { class: "empty" }, "今天 00:00 以後還沒有新聞"));
         ticker.replaceChildren(...items.slice(0, 8).map((i) =>
           el("li", {}, el("span", { class: "pill" }, i.feed_label), el("a", { href: i.url, target: "_blank", rel: "noopener" }, i.title),
             el("span", { class: "time" }, ago(i.time)))));
@@ -135,7 +136,7 @@
               fresh ? el("span", { class: "new" }, "NEW") : "", el("span", { class: "time" }, ago(i.time))),
             el("h3", {}, i.title), el("p", {}, i.summary),
             el("div", { class: "kws" }, ...i.keywords.filter((k) => !GENERIC.has(k)).slice(0, 4).map((k) => el("span", {}, `#${k}`)))));
-      }) : [el("p", { class: "empty" }, "這個分類目前沒有新聞")]));
+      }) : [el("p", { class: "empty" }, "今天 00:00 以後這個分類還沒有新聞，有新的會自動出現")]));
     };
     const renderChips = () => {
       const count = {};
@@ -149,7 +150,7 @@
     const refresh = async () => {
       try {
         data = await loadNews(cat);
-        stamp.textContent = `更新於 ${hm5(data.updated)}・每 3 分鐘自動更新`;
+        stamp.textContent = `更新於 ${hm5(data.updated)}・每 3 分鐘自動更新・只顯示今天 00:00 起的新聞`;
         if (kw && !data.items.some((i) => i.keywords.includes(kw))) kw = null;
         renderChips();
         render();
