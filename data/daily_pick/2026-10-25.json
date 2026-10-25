@@ -1,0 +1,124 @@
+{
+ "date": "2026-10-25",
+ "code": "2408",
+ "name": "南亞科",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "南亞科怎麼從技術授權走到自研 10 奈米記憶體？",
+  "one_liner": "南亞科以成熟 DRAM 為主，近年自研 10 奈米技術並擴產新廠。",
+  "industry": "南亞科是 DRAM（動態隨機存取記憶體）製造商，產品涵蓋 DDR3/4/5、LPDDR4/5 及記憶體模組，主要客戶為電視、機上盒、網通、工業控制與車用電子廠商。上游供應晶圓代工與光刻設備，競爭對手包括華邦電、旺宏等，市場占有率約 1.4%。",
+  "history": [
+   {
+    "when": "1995",
+    "what": "台塑集團轉投資成立南亞科技，開始技術授權切入 DRAM。"
+   },
+   {
+    "when": "2002",
+    "what": "與英飛凌合資成立華亞科技，投入 12 吋晶圓生產。"
+   },
+   {
+    "when": "2008",
+    "what": "金融海嘯虧損逾 350 億，辦理大幅減資並私募增資。"
+   },
+   {
+    "when": "2016",
+    "what": "售出華亞科技股份予美光，轉向技術自主路線。"
+   },
+   {
+    "when": "2020",
+    "what": "宣布完成 10 奈米 DRAM 單元技術，自行推進 1A-1E 產品。"
+   },
+   {
+    "when": "2026",
+    "what": "私募 787.18 億，引進四大客戶入股，同年批准 3,466 億新廠資本支出。"
+   }
+  ],
+  "now": [
+   "2026-10-22 公告取得新廠務設備，為泰山 5A 新廠鋪設基礎。",
+   "2026-10-21 公告廠房興建工程進度，預計 2029 年完成全部建設。"
+  ],
+  "opportunities": [
+   "AI 與高頻寬應用推升 DDR4/5 需求，南亞科可填補大廠產能缺口。",
+   "自研 10 奈米技術降低授權成本，提升毛利空間。",
+   "新廠投入 EUV 微影，有望支援更先進記憶體產品。"
+  ],
+  "risks": [
+   "DRAM 市場價格波動大，營收易受供需循環影響。",
+   "與美光等大廠的技術差距仍在，產品競爭力需持續提升。",
+   "新廠資本支出高達數千億，資金回收期較長。"
+  ],
+  "watch": [
+   "新廠建設進度與 EUV 設備安裝完成時間。",
+   "客戶訂單量，特別是 AI 相關應用的出貨情況。"
+  ],
+  "terms": [
+   {
+    "term": "DRAM",
+    "plain": "動態隨機存取記憶體，用於暫時存放電腦運算資料的記憶體。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%8A%A8%E6%80%81%E9%9A%8F%E6%9C%BA%E5%AD%98%E5%82%A8%E5%99%A8",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "EUV",
+    "plain": "極紫外光微影技術，可在更小的製程節點上製造晶片。",
+    "url": "https://zh.wikipedia.org/zh-tw/EUV",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "私募",
+    "plain": "公司向特定投資者募集資金的方式，通常不公開發行。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%A7%81%E5%8B%9F",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "LPDDR",
+    "plain": "低功耗 DDR，主要用於手機與平板等行動裝置。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%A7%BB%E5%8A%A8DDR",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：南亞科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%8D%97%E4%BA%9E%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-10-22：南亞科:公告本公司取得廠務設備",
+   "url": "https://news.cnyes.com/news/id/6635966"
+  },
+  {
+   "label": "鉅亨網 2026-10-21：南亞科:公告本公司廠房興建工程",
+   "url": "https://news.cnyes.com/news/id/6635129"
+  },
+  {
+   "label": "鉅亨網 2026-10-19：期指夜盤重挫1144點 台積電、聯發科、國巨、南亞科、南亞等AI要賣嗎?",
+   "url": "https://news.cnyes.com/news/id/6633147"
+  },
+  {
+   "label": "南亞科 官方網站",
+   "url": "https://www.nanya.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 3,
+  "weekly": true,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 414.0,
+  "rev_yoy": 576.6,
+  "rev_month": "2026-09",
+  "gross": 75.16,
+  "pe": 16.07,
+  "yield": 0.33
+ },
+ "generated_at": "2026-10-25T08:44+08:00"
+}
