@@ -9,6 +9,11 @@ on:
     # 每 3 小時：檢查大佬 13F 與川普 278-T 有沒有新申報，有才重建
     - cron: "15 */3 * * *"
   workflow_dispatch:
+    inputs:
+      full:
+        description: "完整重算收盤資料（AI 顧問、市場寬度、台股進階）"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -81,6 +86,10 @@ jobs:
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      # 收盤資料（AI 顧問、市場寬度、台股進階）一天只變一次：只在 15:30、22:00 與手動勾選 full 時重算，
+      # 其他重建（早上總經更新、13F 申報、每日一檔）沿用當天算好的結果，省 GitHub Actions 分鐘數
+      FULL: ${{ github.event.schedule == '0 14 * * *' || github.event.schedule == '30 7 * * 1-5' || inputs.full == true }}
     steps:
       - uses: actions/checkout@v4
 
@@ -151,13 +160,30 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python digest_titles.py
 
+      # AI 顧問資料不進 repo（含持股範圍），改存在 Actions 快取：非完整重建時直接拿上一次算好的
+      - id: advisor_cache
+        if: env.FULL != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: data/advisor/stocks.json
+          key: advisor-${{ github.run_id }}
+          restore-keys: advisor-
+
       # AI 投資顧問的每日資料：全市場財報估值籌碼 + 約 300 檔的風控與回測（只會放進有密碼的 /portfolio/）
       - name: Advisor data
+        if: env.FULL == 'true' || steps.advisor_cache.outputs.cache-matched-key == ''
+        id: advisor
         continue-on-error: true
         timeout-minutes: 8
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: python advisor.py
+
+      - if: steps.advisor.outcome == 'success' && hashFiles('data/advisor/stocks.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/advisor/stocks.json
+          key: advisor-${{ github.run_id }}
 
       # 市場頁：指數、熱力圖、法人與融資、強勢股、大戶、處置股、除權息（用上一步的顧問資料算強勢股）
       - name: Market data
@@ -169,12 +195,14 @@ jobs:
 
       # 台股進階：誰在推指數、估值歷史位置、期貨籌碼（歷史檔存在 data/market/，每次只補新的）
       - name: Market extras
+        if: env.FULL == 'true'
         continue-on-error: true
         timeout-minutes: 8
         run: python market_extra.py
 
       # 市場寬度、加權 vs 等權、成交金額、類股輪動（全部上市櫃股票近兩年日線，每次重算約 2 分鐘）
       - name: Market breadth
+        if: env.FULL == 'true'
         continue-on-error: true
         timeout-minutes: 8
         run: python breadth.py
