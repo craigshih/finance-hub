@@ -358,6 +358,6 @@ jobs:
           GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
         run: |
           [ -n "$GH_DISPATCH_TOKEN" ] || { echo "::warning::還沒設定 GH_DISPATCH_TOKEN，準時排程器先不部署"; exit 0; }
-          cd scheduler
-          wrangler deploy
-          printf '%s' "$GH_DISPATCH_TOKEN" | wrangler secret put GH_DISPATCH_TOKEN
+          # 明確指定設定檔：根目錄的 wrangler.toml 是 Pages 專案的，不能拿來部署 Worker
+          wrangler deploy --config scheduler/wrangler.toml
+          printf '%s' "$GH_DISPATCH_TOKEN" | wrangler secret put GH_DISPATCH_TOKEN --config scheduler/wrangler.toml
