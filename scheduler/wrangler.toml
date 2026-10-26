@@ -1,0 +1,7 @@
+name = "craig-finance-scheduler"
+main = "index.js"
+compatibility_date = "2024-09-23"
+workers_dev = false
+
+[triggers]
+crons = ["30 0 * * *", "50 5 * * 1-5"]
