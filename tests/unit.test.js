@@ -137,3 +137,16 @@ test("即時快報只放台北時間今天 00:00 以後的新聞", async () => {
   assert.equal(taipeiMidnight(new Date("2026-10-26T15:59:00Z")), "2026-10-25T16:00:00.000Z"); // 台北 10/26 23:59
   assert.equal(taipeiMidnight(new Date("2026-10-26T16:01:00Z")), "2026-10-26T16:00:00.000Z"); // 台北 10/27 00:01 → 重新開始
 });
+
+test("準時排程器：cron 對應到正確的 workflow，並帶 ref 與 inputs", async () => {
+  const { JOBS, dispatch } = await import("../scheduler/index.js");
+  const sent = [];
+  const fake = async (url, init) => { sent.push({ url, body: JSON.parse(init.body), auth: init.headers.Authorization }); return new Response(null, { status: 204 }); };
+  await dispatch(JOBS["30 0 * * *"], "t", fake);
+  await dispatch(JOBS["50 5 * * 1-5"], "t", fake);
+  assert.match(sent[0].url, /finance-hub\/actions\/workflows\/daily_pick\.yml\/dispatches$/);
+  assert.deepEqual(sent[0].body, { ref: "main", inputs: { send: "true" } });
+  assert.match(sent[1].url, /craig-stock-trade-report\/actions\/workflows\/daily-price-update\.yml\/dispatches$/);
+  assert.equal(sent[1].auth, "Bearer t");
+  await assert.rejects(dispatch(JOBS["30 0 * * *"], "t", async () => new Response("no", { status: 403 })), /403/);
+});

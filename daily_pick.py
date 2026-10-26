@@ -528,6 +528,18 @@ def main() -> int:
     # 所以不靠「是哪一個排程觸發的」判斷，任何一次 09:00 後的執行都會補寄（emailed_at／line_sent_at 防重複）
     mode = os.environ.get("SEND")
     send = mode == "1" or (mode == "auto" and datetime.now(TAIPEI).strftime("%H%M") >= "0900")
+    # 準時排程器（scheduler/）台北 08:30 叫這裡跑：產生完先等，09:00 整開盤時才推 LINE、寄信。
+    # 離 09:00 超過一小時（例如半夜手動測試）就不寄，避免一大早吵到群組
+    now = datetime.now(TAIPEI)
+    nine = now.replace(hour=9, minute=0, second=0, microsecond=0)
+    if send and now < nine and not (pick.get("emailed_at") and pick.get("line_sent_at")):
+        wait = (nine - now).total_seconds()
+        if wait > 3600:
+            log(f"⏸️ 現在 {now:%H:%M}，離 09:00 太久，這次不寄")
+            send = False
+        else:
+            log(f"⏳ 等到 09:00 再推（{wait / 60:.0f} 分鐘）")
+            time.sleep(wait)
     if send and not pick.get("emailed_at"):
         if send_email(pick):
             pick["emailed_at"] = datetime.now(TAIPEI).isoformat(timespec="minutes")

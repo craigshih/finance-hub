@@ -25,7 +25,7 @@ concurrency:
 jobs:
   pick:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 50   # 準時排程器 08:30 觸發後會等到 09:00 才推
     steps:
       - uses: actions/checkout@v5
 

@@ -347,3 +347,17 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: wrangler pages deploy site --project-name=craig-finance --branch=main
+
+      # 準時排程器（scheduler/）：08:30 叫每日一檔、平日 13:50 叫股價快報。程式沒改就不重新部署
+      - name: Deploy scheduler
+        if: env.FULL == 'true' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+        run: |
+          [ -n "$GH_DISPATCH_TOKEN" ] || { echo "::warning::還沒設定 GH_DISPATCH_TOKEN，準時排程器先不部署"; exit 0; }
+          cd scheduler
+          wrangler deploy
+          printf '%s' "$GH_DISPATCH_TOKEN" | wrangler secret put GH_DISPATCH_TOKEN
