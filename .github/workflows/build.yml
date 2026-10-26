@@ -361,3 +361,7 @@ jobs:
           # 明確指定設定檔：根目錄的 wrangler.toml 是 Pages 專案的，不能拿來部署 Worker
           wrangler deploy --config scheduler/wrangler.toml
           printf '%s' "$GH_DISPATCH_TOKEN" | wrangler secret put GH_DISPATCH_TOKEN --config scheduler/wrangler.toml
+          # 確認後台的定時排程還在（只讀）
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/craig-finance-scheduler/schedules" \
+            | jq -c '[.result.schedules[]?.cron]' | sed 's/^/排程：/'

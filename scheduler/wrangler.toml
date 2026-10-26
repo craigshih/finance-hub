@@ -3,5 +3,7 @@ main = "index.js"
 compatibility_date = "2024-09-23"
 workers_dev = false
 
-[triggers]
-crons = ["30 0 * * *", "50 5 * * 1-5"]
+# 定時排程（UTC）在 Cloudflare 後台 Settings → Trigger events 設定：
+#   30 0 * * *   → 台北 08:30 每日一檔
+#   50 5 * * 1-5 → 台北平日 13:50 股價快報
+# 這裡不寫 [triggers]：寫了的話部署時會改排程，而帳號沒有 workers.dev 子網域時 API 會拒絕；不寫則保留後台設定
