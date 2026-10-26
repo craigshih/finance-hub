@@ -26,14 +26,14 @@ concurrency:
 jobs:
   # 很輕的檢查：只問 GitHub API「Tim-Lu 的 data/digests 最後一次變動是哪個 commit」，跟上次建站時記下的比
   gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 4
     outputs:
       run: ${{ steps.check.outputs.run }}
       digest_sha: ${{ steps.check.outputs.sha }}
       filings_fp: ${{ steps.check.outputs.fp }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           sparse-checkout: |
             whales.py
@@ -84,24 +84,24 @@ jobs:
   build:
     needs: gate
     if: needs.gate.outputs.run == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       # 收盤資料（AI 顧問、市場寬度、台股進階）一天只變一次：只在 15:30、22:00 與手動勾選 full 時重算，
       # 其他重建（早上總經更新、13F 申報、每日一檔）沿用當天算好的結果，省 GitHub Actions 分鐘數
       FULL: ${{ github.event.schedule == '0 14 * * *' || github.event.schedule == '30 7 * * 1-5' || inputs.full == true }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # 兩個來源都是 private repo，需要一組只有 read 權限的 fine-grained token
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: craigshih/Tim-Lu
           token: ${{ secrets.SOURCES_TOKEN }}
           path: sources/tim-lu
           sparse-checkout: data/digests
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: craigshih/investment-team
           token: ${{ secrets.SOURCES_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
             data/screens
 
       # 對帳用；token 還沒授權這個 repo 時照樣建站，只是對帳區塊會顯示沒有資料
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         continue-on-error: true
         with:
           repository: craigshih/craig-stock-trade-report
@@ -119,14 +119,14 @@ jobs:
           path: sources/kgi-trade-report
           sparse-checkout: data/statements
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
 
       - run: pip install -r requirements.txt
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
 
@@ -163,7 +163,7 @@ jobs:
       # AI 顧問資料不進 repo（含持股範圍），改存在 Actions 快取：非完整重建時直接拿上一次算好的
       - id: advisor_cache
         if: env.FULL != 'true'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: data/advisor/stocks.json
           key: advisor-${{ github.run_id }}
@@ -180,7 +180,7 @@ jobs:
         run: python advisor.py
 
       - if: steps.advisor.outcome == 'success' && hashFiles('data/advisor/stocks.json') != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: data/advisor/stocks.json
           key: advisor-${{ github.run_id }}
