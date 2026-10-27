@@ -2,6 +2,7 @@
 # 用 macOS 彈出視窗輸入金鑰，直接存進 GitHub Secrets（craigshih/finance-hub），不需要在終端機打字。
 # 用法：scripts/set_secrets_gui.sh                       # 依序設定全部
 #       scripts/set_secrets_gui.sh CLOUDFLARE_ACCOUNT_ID # 只設定指定的名稱
+#       CLIPBOARD=1 scripts/set_secrets_gui.sh GH_DISPATCH_TOKEN  # 不跳視窗，直接用剪貼簿裡的值（存完會清空剪貼簿）
 # 輸入的內容不會印在任何地方，也不會存在本機；按「略過」可以跳過某一項。
 names=("$@")
 [ ${#names[@]} -eq 0 ] && names=(SOURCES_TOKEN CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID NOTION_TOKEN PORTFOLIO_PASSWORD)
@@ -34,7 +35,12 @@ for n in "${names[@]}"; do
     GH_DISPATCH_TOKEN)     hint="請貼上 github_pat_ 開頭的 fine-grained token（授權 finance-hub、craig-stock-trade-report，Actions: Read and write）。存檔前會先測試"; hidden=1 ;;
     *)                     hint="請貼上 $n 的值"; hidden=1 ;;
   esac
-  value="$(prompt_for "$n" "$hint" "$hidden")"
+  if [ "${CLIPBOARD:-}" = 1 ]; then
+    value="$(pbpaste)"
+    echo "$n：讀取剪貼簿（${#value} 字）"
+  else
+    value="$(prompt_for "$n" "$hint" "$hidden")"
+  fi
   value="${value#"${value%%[![:space:]]*}"}"; value="${value%"${value##*[![:space:]]}"}"  # 去掉前後空白
   if [ -z "$value" ]; then
     echo "$n：略過"
@@ -106,5 +112,6 @@ for n in "${names[@]}"; do
     echo "  webhook：✅ 有效"
   fi
   printf '%s' "$value" | gh secret set "$n" -R "${TARGET_REPO:-craigshih/finance-hub}" && echo "$n：✅ 已存進 ${TARGET_REPO:-craigshih/finance-hub} 的 GitHub Secrets"
+  [ "${CLIPBOARD:-}" = 1 ] && printf '' | pbcopy  # 金鑰不要留在剪貼簿
   unset value
 done
