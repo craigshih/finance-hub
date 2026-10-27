@@ -1,0 +1,117 @@
+{
+ "date": "2026-10-27",
+ "code": "2360",
+ "name": "致茂",
+ "market": "上市",
+ "industry": "其他電子業",
+ "story": {
+  "title": "致茂營收狂飆206%，AI晶片測試怎麼賺錢？",
+  "one_liner": "致茂是全球精密量測儀器供應商，2022併購美國ESS，2026年9月營收暴增206%。",
+  "industry": "致茂提供光電、顯示、半導體等產業的精密測試儀器與自動化測試系統，客戶包括晶圓廠與IC設計公司，上游是感測元件與精密機械，下游是製造與測試廠商，主要競爭對手為同業測試設備供應商。",
+  "history": [
+   {
+    "when": "1984",
+    "what": "成立，推出自有品牌Chroma，開始研發精密量測儀器。"
+   },
+   {
+    "when": "2022",
+    "what": "併購美國ESS公司，擴大環境壓力測試技術。"
+   },
+   {
+    "when": "2026-09",
+    "what": "9月營收68.6億元，年增206%。"
+   }
+  ],
+  "now": [
+   "2026-10-07報導指出，AI晶片設計更複雜，測試設備需求大增，致茂受惠營收大幅成長。",
+   "同日新聞稱公司計畫發行普通股並參與海外存託憑證，以籌措資金支援研發。"
+  ],
+  "opportunities": [
+   "AI與高階晶片測試需求持續上升，提升測試設備出貨量。",
+   "併購ESS的環境測試技術可切入新能源與車用電子市場。"
+  ],
+  "risks": [
+   "測試設備高度客製化，若主要客戶需求下降，營收波動大。",
+   "全球半導體景氣循環可能影響測試設備訂單量。"
+  ],
+  "watch": [
+   "每季營收與年增率變化。",
+   "新產品CPO測試系統的開發進度。",
+   "公司法說會與增資執行結果。"
+  ],
+  "terms": [
+   {
+    "term": "MES",
+    "plain": "製造執行系統，協助工廠即時監控生產流程與品質。",
+    "url": "https://zh.wikipedia.org/zh-tw/MES",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "CPO",
+    "plain": "晶圓製程測試設備，針對先進製程的功能與可靠度驗證。",
+    "url": "https://zh.wikipedia.org/zh-tw/CPO",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "存託憑證",
+    "plain": "在海外市場發行的證券，代表公司在當地的股份。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%85%A8%E7%90%83%E5%AD%98%E8%A8%97%E6%86%91%E8%AD%89",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：致茂電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E8%87%B4%E8%8C%82%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-10-23：鉅亨速報 - Factset 最新調查：致茂(2360-TW)EPS預估上修至45.93元，預估目標價為2800元",
+   "url": "https://news.cnyes.com/news/id/6636423"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：致茂:本公司董事會決議辦理現金增資發行普通股參與發行海外存託憑證",
+   "url": "https://news.cnyes.com/news/id/6634432"
+  },
+  {
+   "label": "鉅亨網 2026-10-20：致茂:公告本公司115年第一次股東臨時會重要決議事項",
+   "url": "https://news.cnyes.com/news/id/6634431"
+  },
+  {
+   "label": "鉅亨網 2026-10-13：台股市值榜大洗牌！川湖、致茂摔出兆元俱樂部 富邦金逆勢創新高",
+   "url": "https://news.cnyes.com/news/id/6629545"
+  },
+  {
+   "label": "鉅亨網 2026-10-13：致茂(2360)兆元市值只守一天！股價跌近7%，台股26檔兆元俱樂部面臨洗牌",
+   "url": "https://news.cnyes.com/news/id/6629449"
+  },
+  {
+   "label": "鉅亨網 2026-10-07：致茂(2360)9月營收暴增206%！AI晶片愈複雜、測試設備愈缺，下一棒看CPO？",
+   "url": "https://news.cnyes.com/news/id/6623675"
+  },
+  {
+   "label": "致茂 官方網站",
+   "url": "http://www.chromaate.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 3,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 1980.0,
+  "rev_yoy": 206.5,
+  "rev_month": "2026-09",
+  "gross": 61.48,
+  "pe": 50.51,
+  "yield": 0.98
+ },
+ "generated_at": "2026-10-27T08:25+08:00"
+}
