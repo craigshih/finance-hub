@@ -150,3 +150,11 @@ test("準時排程器：cron 對應到正確的 workflow，並帶 ref 與 inputs
   assert.equal(sent[1].auth, "Bearer t");
   await assert.rejects(dispatch(JOBS["30 0 * * *"], "t", async () => new Response("no", { status: 403 })), /403/);
 });
+
+test("證交所 OpenAPI 掛掉時的備援 CSV 轉成同樣的欄位", async () => {
+  const { parseTwseCsv, parseQuotes } = await import("../functions/_lib/market.js");
+  const csv = '日期,證券代號,證券名稱,成交股數,成交金額,開盤價,最高價,最低價,收盤價,漲跌價差,成交筆數\n"1151027","0050","元大台灣50","1","1","106.00","107.00","105.50","106.90","0.5","10"\n"1151027","2330","台積電","1","1","2400","2410","2380","2400.00","15","9"\n';
+  const q = parseQuotes(parseTwseCsv(csv), []);
+  assert.deepEqual(q["0050"], { code: "0050", name: "元大台灣50", price: 106.9, date: "2026-10-27", market: "上市" });
+  assert.equal(q["2330"].price, 2400);
+});

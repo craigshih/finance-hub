@@ -76,9 +76,27 @@ async function fetchJson(url) {
       if (!Array.isArray(j) || !j.length) throw new Error(`${url} 空的`);
       return j;
     } catch (exc) {
-      if (attempt >= 1) throw exc;
-      await new Promise((r) => setTimeout(r, 1500)); // 證交所 OpenAPI 偶爾失敗：等一下再試一次
+      if (attempt >= 2) throw exc;
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1) ** 2)); // 證交所 OpenAPI 偶爾失敗：等一下再試（共 3 次）
     }
+  }
+}
+
+// 證交所 OpenAPI 掛掉時的備援：同一份「每日收盤行情」的網站版（CSV），轉成 OpenAPI 的欄位
+const TWSE_BACKUP = "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY_ALL?response=json";
+export function parseTwseCsv(text) {
+  return text.split(/\r?\n/).slice(1).map((line) => line.replace(/^"|"$/g, "").split('","'))
+    .filter((c) => c.length >= 9 && /^\d{7}$/.test(c[0]))
+    .map((c) => ({ Date: c[0], Code: c[1], Name: c[2], ClosingPrice: c[8] }));
+}
+async function fetchTwse() {
+  try {
+    return await fetchJson(TWSE);
+  } catch (exc) {
+    const res = await fetch(TWSE_BACKUP, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const rows = res.ok ? parseTwseCsv(await res.text()) : [];
+    if (!rows.length) throw exc;
+    return rows;
   }
 }
 
@@ -86,7 +104,7 @@ async function fetchJson(url) {
 const FULL_KEY = new Request("https://sim.cache/quotes-full");
 export async function getQuotes() {
   if (memo.quotes && Date.now() - memo.at < CACHE_MS) return memo.quotes;
-  const [twse, tpex] = await Promise.allSettled([fetchJson(TWSE), fetchJson(TPEX)]);
+  const [twse, tpex] = await Promise.allSettled([fetchTwse(), fetchJson(TPEX)]);
   const ok = twse.status === "fulfilled" && tpex.status === "fulfilled";
   let quotes = parseQuotes(twse.status === "fulfilled" ? twse.value : [], tpex.status === "fulfilled" ? tpex.value : []);
   const cache = typeof caches !== "undefined" ? caches.default : null;
