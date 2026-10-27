@@ -1,6 +1,7 @@
 name: Scheduler check
 
-# 檢查準時排程器用的 GH_DISPATCH_TOKEN 能不能叫兩個 repo 的 workflow（只讀，不會觸發任何東西）
+# 檢查準時排程器用的 GH_DISPATCH_TOKEN 能不能叫兩個 repo 的 workflow。
+# 最後會真的觸發一次每日一檔（當天已寄過就不會重寄），確認有「寫入」權限
 on:
   workflow_dispatch:
 
@@ -23,3 +24,7 @@ jobs:
             echo "$repo $wf：讀取 $code $(jq -r '.message // .state' /tmp/r.json)"
           done
           curl -s -o /dev/null -w '權限檢查（token 本身）：%{http_code}\n' -H "Authorization: Bearer $TOKEN" https://api.github.com/user
+          code=$(curl -s -o /tmp/d.txt -w '%{http_code}' -X POST -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+            -d '{"ref":"main","inputs":{"send":"true"}}' "https://api.github.com/repos/craigshih/finance-hub/actions/workflows/daily_pick.yml/dispatches")
+          echo "觸發測試（寫入權限）：$code $(cat /tmp/d.txt)"
+          [ "$code" = 204 ]
