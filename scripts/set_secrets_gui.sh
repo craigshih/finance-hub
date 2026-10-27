@@ -31,6 +31,7 @@ for n in "${names[@]}"; do
     PORTFOLIO_PASSWORD)    hint="設定投資頁的密碼（至少 10 個字元；網站對所有 email 開放，請不要用跟其他服務一樣的密碼）"; hidden=1 ;;
     CLOUDFLARE_API_TOKEN)  hint="請貼上 Cloudflare API token（權限：Account → Cloudflare Pages → Edit、Account → D1 → Edit）"; hidden=1 ;;
     CLOUDFLARE_ACCOUNT_ID) hint="請貼上 Cloudflare 帳號 ID（32 碼英數字，Dashboard 右側欄）"; hidden=0 ;;
+    GH_DISPATCH_TOKEN)     hint="請貼上 github_pat_ 開頭的 fine-grained token（授權 finance-hub、craig-stock-trade-report，Actions: Read and write）。存檔前會先測試"; hidden=1 ;;
     *)                     hint="請貼上 $n 的值"; hidden=1 ;;
   esac
   value="$(prompt_for "$n" "$hint" "$hidden")"
@@ -84,6 +85,25 @@ for n in "${names[@]}"; do
       404) echo "$n：❌ 404 token 有效，但「股票交易管理」頁面還沒分享給這個 integration"; echo "$n：未儲存"; unset value; continue ;;
       *)   echo "$n：❌ HTTP $code"; echo "$n：未儲存"; unset value; continue ;;
     esac
+  fi
+  # 能驗證的就先實際測一次，不對就不存（隱藏輸入看不到自己貼了什麼，最常見的是少貼一段或貼了兩次）
+  if [ "$n" = "GH_DISPATCH_TOKEN" ]; then
+    ok=1
+    for target in craigshih/finance-hub/daily_pick.yml craigshih/craig-stock-trade-report/daily-price-update.yml; do
+      code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $value" "https://api.github.com/repos/${target%/*}/actions/workflows/${target##*/}")
+      case $code in
+        200) echo "  ${target%/*}：✅ 讀得到" ;;
+        401) echo "  ${target%/*}：❌ 401 token 無效（貼錯、不完整、或貼了兩次；長度 ${#value} 字，正常約 93 字）"; ok=0 ;;
+        403|404) echo "  ${target%/*}：❌ $code 這把 token 沒有授權這個 repo，或 Actions 權限不是 Read and write"; ok=0 ;;
+        *) echo "  ${target%/*}：❌ HTTP $code"; ok=0 ;;
+      esac
+    done
+    [ "$ok" = 1 ] || { echo "$n：未儲存"; unset value; continue; }
+  fi
+  if [ "$n" = "DISCORD_WEBHOOK_URL" ]; then
+    code=$(curl -s -o /dev/null -w '%{http_code}' "$value")
+    [ "$code" = 200 ] || { echo "$n：❌ webhook 網址測試失敗（HTTP $code），未儲存"; unset value; continue; }
+    echo "  webhook：✅ 有效"
   fi
   printf '%s' "$value" | gh secret set "$n" -R "${TARGET_REPO:-craigshih/finance-hub}" && echo "$n：✅ 已存進 ${TARGET_REPO:-craigshih/finance-hub} 的 GitHub Secrets"
   unset value
