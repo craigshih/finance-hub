@@ -1,0 +1,25 @@
+name: Scheduler check
+
+# 檢查準時排程器用的 GH_DISPATCH_TOKEN 能不能叫兩個 repo 的 workflow（只讀，不會觸發任何東西）
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - env:
+          TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+        run: |
+          [ -n "$TOKEN" ] || { echo "GH_DISPATCH_TOKEN 是空的"; exit 1; }
+          for target in craigshih/finance-hub/daily_pick.yml craigshih/craig-stock-trade-report/daily-price-update.yml; do
+            repo=${target%/*}; wf=${target##*/}
+            code=$(curl -s -o /tmp/r.json -w '%{http_code}' -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$repo/actions/workflows/$wf")
+            echo "$repo $wf：讀取 $code $(jq -r '.message // .state' /tmp/r.json)"
+          done
+          curl -s -o /dev/null -w '權限檢查（token 本身）：%{http_code}\n' -H "Authorization: Bearer $TOKEN" https://api.github.com/user
