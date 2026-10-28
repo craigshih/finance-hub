@@ -136,8 +136,10 @@ def build_contrib(sh: dict) -> dict | None:
     hist = load(H_CONTRIB, {})
     want = days[-CONTRIB_DAYS:]
     latest = None
+    # 最後兩天一律重算：盤中加權指數已經有「今天」，但個股收盤要收盤後才有，
+    # 這時「最新」要落在前一個交易日（以前只認今天，就退回顯示好幾天前的舊資料）
     for d in want:
-        if d in hist and d != days[-1]:
+        if d in hist and d not in days[-2:]:
             continue
         q = day_quotes(d)
         prev_day = days[days.index(d) - 1] if days.index(d) > 0 else None
@@ -145,17 +147,19 @@ def build_contrib(sh: dict) -> dict | None:
             continue
         r = contrib_day(q, sh, idx[prev_day], idx[d])
         hist[d] = {k: r[k] for k in ("tsmc", "top10", "rest", "index", "gap")}
-        if d == days[-1]:
-            names = {c: q[c]["name"] for c in q}
-            ranked = sorted(r["pts"].items(), key=lambda kv: kv[1])
-            latest = {"date": d, **hist[d],
-                      "push": [{"code": c, "name": names[c], "pts": round(v, 1), "pct": round((q[c]["close"] / q[c]["prev"] - 1) * 100, 2)}
-                               for c, v in ranked[::-1][:5] if v > 0],
-                      "drag": [{"code": c, "name": names[c], "pts": round(v, 1), "pct": round((q[c]["close"] / q[c]["prev"] - 1) * 100, 2)}
-                               for c, v in ranked[:5] if v < 0],
-                      "tsmc_weight": round(r["weights"].get("2330", 0) * 100, 1)}
+        # 日期由舊到新，最後一個算得出來的就是最新
+        names = {c: q[c]["name"] for c in q}
+        ranked = sorted(r["pts"].items(), key=lambda kv: kv[1])
+        latest = {"date": d, **hist[d],
+                  "push": [{"code": c, "name": names[c], "pts": round(v, 1), "pct": round((q[c]["close"] / q[c]["prev"] - 1) * 100, 2)}
+                           for c, v in ranked[::-1][:5] if v > 0],
+                  "drag": [{"code": c, "name": names[c], "pts": round(v, 1), "pct": round((q[c]["close"] / q[c]["prev"] - 1) * 100, 2)}
+                           for c, v in ranked[:5] if v < 0],
+                  "tsmc_weight": round(r["weights"].get("2330", 0) * 100, 1)}
     hist = {d: hist[d] for d in sorted(hist)[-CONTRIB_DAYS:]}
     save(H_CONTRIB, hist)
+    if latest and hist and latest["date"] < max(hist):
+        latest = None  # 這次只補到比較舊的日子：改用歷史裡最新的那天（沒有個股明細）
     if not latest:
         last = sorted(hist)[-1] if hist else None
         latest = {"date": last, **hist[last], "push": [], "drag": []} if last else None

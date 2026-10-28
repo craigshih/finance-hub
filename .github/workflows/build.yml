@@ -87,9 +87,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
-      # 收盤資料（AI 顧問、市場寬度、台股進階）一天只變一次：只在 15:30、22:00 與手動勾選 full 時重算，
-      # 其他重建（早上總經更新、13F 申報、每日一檔）沿用當天算好的結果，省 GitHub Actions 分鐘數
-      FULL: ${{ github.event.schedule == '0 14 * * *' || github.event.schedule == '30 7 * * 1-5' || inputs.full == true }}
+      # repo 已公開、Actions 分鐘數不計費：每次重建都完整重算，確保每一區都是最新資料
+      #（期交所、證交所的盤後資料發布時間不固定，只算一天兩次常會剛好抓到還沒更新的）
+      FULL: "true"
     steps:
       - uses: actions/checkout@v5
 
