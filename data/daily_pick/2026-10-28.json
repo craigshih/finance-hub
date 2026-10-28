@@ -1,0 +1,120 @@
+{
+ "date": "2026-10-28",
+ "code": "2337",
+ "name": "旺宏",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "旺宏為什麼從 NOR Flash 轉向 eMMC 與 3D NAND？",
+  "one_liner": "從記憶體製造起家，旺宏正把產能聚焦在手機與車用的 eMMC、3D NAND。",
+  "industry": "旺宏是非揮發性記憶體（NOR Flash、eMMC、3D NAND）製造商，上游是晶圓代工與封裝測試，下游客戶包括手機、車用、工控與醫療設備廠商，競爭對手有三星、美光、華邦電與兆易創新。",
+  "history": [
+   {
+    "when": "1989",
+    "what": "吳敏求在新竹科學園創立旺宏電子，專注非揮發性記憶體。"
+   },
+   {
+    "when": "2021",
+    "what": "出售 6 吋晶圓廠給鴻海，聚焦 8 吋與 12 吋廠。"
+   },
+   {
+    "when": "2026 Q3",
+    "what": "營收 242.4 億、毛利率 70.5%，創公司史上最佳季。"
+   }
+  ],
+  "now": [
+   "法說會透露不再擴產 NOR Flash，將新產能全力投入 eMMC 與 3D NAND。",
+   "Q3 營收與 EPS 創新高，毛利率達 70.5%，顯示新產品需求強勁。"
+  ],
+  "opportunities": [
+   "eMMC 與 3D NAND 在手機與車用市場需求持續成長。",
+   "產能有限但毛利率高，可提升單位產出收益。",
+   "客戶對高可靠性記憶體的需求，尤其在醫療與太空通訊領域。"
+  ],
+  "risks": [
+   "NOR Flash 產能縮減可能影響現有工控客戶。",
+   "新產能轉型需時間，量產延遲會影響營收。",
+   "半導體產業週期性波動，需求下降時毛利率可能受壓。"
+  ],
+  "watch": [
+   "下一季營收與毛利率變化。",
+   "法說會中提及的主要客戶訂單情況。"
+  ],
+  "terms": [
+   {
+    "term": "NOR Flash",
+    "plain": "一種只能讀取、寫入次數有限的非揮發性記憶體，常用於工業控制與嵌入式系統。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E9%97%AA%E5%AD%98",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "eMMC",
+    "plain": "嵌入式多媒體卡，結合儲存與控制器，廣泛應用於手機和平板。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%A4%9A%E5%AA%92%E9%AB%94%E8%A8%98%E6%86%B6%E5%8D%A1",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "3D NAND",
+    "plain": "堆疊多層儲存單元的 NAND Flash，提高容量與寫入速度。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=3D%20NAND&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：旺宏電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E6%97%BA%E5%AE%8F%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-10-28：〈台股盤前要聞〉新台幣爆量轉升5.6分收32.452元、旺宏Q3 EPS 5.52元史上最賺一季",
+   "url": "https://news.cnyes.com/news/id/6638791"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：【旺宏法說會 AI 摘要】2026/10/27",
+   "url": "https://news.cnyes.com/news/id/6638451"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：〈旺宏法說〉不再擴產NOR Flash 新產能全力衝刺eMMC、3D NAND",
+   "url": "https://news.cnyes.com/news/id/6638435"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：〈旺宏法說〉Q3毛利率70.5% EPS 5.52元創新高 前三季大賺一股本",
+   "url": "https://news.cnyes.com/news/id/6638387"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：旺宏:本公司115年第三季合併財務報告之相關資訊",
+   "url": "https://news.cnyes.com/news/id/6638550"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：台股連假後小漲54點 旺宏、力成法說聚焦記憶體與AI封裝",
+   "url": "https://news.cnyes.com/news/id/6638334"
+  },
+  {
+   "label": "旺宏 官方網站",
+   "url": "http://www.macronix.com"
+  }
+ ],
+ "dropped_sentences": 3,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 7,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 103.0,
+  "rev_yoy": 188.2,
+  "rev_month": "2026-09",
+  "gross": 56.06,
+  "pe": 24.41,
+  "yield": null
+ },
+ "generated_at": "2026-10-28T08:32+08:00",
+ "emailed_at": "2026-10-28T09:00+08:00",
+ "line_sent_at": "2026-10-28T09:00+08:00"
+}
