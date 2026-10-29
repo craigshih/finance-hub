@@ -1,0 +1,123 @@
+{
+ "date": "2026-10-29",
+ "code": "3006",
+ "name": "晶豪科",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "晶豪科營收暴增470%，背後是什麼推手？",
+  "one_liner": "記憶體價格飆升讓晶豪科營收翻了三倍，看看它怎麼從新創走到今天。",
+  "industry": "晶豪科屬半導體測試與封裝領域，提供記憶體、IC測試服務，上游是晶圓代工，下游包括記憶體品牌與系統廠商，主要客戶為全球記憶體大廠，競爭者有其他測試服務公司。",
+  "history": [
+   {
+    "when": "1998",
+    "what": "張明鑒在新竹科學園區創立晶豪科，起初專注IC測試服務。"
+   },
+   {
+    "when": "2026-09",
+    "what": "9月營收74.61億元，年增470%，主要受記憶體價格上漲帶動。"
+   },
+   {
+    "when": "2026-10-27",
+    "what": "董事會決議增資子公司ELITE INVESTMENT SERVICES，擴大投資布局。"
+   }
+  ],
+  "now": [
+   "參加凱基證券法人說明會，說明公司營運與未來策略。",
+   "增資子公司ELITE INVESTMENT SERVICES，布局新投資機會。"
+  ],
+  "opportunities": [
+   "記憶體價格持續上揚，可帶動測試需求與營收成長。",
+   "子公司投資或併購有望擴大服務範圍與客戶基礎。",
+   "高毛利率顯示成本控制良好，提升獲利空間。"
+  ],
+  "risks": [
+   "記憶體價格若回落，測試需求可能快速下降。",
+   "產能未同步擴增，可能限制營收持續成長。",
+   "過度依賴少數大客戶，客戶需求變化風險高。"
+  ],
+  "watch": [
+   "下季營收與毛利率走勢，觀察記憶體市場價格變化。",
+   "ELITE INVESTMENT SERVICES的投資進度與併購成果。",
+   "公司法說會與財報發布，檢視營運指標。"
+  ],
+  "terms": [
+   {
+    "term": "半導體",
+    "plain": "利用半導體材料製作晶片的產業，涵蓋設計、製造、測試與封裝等環節。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%8D%8A%E5%AF%BC%E4%BD%93",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "記憶體",
+    "plain": "用於儲存資料的半導體元件，如DRAM與NAND Flash，價格波動會影響相關產業營收。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E9%9B%BB%E8%85%A6%E8%A8%98%E6%86%B6%E9%AB%94",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "本益比",
+    "plain": "股價除以每股盈餘的比率，用來衡量股票相對估值高低。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%B8%82%E7%9B%88%E7%8E%87",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "毛利率",
+    "plain": "營業毛利佔營收的比例，反映公司產品的獲利能力。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E6%AF%9B%E5%88%A9%E7%8E%87",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-10-28：盤中速報 - 晶豪科(3006)股價拉至漲停，漲停價275.5元，成交16,146張",
+   "url": "https://news.cnyes.com/news/id/6639351"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：晶豪科:公告本公司受凱基證券邀請參加法人說明會",
+   "url": "https://news.cnyes.com/news/id/6638457"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：晶豪科:本公司董事會決議增加投資子公司ELITE INVESTMENT SERVICES LTD.",
+   "url": "https://news.cnyes.com/news/id/6638456"
+  },
+  {
+   "label": "鉅亨網 2026-10-27：晶豪科:公告本公司115年第3季合併財務報告業經提報董事會通過",
+   "url": "https://news.cnyes.com/news/id/6638455"
+  },
+  {
+   "label": "鉅亨網 2026-10-06：晶豪科9月營收74.61億元年增470.23% 1—9月達433.63億元",
+   "url": "https://news.cnyes.com/news/id/6622372"
+  },
+  {
+   "label": "鉅亨網 2026-10-05：晶豪科(3006)9月營收年增470%已是去年全年近3倍，記憶體漲價行情還能走多久？",
+   "url": "https://news.cnyes.com/news/id/6621790"
+  },
+  {
+   "label": "晶豪科 官方網站",
+   "url": "https://www.esmt.com.tw"
+  }
+ ],
+ "dropped_sentences": 2,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 4,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 275.5,
+  "rev_yoy": 470.2,
+  "rev_month": "2026-09",
+  "gross": 61.44,
+  "pe": 3.87,
+  "yield": 0.36
+ },
+ "generated_at": "2026-10-29T08:32+08:00",
+ "emailed_at": "2026-10-29T09:00+08:00",
+ "line_sent_at": "2026-10-29T09:00+08:00"
+}
