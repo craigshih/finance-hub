@@ -1,0 +1,137 @@
+{
+ "date": "2026-10-30",
+ "code": "3260",
+ "name": "威剛",
+ "market": "上櫃",
+ "industry": "半導體業",
+ "story": {
+  "title": "威剛從記憶體到電競，怎樣變身多元科技公司？",
+  "one_liner": "從DRAM模組起家，現在涵蓋SSD、LED照明與XPG電競品牌的全方位記憶體與周邊供應商。",
+  "industry": "威剛主要生產DRAM與NAND快閃記憶體模組，亦提供SSD、記憶卡、外接硬碟等周邊。上游是記憶體晶片代工廠（如台積電、聯電），下游客戶包括PC、伺服器、手機與電競設備製造商，競爭對手有金士頓、三星與西部資料等。",
+  "history": [
+   {
+    "when": "2001-05-04",
+    "what": "公司成立，專注DRAM記憶體模組"
+   },
+   {
+    "when": "2004-10-08",
+    "what": "在櫃檯上櫃，代號3260"
+   },
+   {
+    "when": "2008-10",
+    "what": "推出電競高效能品牌XPG"
+   },
+   {
+    "when": "2010",
+    "what": "成立ADATA Lighting，進軍LED照明"
+   }
+  ],
+  "now": [
+   "投資中臺流行影音中心，擴大影音與內容平台布局",
+   "子公司威剛科技(蘇州)購置不動產，提升產能與物流",
+   "取得私募普通股，增加資本靈活度"
+  ],
+  "opportunities": [
+   "XPG電競產品持續擴張，可受益於電競與直播市場成長",
+   "LED照明在住宅與商辦換裝需求上升，帶動ADATA Lighting營收",
+   "影音中心投資或開啟新服務與硬體整合商機"
+  ],
+  "risks": [
+   "記憶體價格波動與供需失衡可能壓縮毛利",
+   "投資新事業未達預期，資金回收期較長"
+  ],
+  "watch": [
+   "下季合併營收與毛利率變化",
+   "XPG新產品發布與市場接受度",
+   "LED照明新產品量產進度"
+  ],
+  "terms": [
+   {
+    "term": "DRAM",
+    "plain": "動態隨機存取記憶體，用於電腦暫存資料",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%8A%A8%E6%80%81%E9%9A%8F%E6%9C%BA%E5%AD%98%E5%82%A8%E5%99%A8",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "NAND",
+    "plain": "快閃記憶體類型，常見於SSD與記憶卡",
+    "url": "https://zh.wikipedia.org/zh-tw/NAND",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "SSD",
+    "plain": "固態硬碟，使用NAND快閃記憶體取代傳統機械硬碟",
+    "url": "https://zh.wikipedia.org/zh-tw/SSD",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "XPG",
+    "plain": "威剛旗下電競高效能品牌，涵蓋鍵盤、滑鼠等周邊",
+    "url": "https://zh.wikipedia.org/w/index.php?search=XPG&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "LED照明",
+    "plain": "使用發光二極體的節能照明產品",
+    "url": "https://zh.wikipedia.org/w/index.php?search=LED%E7%85%A7%E6%98%8E&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O"
+  },
+  {
+   "label": "維基百科：威剛科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%A8%81%E5%89%9B%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：威剛:公告本公司董事會決議投資中臺流行影音中心股份有限公司",
+   "url": "https://news.cnyes.com/news/id/6640924"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：威剛:代子公司威剛科技(蘇州)有限公司公告董事會決議通過購置不動產",
+   "url": "https://news.cnyes.com/news/id/6640923"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：威剛:公告本公司董事會決議取得私募普通股",
+   "url": "https://news.cnyes.com/news/id/6640922"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：威剛前3季獲利超越過去25年總和 EPS突破百元寫歷史新頁",
+   "url": "https://news.cnyes.com/news/id/6640617"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：威剛:公告本公司董事會通過民國115年第三季合併財務報告",
+   "url": "https://news.cnyes.com/news/id/6640643"
+  },
+  {
+   "label": "鉅亨網 2026-10-28：盤中速報 - 威剛(3260)股價拉至漲停，漲停價363.5元，成交8,800張",
+   "url": "https://news.cnyes.com/news/id/6639296"
+  },
+  {
+   "label": "威剛 官方網站",
+   "url": "https://www.adata.com"
+  }
+ ],
+ "dropped_sentences": 2,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 6,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 362.0,
+  "rev_yoy": 199.9,
+  "rev_month": "2026-09",
+  "gross": 47.63,
+  "pe": 4.68,
+  "yield": 4.7
+ },
+ "generated_at": "2026-10-30T08:32+08:00",
+ "emailed_at": "2026-10-30T09:00+08:00",
+ "line_sent_at": "2026-10-30T09:00+08:00"
+}
