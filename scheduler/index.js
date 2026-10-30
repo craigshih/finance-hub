@@ -1,12 +1,15 @@
 // 準時排程器（Cloudflare Worker 的 Cron Trigger，誤差 1 分鐘內）：GitHub Actions 的排程常晚好幾小時，
 // 所以由這裡在固定時間「叫 GitHub 立刻跑」（workflow_dispatch 幾秒內就開始），程式跑完再等到整點才推 LINE。
 //   台北 08:30 → finance-hub 每日一檔（產生後等到 09:00 推群組、寄信）
-//   平日台北 13:50 → craig-stock-trade-report 股價快報（收盤價寫進 Notion、AI 快報，等到 14:00 私訊站長）
+//   平日台北 13:50（MON-FRI）→ craig-stock-trade-report 股價快報（收盤價寫進 Notion、AI 快報，等到 14:00 私訊站長）
 // 金鑰：GH_DISPATCH_TOKEN（fine-grained，只給這兩個 repo 的 Actions: Read and write）
 
+// 注意：Cloudflare 的 cron 星期是 1＝星期日（跟一般 cron 不同），所以平日要寫 MON-FRI，寫 1-5 會變成週日到週四
+const PRICE = { repo: "craigshih/craig-stock-trade-report", workflow: "daily-price-update.yml", inputs: {} };
 export const JOBS = {
   "30 0 * * *": { repo: "craigshih/finance-hub", workflow: "daily_pick.yml", inputs: { send: "true" } },
-  "50 5 * * 1-5": { repo: "craigshih/craig-stock-trade-report", workflow: "daily-price-update.yml", inputs: {} },
+  "50 5 * * MON-FRI": PRICE,
+  "50 5 * * 1-5": PRICE, // 舊寫法，後台改完之前先保留
 };
 
 export async function dispatch(job, token, fetcher = fetch) {

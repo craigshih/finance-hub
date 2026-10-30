@@ -143,7 +143,7 @@ test("準時排程器：cron 對應到正確的 workflow，並帶 ref 與 inputs
   const sent = [];
   const fake = async (url, init) => { sent.push({ url, body: JSON.parse(init.body), auth: init.headers.Authorization }); return new Response(null, { status: 204 }); };
   await dispatch(JOBS["30 0 * * *"], "t", fake);
-  await dispatch(JOBS["50 5 * * 1-5"], "t", fake);
+  await dispatch(JOBS["50 5 * * MON-FRI"], "t", fake);
   assert.match(sent[0].url, /finance-hub\/actions\/workflows\/daily_pick\.yml\/dispatches$/);
   assert.deepEqual(sent[0].body, { ref: "main", inputs: { send: "true" } });
   assert.match(sent[1].url, /craig-stock-trade-report\/actions\/workflows\/daily-price-update\.yml\/dispatches$/);
