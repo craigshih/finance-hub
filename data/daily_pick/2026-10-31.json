@@ -1,0 +1,139 @@
+{
+ "date": "2026-10-31",
+ "code": "2059",
+ "name": "川湖",
+ "market": "上市",
+ "industry": "電子零組件業",
+ "story": {
+  "title": "川湖伺服器滑軌怎麼成為AI伺服器關鍵零件？",
+  "one_liner": "從家具滑軌起家，川湖如今供應全球AI伺服器的高精度滑軌。",
+  "industry": "川湖是全球伺服器滑軌的主要供應商，產品包括伺服器導軌、滑軌與筆電鉸鏈，客戶涵蓋NVIDIA、IBM、HP等大型伺服器品牌，與雲端服務供應商直接合作，競爭對手有南俊國際與富世達。",
+  "history": [
+   {
+    "when": "1986",
+    "what": "在高雄路竹成立，生產家具、廚具五金滑軌。"
+   },
+   {
+    "when": "2001",
+    "what": "與康柏合作取得首張伺服器導軌訂單，打入電腦伺服器市場。"
+   },
+   {
+    "when": "2004",
+    "what": "更名川湖科技，將精密滑軌技術延伸至伺服器導軌。"
+   },
+   {
+    "when": "2008",
+    "what": "於台灣證券交易所上市（代號2059）。"
+   },
+   {
+    "when": "2026-08-06",
+    "what": "股價突破1萬元，公布Q2稅後純益70.93億，EPS 74.38元。"
+   }
+  ],
+  "now": [
+   "宣布子公司川益科技進行現金增資，擴大研發與產能。",
+   "董事會決議發行第四次無擔保轉換公司債，以支援未來資本支出。",
+   "川益科技公布三、五廠新建工程與設備採購計畫，提升產能。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續成長，帶動滑軌高精度與高承重需求提升。",
+   "美國休士頓新廠即將量產，能更快速服務北美雲端業者。",
+   "持續累積專利（截至2026年7月核准3,738件），鞏固技術護城河。"
+  ],
+  "risks": [
+   "伺服器市場波動或AI投資減速，可能影響滑軌需求。",
+   "高毛利率維持需依賴持續的技術升級與客戶關係。",
+   "資本支出與債務增加，若營收成長不及預期，財務壓力上升。"
+  ],
+  "watch": [
+   "美國新廠正式投產的時間表。",
+   "公司是否持續取得新專利或擴大客戶名單。"
+  ],
+  "terms": [
+   {
+    "term": "伺服器滑軌",
+    "plain": "用於支撐與移動伺服器機櫃內部模組的高精度軌道，關鍵零件。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E4%BC%BA%E6%9C%8D%E5%99%A8%E6%BB%91%E8%BB%8C&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "OBM",
+    "plain": "Original Brand Manufacturer，自有品牌製造，指川湖以「King Slide」品牌直接銷售產品。",
+    "url": "https://zh.wikipedia.org/zh-tw/OBM",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "無擔保轉換公司債",
+    "plain": "公司發行的債券，可在未來轉換成普通股，沒有資產抵押。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E7%84%A1%E6%93%94%E4%BF%9D%E8%BD%89%E6%8F%9B%E5%85%AC%E5%8F%B8%E5%82%B5&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "毛利率",
+    "plain": "營業收入扣除直接成本後的比例，反映產品賺錢能力。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E6%AF%9B%E5%88%A9%E7%8E%87",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：川湖科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%B7%9D%E6%B9%96%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:代子公司川益科技(股)公司公告其董事會決議現金增資發行普通股案",
+   "url": "https://news.cnyes.com/news/id/6642230"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:本公司董事會決議發行國內第四次無擔保轉換公司債案",
+   "url": "https://news.cnyes.com/news/id/6642135"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:本公司董事會決議發行國內第三次無擔保轉換公司債案",
+   "url": "https://news.cnyes.com/news/id/6642133"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:本公司擬認購子公司川益科技(股)公司（下稱「川益科技」）現金增資所發行之普通股新股",
+   "url": "https://news.cnyes.com/news/id/6642132"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:代子公司川益科技(股)公司公告其董事會決議三廠、五廠之廠房新建工程及購置設備資本支出預算案",
+   "url": "https://news.cnyes.com/news/id/6642131"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：川湖:代子公司川益科技(股)公司公告其董事會決議三廠及五廠之廠房新建工程案",
+   "url": "https://news.cnyes.com/news/id/6642130"
+  },
+  {
+   "label": "DIGITIMES 2026-02-03：川湖、南俊國際在列NVIDIA滑軌鏈　富世達2026卡位可期",
+   "url": "https://www.digitimes.com.tw/tech/dt/n/shwnws.asp?id=745441"
+  },
+  {
+   "label": "川湖 官方網站",
+   "url": "http://www.kingslide.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 7,
+  "weekly": true,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 9650.0,
+  "rev_yoy": 196.2,
+  "rev_month": "2026-09",
+  "gross": 84.18,
+  "pe": 53.2,
+  "yield": 0.53
+ },
+ "generated_at": "2026-10-31T08:31+08:00",
+ "emailed_at": "2026-10-31T09:00+08:00",
+ "line_sent_at": "2026-10-31T09:00+08:00"
+}
