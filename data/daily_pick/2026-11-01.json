@@ -1,0 +1,124 @@
+{
+ "date": "2026-11-01",
+ "code": "6446",
+ "name": "藥華藥",
+ "market": "上市",
+ "industry": "生技醫療業",
+ "story": {
+  "title": "藥華藥怎麼從新藥起家，現在成為全球血小板治療領航者？",
+  "one_liner": "藥華藥專注血小板增多症新藥研發，從2000年創立到2026年獲多國批准。",
+  "industry": "藥華藥屬生技醫療業，主要開發血小板增多症（ET）及相關血液疾病的重組蛋白藥物。上游是原料藥與生物製程供應商，下游包括各國藥品監管機構與醫院。主要客戶是中國與新加坡的醫療機構，競爭對手為其他血液疾病新藥公司。",
+  "history": [
+   {
+    "when": "2000",
+    "what": "公司於2000年5月成立，開始研發血液相關新藥。"
+   },
+   {
+    "when": "2024",
+    "what": "2024年1月25日正式在台灣上市。"
+   },
+   {
+    "when": "2026-10-15",
+    "what": "BESREMi（Ropeginterferon alfa-2b）獲中國NMPA核准治療原發性血小板增多症。"
+   },
+   {
+    "when": "2026-10-28",
+    "what": "新加坡衛生科學局受理BESREMi新增適應症申請。"
+   },
+   {
+    "when": "2026-10-29",
+    "what": "受邀參加多場國際醫療投資與法說會，提升全球能見度。"
+   }
+  ],
+  "now": [
+   "2026-10-15：BESREMi在中國獲得上市核准，用於成人原發性血小板增多症。",
+   "2026-10-28：新加坡衛生科學局受理BESREMi的新增適應症申請，擴大適應症範圍。",
+   "2026-10-29：受邀參加Citi、Jefferies、黑石及元大等多場國際醫療法說會，提升投資者關注。"
+  ],
+  "opportunities": [
+   "中國市場批准後，銷售量可能快速成長。",
+   "新增適應症獲批可開拓更多患者族群。",
+   "國際法說會提升資金與合作機會，助推研發管線擴張。"
+  ],
+  "risks": [
+   "藥品上市後需面對當地價格與報銷政策的挑戰。",
+   "新適應症審批程序不確定，可能延遲上市。",
+   "競爭對手的同類新藥研發成功，可能分散市場份額。"
+  ],
+  "watch": [
+   "2027年第一季中國市場的銷售額。",
+   "新加坡衛生科學局對BESREMi新增適應症的最終批核結果。",
+   "公司在2027年法說會上公布的研發里程碑。"
+  ],
+  "terms": [
+   {
+    "term": "ET",
+    "plain": "原發性血小板增多症，一種血液疾病，患者血小板過多，易造成血栓。",
+    "url": "https://zh.wikipedia.org/zh-tw/ET",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "BESREMi（Ropeginterfe",
+    "plain": "藥華藥開發的重組干擾素藥物，用於治療ET，屬長效注射劑型。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=BESREMi%EF%BC%88Ropeginterfe&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "NMPA",
+    "plain": "中國國家藥品監督管理局，負責新藥上市審批的政府機構。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%9B%BD%E5%AE%B6%E8%8D%AF%E5%93%81%E7%9B%91%E7%9D%A3%E7%AE%A1%E7%90%86%E5%B1%80",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：藥華藥:本公司受邀參加花旗環球證券舉辦之法說會「Citi’s 2026 Global Healthcare Conference」",
+   "url": "https://news.cnyes.com/news/id/6641082"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：藥華藥:本公司受邀參加傑富瑞(Jefferies)舉辦之法說會「Jefferies London Healthcare Conference」",
+   "url": "https://news.cnyes.com/news/id/6641081"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：藥華藥:本公司受邀參加黑石財經舉辦之法說會「戰略臺灣投資論壇」",
+   "url": "https://news.cnyes.com/news/id/6641080"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：藥華藥:本公司受邀參加元大證券舉辦之法人說明會",
+   "url": "https://news.cnyes.com/news/id/6641079"
+  },
+  {
+   "label": "鉅亨網 2026-10-28：藥華藥:本公司代子公司PharmaEssentia Singapore Pte.Ltd.公告新加坡衛生科學局正式受理新藥BESREMi用於原發性血小板過多症（ET）之新增適應症申請",
+   "url": "https://news.cnyes.com/news/id/6639776"
+  },
+  {
+   "label": "鉅亨網 2026-10-21：鉅亨速報 - Factset 最新調查：藥華藥(6446-TW)EPS預估下修至26.71元，預估目標價為1600元",
+   "url": "https://news.cnyes.com/news/id/6634683"
+  },
+  {
+   "label": "藥華藥 官方網站",
+   "url": "http://www.PharmaEssentia.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 5,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 1190.0,
+  "rev_yoy": 100.0,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 58.28,
+  "yield": 0.22
+ },
+ "generated_at": "2026-11-01T08:06+08:00"
+}
