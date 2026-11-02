@@ -1,0 +1,153 @@
+{
+ "date": "2026-11-02",
+ "code": "2454",
+ "name": "聯發科",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "聯發科如何從光碟晶片起家，成為5G手機王者？",
+  "one_liner": "從CD-ROM到5G AI晶片，聯發科一路打造完整的行動與智慧裝置平台。",
+  "industry": "聯發科是無廠半導體公司，專注設計手機、智慧電視、物聯網與AI加速器等系統單晶片（SoC），製造委外給台積電等代工廠。主要客戶包括全球手機品牌、電視廠商與雲端服務商，競爭對手以高通、三星與聯發科的同業為主。",
+  "history": [
+   {
+    "when": "1997",
+    "what": "從聯華電子IC設計部門分拆成立，創辦人蔡明介領軍"
+   },
+   {
+    "when": "2001",
+    "what": "於台灣證券交易所掛牌上市（代號2454）"
+   },
+   {
+    "when": "2005",
+    "what": "推出整合度高的「total solution chip」，助燃中國大陸山寨機熱潮"
+   },
+   {
+    "when": "2019",
+    "what": "發表首款5G天璣晶片Dimensity 1000，進軍5G中階市場"
+   },
+   {
+    "when": "2020",
+    "what": "Q3出貨市占率31%首次超越高通，成為全球最大手機晶片供應商"
+   },
+   {
+    "when": "2025",
+    "what": "合併營收約新台幣5,960億元，員工約1.9萬人"
+   }
+  ],
+  "now": [
+   "2026-10-30 法說會披露首顆AI ASIC已於9月出貨，Q4雲端ASIC營收上修至25億美元，預計2027年營收達160億美元。",
+   "2026-10-30 法說會指出Q4營收季增25%至32%，全年營收增幅將超過先前預估的高個位數。"
+  ],
+  "opportunities": [
+   "AI加速器ASIC在雲端與資料中心的需求持續成長，聯發科有望在2027-2028年突破百億美元營收。",
+   "5G與6G前期佈局，天璣系列持續擴展至中高階手機與車用晶片，提升毛利率。",
+   "透過子公司立錡與達發的電源管理與藍牙技術，開發車用與IoT新市場。"
+  ],
+  "risks": [
+   "高度依賴台積電產能，若代工供應受限將影響出貨時程。",
+   "AI ASIC市場競爭激烈，NVIDIA與Google等大廠可能搶占客戶。",
+   "中低階手機市場需求波動，若市場回暖不及預期，營收成長受限。"
+  ],
+  "watch": [
+   "2027年第一季財報中的AI ASIC營收與毛利率表現。",
+   "天璣新代號晶片的量產進度與主要手機品牌採用情形。",
+   "公司在車用與資料中心客製化晶片的簽約與量產里程碑。"
+  ],
+  "terms": [
+   {
+    "term": "系統單晶片（SoC）",
+    "plain": "將CPU、GPU、基頻、記憶體控制等多項功能整合在同一顆晶片上，減少零件與成本。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E7%B3%BB%E7%B5%B1%E5%96%AE%E6%99%B6%E7%89%87%EF%BC%88SoC%EF%BC%89&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AI ASIC",
+    "plain": "專為人工智慧運算設計的應用專用集成電路，效能高、功耗低，常用於雲端伺服器。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%20ASIC&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "天璣（Dimensity）",
+    "plain": "聯發科的5G手機晶片品牌，提供從中階到高階的完整5G解決方案。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E5%A4%A9%E7%92%A3%EF%BC%88Dimensity%EF%BC%89&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "無廠半導體",
+    "plain": "只負責晶片設計，不自行建廠製造，製程委外給代工廠如台積電。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%84%A1%E5%BB%A0%E5%8D%8A%E5%B0%8E%E9%AB%94%E5%85%AC%E5%8F%B8",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "統包方案",
+    "plain": "除了晶片本身，還提供參考設計、軟體與技術支援，讓客戶快速組裝產品。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E7%B5%B1%E5%8C%85%E6%96%B9%E6%A1%88&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：聯發科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E8%81%AF%E7%99%BC%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：鉅亨速報 - Factset 最新調查：聯發科(2454-TW)EPS預估上修至70.87元，預估目標價為5800元",
+   "url": "https://news.cnyes.com/news/id/6643516"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：〈台股盤前要聞〉鴻海AI伺服器機架產能翻倍、聯發科ASIC Q4營收上修至25億美元",
+   "url": "https://news.cnyes.com/news/id/6643408"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：〈聯發科法說〉首顆AI ASIC放量Q4貢獻上修至25億美元 明年衝160億高標、市占拚2成",
+   "url": "https://news.cnyes.com/news/id/6642405"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：〈聯發科法說〉Q3每股賺17.5元 Q4營收估季增25-32%、全年展望上修",
+   "url": "https://news.cnyes.com/news/id/6642290"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：聯發科:代子公司匯發國際(香港)有限公司(下稱「匯發國際」)公告處分有價證券",
+   "url": "https://news.cnyes.com/news/id/6642149"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：聯發科:本公司董事會通過取得無形資產",
+   "url": "https://news.cnyes.com/news/id/6642148"
+  },
+  {
+   "label": "工商時報 2025-06-01：客製化ASIC需求旺 台廠樂",
+   "url": "https://www.ctee.com.tw/news/20250601700036-430501"
+  },
+  {
+   "label": "科技新報 ：輝達 GB10 晶片高度合作，引發市場臆測可能收購聯發科",
+   "url": "https://technews.tw/?p=1435456"
+  },
+  {
+   "label": "聯發科 官方網站",
+   "url": "http://www.mediatek.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 12,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 3915.0,
+  "rev_yoy": 2.0,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 64.66,
+  "yield": 1.37
+ },
+ "generated_at": "2026-11-02T08:32+08:00",
+ "emailed_at": "2026-11-02T09:00+08:00",
+ "line_sent_at": "2026-11-02T09:00+08:00"
+}
