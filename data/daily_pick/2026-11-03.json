@@ -1,0 +1,119 @@
+{
+ "date": "2026-11-03",
+ "code": "3105",
+ "name": "穩懋",
+ "market": "上櫃",
+ "industry": "半導體業",
+ "story": {
+  "title": "穩懋怎麼從小廠變AI光通訊新星？",
+  "one_liner": "從1999年創立到AI光通訊量產，穩懋在半導體供應鏈持續升級。",
+  "industry": "穩懋是半導體光學元件供應商，主要製造光模組、光感測器與3D感測解決方案。上游是光學鏡頭與矽晶圓，下游客戶包括Apple等手機與AI資料中心廠商，競爭者有宏捷科與全新。",
+  "history": [
+   {
+    "when": "1999",
+    "what": "穩懋半導體於10月成立，專注光學元件製造。"
+   }
+  ],
+  "now": [
+   "受邀參加Macquarie Taiwan Conference，提升國際能見度。",
+   "受邀參加TPEx & KGI HK Corporate Day，與香港投資人互動。",
+   "參與QIC's 20th Taiwan CEO Week線上法說會，說明AI光通訊佈局。"
+  ],
+  "opportunities": [
+   "AI資料中心高速傳輸需求增長，推動PD產品量產。",
+   "Apple iPhone 3D感測需求持續，穩懋作為供應商可獲得長期訂單。",
+   "光通訊模組在5G與車聯網應用擴大，市場規模上升。"
+  ],
+  "risks": [
+   "光學元件市場競爭激烈，價格壓力可能侵蝕毛利。",
+   "AI資料中心需求波動，若需求低於預期，產能利用率受影響。",
+   "供應鏈中晶圓與材料價格上漲，成本上升風險。"
+  ],
+  "watch": [
+   "新產品PD光模組量產進度與客戶驗證結果。",
+   "公司法說會與投資人日的最新策略說明。"
+  ],
+  "terms": [
+   {
+    "term": "Apple",
+    "plain": "全球最大的手機與消費電子產品公司，穩懋為其iPhone的光感測與3D感測供應商。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E8%8B%B9%E6%9E%9C%20%28%E6%B6%88%E6%AD%A7%E4%B9%89%29",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "iPhone PA、3D感測",
+    "plain": "iPhone的相機前置模組與立體感測技術，需高精度光學元件。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=iPhone%20PA%E3%80%813D%E6%84%9F%E6%B8%AC&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AI資料中心",
+    "plain": "用於人工智慧運算的大型伺服器中心，對高速光通訊模組需求大增。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E8%B3%87%E6%96%99%E4%B8%AD%E5%BF%83&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "PD產品",
+    "plain": "光電偵測器（Photodiode）相關模組，適用於高速資料傳輸與感測。",
+    "url": "https://zh.wikipedia.org/zh-tw/PD",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：穩懋:公告本公司115/11/16受邀參加麥格理證券舉辦之「MACQUARIE TAIWAN CONFERENCE」",
+   "url": "https://news.cnyes.com/news/id/6644103"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：穩懋:公告本公司115/11/12 至 115/11/13受邀參加櫃買中心與凱基證券於香港聯合舉辦之「TPEx & KGI HK Corporate Day 」",
+   "url": "https://news.cnyes.com/news/id/6644102"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：穩懋:公告本公司受邀參加寬量國際主辦之「QIC's 20th Taiwan CEO Week」線上法說會",
+   "url": "https://news.cnyes.com/news/id/6644101"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：鉅亨速報 - Factset 最新調查：穩懋(3105-TW)EPS預估上修至11.7元，預估目標價為675元",
+   "url": "https://news.cnyes.com/news/id/6643763"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：鉅亨速報 - Factset 最新調查：穩懋(3105-TW)目標價調升至675元，幅度約3.85%",
+   "url": "https://news.cnyes.com/news/id/6643762"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：鉅亨速報 - Factset 最新調查：穩懋(3105-TW)EPS預估上修至11.64元，預估目標價為650元",
+   "url": "https://news.cnyes.com/news/id/6643513"
+  },
+  {
+   "label": "聯合報 2026-03-24：iPhone零組件完整曝光 這三家台廠最受矚目",
+   "url": "https://udn.com/news/story/7251/9400072"
+  },
+  {
+   "label": "穩懋 官方網站",
+   "url": "https://www.winfoundry.com"
+  }
+ ],
+ "dropped_sentences": 3,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 14,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 588.0,
+  "rev_yoy": 30.0,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 69.1,
+  "yield": 0.34
+ },
+ "generated_at": "2026-11-03T08:32+08:00",
+ "emailed_at": "2026-11-03T09:00+08:00",
+ "line_sent_at": "2026-11-03T09:00+08:00"
+}
