@@ -1,0 +1,132 @@
+{
+ "date": "2026-11-04",
+ "code": "3711",
+ "name": "日月光投控",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "日月光投控怎麼從新創變成全球封測巨頭？",
+  "one_liner": "日月光投控是全球領先的半導體封裝與測試服務供應商。",
+  "industry": "日月光投控提供半導體封裝（把晶片包裝成可用的模組）與測試服務，客戶包括 NVIDIA、Apple 等大型晶片設計公司；上游是晶圓代工廠，下游則是手機、伺服器、AI 加速卡等終端產品。",
+  "history": [
+   {
+    "when": "2018",
+    "what": "公司成立並於同年上市，正式進入半導體封測市場。"
+   },
+   {
+    "when": "2020",
+    "what": "成為 Apple Watch 系統級封裝供應商，提升國際能見度。"
+   },
+   {
+    "when": "2023",
+    "what": "獲得愛德萬測試最佳供應商獎，證明測試品質。"
+   },
+   {
+    "when": "2026",
+    "what": "子公司持續擴充設備與廠務，強化產能。"
+   }
+  ],
+  "now": [
+   "子公司台灣福雷電子向東京電子取得新機台，提升先進封裝產能。",
+   "日月光半導體製造向 HANMI 取得先進封裝設備，擴大 AI 晶片服務。",
+   "子公司矽品精密取得多項廠務工程，改善產線效率。"
+  ],
+  "opportunities": [
+   "AI 晶片需求持續成長，帶動高階封裝訂單。",
+   "車用電子與 5G 基站的封測需求上升，提供新客戶來源。"
+  ],
+  "risks": [
+   "封測產能過剩可能壓低服務價格。",
+   "供應鏈緊張（如先進材料短缺）會影響交期。"
+  ],
+  "watch": [
+   "每季營收與毛利率變化，觀察產能利用率。",
+   "新設備安裝進度與客戶訂單落地情形。",
+   "法說會上對 AI 封裝策略的說明。"
+  ],
+  "terms": [
+   {
+    "term": "封裝",
+    "plain": "將裸晶片包裝成可直接使用的模組，保護晶片並提供電氣連接。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%90%83%E6%9F%B5%E9%99%A3%E5%88%97%E5%B0%81%E8%A3%9D",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "封測",
+    "plain": "封裝後的測試服務，確保晶片功能正常，常稱為半導體測試。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "AI 晶片",
+    "plain": "專為人工智慧運算設計的處理器，需要高階封裝技術以提升效能。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%20%E6%99%B6%E7%89%87&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：日月光投控:代子公司台灣福雷電子(股)公司公告向TOKYO ELECTRON LIMITED取得供營業用之機器設備",
+   "url": "https://news.cnyes.com/news/id/6645447"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：日月光投控:代子公司日月光半導體製造(股)公司公告向HANMI SEMICONDUCTOR CO., LTD取得供營業用之機器設備",
+   "url": "https://news.cnyes.com/news/id/6645446"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：日月光投控:代子公司日月光半導體製造(股)公司公告向森川營造工程有限公司取得供營業用之廠務工程",
+   "url": "https://news.cnyes.com/news/id/6645445"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：日月光投控:代子公司矽品精密工業(股)公司公告取得廠務工程",
+   "url": "https://news.cnyes.com/news/id/6644110"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：日月光投控:代子公司矽品精密工業(股)公司公告取得廠務工程",
+   "url": "https://news.cnyes.com/news/id/6644109"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：日月光投控:代子公司矽品精密工業(股)公司公告取得廠務工程",
+   "url": "https://news.cnyes.com/news/id/6644108"
+  },
+  {
+   "label": "經濟日報 2026-03-31：封測廠 AI 戰略地位激增 大摩調升這二檔個股目標價",
+   "url": "https://money.udn.com/money/amp/story/5607/9414552"
+  },
+  {
+   "label": "科技新報 2020-09-16：蘋果推新 Apple Watch，封測和載板台廠吃補",
+   "url": "https://technews.tw/2020/09/16/apple-apple-watch-s6-benefit-tw-packaging-and-testing-pcb-plant/"
+  },
+  {
+   "label": "愛德萬測試公告 2023-10-03：",
+   "url": "https://www.advantest.com/tw/news/2023/20231003.html"
+  },
+  {
+   "label": "日月光投控 官方網站",
+   "url": "https://www.aseglobal.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 19,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 616.0,
+  "rev_yoy": 45.5,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 44.57,
+  "yield": 1.07
+ },
+ "generated_at": "2026-11-04T08:32+08:00",
+ "emailed_at": "2026-11-04T09:00+08:00",
+ "line_sent_at": "2026-11-04T09:00+08:00"
+}
