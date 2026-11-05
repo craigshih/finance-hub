@@ -1,14 +1,5 @@
 [
 {
-"date": "2026-08-06",
-"foreign": 20.2,
-"trust": 94.1,
-"dealer": -63.1,
-"total": 51.2,
-"margin_yi": 5328.0,
-"margin_chg_yi": 93.1
-},
-{
 "date": "2026-08-07",
 "foreign": -407.2,
 "trust": -12.0,
@@ -538,5 +529,14 @@
 "total": -1601.6,
 "margin_yi": 5969.5,
 "margin_chg_yi": -28.3
+},
+{
+"date": "2026-11-05",
+"foreign": -1024.6,
+"trust": 225.9,
+"dealer": -435.3,
+"total": -1233.9,
+"margin_yi": 5764.1,
+"margin_chg_yi": -205.4
 }
 ]
