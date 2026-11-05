@@ -1,0 +1,133 @@
+{
+ "date": "2026-11-05",
+ "code": "3443",
+ "name": "創意",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "創意電子怎麼從新創變AI客製化晶片大廠？",
+  "one_liner": "創意電子是台灣無晶圓ASIC供應商，靠客製化晶片服務快速成長。",
+  "industry": "創意電子是無晶圓廠（foundry-less）ASIC公司，提供客製化特定應用積體電路。上游主要是設計服務供應商，如Microsoft、Alphabet；下游則是AI、HPC、雲端等高效能運算領域的系統整合商與大型平台公司。主要競爭者包括世芯-KY等同業。",
+  "history": [
+   {
+    "when": "1998",
+    "what": "由石克強、盧超群、林永隆共同創辦，成立於新竹科學園區。"
+   },
+   {
+    "when": "2003",
+    "what": "台積電轉投資成為最大股東，資金與技術支援加速擴張。"
+   },
+   {
+    "when": "2006",
+    "what": "於11月3日上市，正式成為公開發行公司。"
+   },
+   {
+    "when": "2026-10-30",
+    "what": "完成400億元聯貸，11家銀行參與，資金用於營運擴張與ESG計畫。"
+   },
+   {
+    "when": "2026-09",
+    "what": "9月營收71.45億元，年增近98%，顯示客製化ASIC需求旺盛。"
+   }
+  ],
+  "now": [
+   "2026-10-30：完成400億元聯貸，資金將支援產能擴張與ESG連結機制。",
+   "2026-09：營收71.45億元，年增97.78%，受惠AI與雲端需求升溫。",
+   "2026-10-29：續租采鈺科技廠房作為EDA機房，提升設計驗證能力。"
+  ],
+  "opportunities": [
+   "AI與高效能運算持續升溫，客製化ASIC需求長期看好。",
+   "ESG相關融資與補助可降低資金成本，提升營運彈性。",
+   "與Microsoft、Alphabet等大廠合作，開發新一代AI加速器。"
+  ],
+  "risks": [
+   "客製化晶片開發週期長，若需求波動可能影響營收穩定性。",
+   "半導體供應鏈緊張，原材料與測試服務價格上漲。",
+   "競爭對手加速技術佈局，可能侵蝕市場份額。"
+  ],
+  "watch": [
+   "新產品（AI加速器）原型驗證進度。",
+   "公司法說會與聯貸資金使用報告。"
+  ],
+  "terms": [
+   {
+    "term": "ASIC",
+    "plain": "特定應用積體電路，依客戶需求設計的專用晶片。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%89%B9%E5%AE%9A%E6%87%89%E7%94%A8%E7%A9%8D%E9%AB%94%E9%9B%BB%E8%B7%AF",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "無晶圓廠",
+    "plain": "不自行製造晶圓，只提供設計與製程服務的公司。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E7%84%A1%E6%99%B6%E5%9C%93%E5%BB%A0&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "ESG",
+    "plain": "環境、社會與公司治理，企業在永續與治理方面的表現指標。",
+    "url": "https://zh.wikipedia.org/zh-tw/ESG",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：創意電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%89%B5%E6%84%8F%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：盤中速報 - 文化創意產業指數類股表現疲軟，跌幅2.15%，總成交額3.46億",
+   "url": "https://news.cnyes.com/news/id/6644836"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：鉅亨速報 - Factset 最新調查：創意(3443-TW)EPS預估上修至58.12元，預估目標價為8600元",
+   "url": "https://news.cnyes.com/news/id/6644620"
+  },
+  {
+   "label": "鉅亨網 2026-11-02：鉅亨速報 - Factset 最新調查：創意(3443-TW)EPS預估上修至56.51元，預估目標價為8000元",
+   "url": "https://news.cnyes.com/news/id/6644346"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：創意9月營收71.45億元年增97.78% 1—9月達440.99億元",
+   "url": "https://news.cnyes.com/news/id/6642436"
+  },
+  {
+   "label": "鉅亨網 2026-10-30：11家銀行參與！兆豐銀統籌創意400億元聯貸 超額認購1.2倍",
+   "url": "https://news.cnyes.com/news/id/6641844"
+  },
+  {
+   "label": "鉅亨網 2026-10-29：創意:本公司發布115年第三季財務報告",
+   "url": "https://news.cnyes.com/news/id/6640820"
+  },
+  {
+   "label": "工商時報 2025-06-01：客製化ASIC需求旺 台廠樂",
+   "url": "https://www.ctee.com.tw/news/20250601700036-430501"
+  },
+  {
+   "label": "創意 官方網站",
+   "url": "https://www.guc-asic.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 7,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 7115.0,
+  "rev_yoy": 97.8,
+  "rev_month": "2026-09",
+  "gross": 22.6,
+  "pe": 143.74,
+  "yield": 0.28
+ },
+ "generated_at": "2026-11-05T08:32+08:00",
+ "emailed_at": "2026-11-05T09:00+08:00",
+ "line_sent_at": "2026-11-05T09:00+08:00"
+}
