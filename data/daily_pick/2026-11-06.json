@@ -1,0 +1,125 @@
+{
+ "date": "2026-11-06",
+ "code": "2301",
+ "name": "光寶科",
+ "market": "上市",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "光寶科如何從LED起家，變身AI電源新星？",
+  "one_liner": "從1975年LED工廠到AI資料中心電源，光寶科持續轉型升級。",
+  "industry": "光寶科屬電腦及週邊設備業，主要提供電源供應器、綠色資料中心電源、智慧城市感測與路燈等。上游是半導體與被動元件供應商，下游包括雲端服務商、資料中心與智慧城市建設單位，競爭者有台達電等。",
+  "history": [
+   {
+    "when": "2002",
+    "what": "光寶集團整併，光寶電子更名為光寶科技，開始多角化布局"
+   },
+   {
+    "when": "2019",
+    "what": "以1.65億美元將建興儲存業務賣給東芝，聚焦電源與AI雲端"
+   },
+   {
+    "when": "2022",
+    "what": "越南二期廠落成，提升全球製造能量"
+   },
+   {
+    "when": "2024-04-30",
+    "what": "取得日本電源大廠科索19.99%股權，拓展半導體與新能源市場"
+   },
+   {
+    "when": "2026-09-03",
+    "what": "投資波蘭液冷公司DCX 25%股權，布局AI資料中心水冷散熱"
+   }
+  ],
+  "now": [
+   "2026-11-03：受邀參加多場國際與本土企業日，如Nomura Taiwan Corporate Day，提升品牌能見度。"
+  ],
+  "opportunities": [
+   "AI資料中心需求持續成長，光寶的綠色電源與液冷解決方案有望受惠。",
+   "智慧城市基礎建設擴大，光寶的感測器與智能路燈可獲新訂單。"
+  ],
+  "risks": [
+   "AI電源出貨受客戶供電進度影響，若大型雲端客戶延遲建置，營收可能受挫。",
+   "國際政治與供應鏈波動，液冷與半導體設備進口成本上升。"
+  ],
+  "watch": [
+   "新加坡生醫研發中心與波蘭液冷合作進度",
+   "AI電源大客戶的訂單簽約情況"
+  ],
+  "terms": [
+   {
+    "term": "綠色資料中心",
+    "plain": "以高效率電源與節能技術降低資料中心能源消耗的設施",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E7%B6%A0%E8%89%B2%E8%B3%87%E6%96%99%E4%B8%AD%E5%BF%83&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "液冷散熱",
+    "plain": "利用液體直接接觸熱源帶走熱量的散熱方式，適用於高功率AI伺服器",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%B6%B2%E5%86%B7%E6%95%A3%E7%86%B1&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AI電源",
+    "plain": "針對人工智慧運算需求設計的高效、穩定電源供應系統",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E9%9B%BB%E6%BA%90&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：光寶科技",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%85%89%E5%AF%B6%E7%A7%91%E6%8A%80"
+  },
+  {
+   "label": "鉅亨網 2026-11-04：鉅亨速報 - Factset 最新調查：光寶科(2301-TW)EPS預估上修至11.19元，預估目標價為292.5元",
+   "url": "https://news.cnyes.com/news/id/6645873"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：光寶科:受邀參加 Nomura Taiwan Corporate Day",
+   "url": "https://news.cnyes.com/news/id/6645238"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：光寶科:受邀參加 Fubon/Jefferies 4Q26 Tech Trip",
+   "url": "https://news.cnyes.com/news/id/6645237"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：光寶科:受邀參加 2026 Taiwan Corporate Day",
+   "url": "https://news.cnyes.com/news/id/6645236"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：光寶科:受邀參加 Twenty-Fifth Annual Asia Pacific Summit",
+   "url": "https://news.cnyes.com/news/id/6645235"
+  },
+  {
+   "label": "鉅亨網 2026-11-03：光寶科:受邀參加 J.P. Morgan APAC TIG Conference",
+   "url": "https://news.cnyes.com/news/id/6645234"
+  },
+  {
+   "label": "光寶科 官方網站",
+   "url": "http://www.liteon.com/"
+  }
+ ],
+ "dropped_sentences": 3,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 15,
+  "weekly": false,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 211.5,
+  "rev_yoy": 22.1,
+  "rev_month": "2026-09",
+  "gross": 25.16,
+  "pe": 21.63,
+  "yield": 2.36
+ },
+ "generated_at": "2026-11-06T08:32+08:00",
+ "emailed_at": "2026-11-06T09:00+08:00",
+ "line_sent_at": "2026-11-06T09:00+08:00"
+}
