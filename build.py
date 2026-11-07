@@ -341,7 +341,7 @@ def load_reports() -> list[dict]:
 
 def screen_ok(s) -> bool:
     """新版篩選且有實際跑出結果；全市場資料抓不齊的那幾次（初篩 0 家或有 error）不算。"""
-    return bool(s) and "value" in s and not s.get("error") and sum((s.get("prefilter") or {}).values()) > 0
+    return bool(s) and not s.get("us_only") and "value" in s and not s.get("error") and sum((s.get("prefilter") or {}).values()) > 0
 
 
 def load_latest_screen(reports: list[dict]) -> dict | None:
@@ -481,6 +481,8 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
         n_c = sum(1 for x in s["stocks"] if x.get("candidate"))
         sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔 → {n_c} 檔符合多數條件"
         extra = funnel([("供應鏈公司", len(s["stocks"])), ("符合多數條件", n_c)]) + extra
+    elif s and s.get("us_only"):
+        sub = f"美股版・{len(r['companies'])} 家美股基本面分析・台股候選待財報季結束後恢復"
     elif s and not screen_ok(s):
         sub = "本期全市場資料沒抓齊，篩選結果改看每日更新"
     elif s:
@@ -497,6 +499,10 @@ def render_report_page(r: dict, prev_r, next_r) -> str:
 
     if legacy:
         body += section("台股研究候選：全球龍頭供應鏈", legacy_screen(s), "依通過條件的比例排序")
+    elif s and s.get("us_only"):
+        body += section("台股研究候選", '<p class="empty">本期為美股版：台股正值財報季，各公司陸續公布新一季財報，全市場資料還沒齊，'
+                        '為了不把「只有少數公司」的排名誤當成結論，台股候選暫停；財報公布完畢（約 11/16、8/16、5/16）後恢復。'
+                        '<a href="index.html">看每個交易日更新的最新候選 →</a></p>')
     elif s and not screen_ok(s):
         body += section("台股研究候選", '<p class="empty">這一期執行時證交所、櫃買中心的全市場資料沒有抓齊（網路中斷），'
                         '為了不把「0 檔通過」誤當成結論，本期不列候選。<a href="index.html">看每個交易日更新的最新候選 →</a></p>')
@@ -817,6 +823,11 @@ def report_headline(r: dict) -> tuple[str, str, list[dict]]:
         title = f"{names}等 {len(cands)} 檔供應鏈公司符合多數條件" if cands else "全球龍頭供應鏈篩選"
         sub = f"全球龍頭供應鏈 {len(s['stocks'])} 檔篩選｜{len(companies)} 家個股深度分析"
         logos = [{"code": x["id"], "name": x["name"], "market": None} for x in cands]
+    elif s and s.get("us_only"):
+        names = "、".join(short_name(c.get("name")) for c in companies[:3])
+        title = f"美股版：{names}等 {len(companies)} 家美股深度分析"
+        sub = "台股財報季，研究候選暫停；只分析觀察清單的美股"
+        logos = []
     elif s and not screen_ok(s):
         names = "、".join(short_name(c.get("name")) for c in companies[:3])
         title = f"{names}等 {len(companies)} 家個股深度分析" if companies else "本期篩選資料不完整"
