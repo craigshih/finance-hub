@@ -1,0 +1,126 @@
+{
+ "date": "2026-11-07",
+ "code": "3661",
+ "name": "世芯-KY",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "世芯-KY 為什麼能在 ASIC 設計上突破產能瓶頸？",
+  "one_liner": "世芯-KY 以客製化 ASIC 設計服務切入雲端與 AI 市場，營收快速成長。",
+  "industry": "世芯-KY 為半導體設計公司，提供客製化 ASIC（應用專用集成電路）設計服務，主要客戶包括 Amazon AWS、Google 等雲端與 AI 企業。上游依賴晶圓代工廠，下游則是終端系統整合商與雲端服務供應商，競爭對手有創意等同業。",
+  "history": [
+   {
+    "when": "2003",
+    "what": "公司成立，專注 ASIC 設計服務。"
+   },
+   {
+    "when": "2014",
+    "what": "於台灣證券交易所上市。"
+   },
+   {
+    "when": "2025",
+    "what": "成為 Amazon AWS Inferentia ASIC 的供應商。"
+   },
+   {
+    "when": "2026",
+    "what": "第3季 EPS 創新高，毛利率跌破 20% 仍創下獲利新高。"
+   }
+  ],
+  "now": [
+   "2026-11-07：公司表示若無產能限制，上季營收可再多 1 億美元。",
+   "2026-11-07：美系新客戶預估 2027 年第二季起貢獻 10 億美元，帶來三位數成長。",
+   "2026-11-07：公司正積極招聘，年底人力將衝 4 位數以接更多專案。"
+  ],
+  "opportunities": [
+   "雲端與 AI 市場持續擴大，ASIC 設計需求上升。",
+   "贏得 Google 設計案後，可開啟更多大型雲端客戶。",
+   "次級晶圓市場收斂，提升 ASIC 設計服務的議價能力。"
+  ],
+  "risks": [
+   "產能受限會直接影響營收，需持續擴充資產負債表。",
+   "毛利率跌破 20% 可能削弱獲利空間。",
+   "高度依賴少數大型客戶，客戶需求變動風險大。"
+  ],
+  "watch": [
+   "2027 年第二季營收與美系客戶貢獻情況。",
+   "公司資本支出與產能擴充進度。",
+   "新簽訂的 Google 設計案進度與營收貢獻。"
+  ],
+  "terms": [
+   {
+    "term": "ASIC",
+    "plain": "應用專用集成電路，為特定功能客製化的晶片。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E7%89%B9%E5%AE%9A%E6%87%89%E7%94%A8%E7%A9%8D%E9%AB%94%E9%9B%BB%E8%B7%AF",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "AWS Inferentia",
+    "plain": "Amazon 雲端服務的 AI 推理加速器晶片。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AWS%20Inferentia&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "次級晶圓市場",
+    "plain": "指已完成製程但未達最高等級的晶圓，供設計公司以較低成本使用。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%AC%A1%E7%B4%9A%E6%99%B6%E5%9C%93%E5%B8%82%E5%A0%B4&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) 第3季 EPS 37.68 元創新高！毛利率跌破 20%，獲利為何照樣創高？",
+   "url": "https://news.cnyes.com/news/id/6651750"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) 沒有產能限制的話，上季營收可以再多 1 億美元！",
+   "url": "https://news.cnyes.com/news/id/6651747"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) 2028 年營收再跳一級！公司表示瓶頸在資產負債表",
+   "url": "https://news.cnyes.com/news/id/6651748"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) 美系新客戶預估貢獻 10 億美元！明年約第2季起貢獻，2027 年三位數成長",
+   "url": "https://news.cnyes.com/news/id/6651749"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) N3 是從競爭對手手上贏回來的！次級晶圓市場若收斂，對世芯絕對是好消息",
+   "url": "https://news.cnyes.com/news/id/6651744"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：世芯-KY(3661) 有信心贏下 Google！執行長：商業模式還沒定，不賺錢的設計不接",
+   "url": "https://news.cnyes.com/news/id/6651742"
+  },
+  {
+   "label": "工商時報 2025-06-01：客製化ASIC需求旺 台廠樂",
+   "url": "https://www.ctee.com.tw/news/20250601700036-430501"
+  },
+  {
+   "label": "世芯 官方網站",
+   "url": "https://www.alchip.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 10,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 2830.0,
+  "rev_yoy": 496.0,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 41.51,
+  "yield": 1.15
+ },
+ "generated_at": "2026-11-07T08:31+08:00",
+ "emailed_at": "2026-11-07T09:00+08:00",
+ "line_sent_at": "2026-11-07T09:00+08:00"
+}
