@@ -1,0 +1,125 @@
+{
+ "date": "2026-11-09",
+ "code": "2344",
+ "name": "華邦電",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "華邦電靠AI記憶體能否再創高峰？",
+  "one_liner": "專注利基型記憶體的華邦電，正以AI需求擴產，未來成長與產能風險並存。",
+  "industry": "華邦電是利基型記憶體IC廠，產品包括Specialty DRAM、Mobile DRAM與Serial Flash。上游主要是晶圓代工與封裝測試，下游客戶涵蓋3C、車用、工業與醫療電子。競爭對手有南亞科、旺宏等，同時也是全球前二大Serial Flash供應者。",
+  "history": [
+   {
+    "when": "1987",
+    "what": "在台中科學園區創立，開始記憶體IC設計與製造"
+   },
+   {
+    "when": "1995",
+    "what": "於台灣證券交易所上市"
+   },
+   {
+    "when": "2009",
+    "what": "收購德國奇夢達專利，啟動自主研發路線"
+   },
+   {
+    "when": "2017",
+    "what": "宣布在高雄投資3300億新12吋晶圓廠"
+   }
+  ],
+  "now": [
+   "AI需求推動記憶體價格上漲，華邦電自去年下半年起擴產，設備陸續進廠，預計明年開始顯現效益。",
+   "公司董事長焦佑鈞透露，員工分紅已達30個月，以激勵營運績效。",
+   "10月營收達293.61億元，年增率256.96%，顯示需求強勁。"
+  ],
+  "opportunities": [
+   "AI應用持續擴大，僅AI可承受記憶體漲價，提升華邦電營收。",
+   "新高雄12吋晶圓廠投產後，提升產能與製程技術競爭力。",
+   "持續研發3Xnm以下先進製程，擴大利基市場份額。"
+  ],
+  "risks": [
+   "若2028、2029年景氣持續低迷，產能過剩可能壓低價格。",
+   "資金限制或導致擴產計畫延遲，影響營收成長。",
+   "競爭對手加速技術升級，可能侵蝕華邦電的市場佔有率。"
+  ],
+  "watch": [
+   "每季營收與毛利率變化，觀察AI需求持續性。",
+   "公司債轉換價格與溢價率，評估資金成本。"
+  ],
+  "terms": [
+   {
+    "term": "Specialty DRAM",
+    "plain": "針對特定應用的低密度動態隨機存取記憶體，常用於工業、車用等利基市場",
+    "url": "https://zh.wikipedia.org/w/index.php?search=Specialty%20DRAM&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "Serial Flash",
+    "plain": "編碼型快閃記憶體，適合儲存程式碼與小容量資料，廣泛應用於PC與嵌入式系統",
+    "url": "https://zh.wikipedia.org/w/index.php?search=Serial%20Flash&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AI記憶體需求",
+    "plain": "人工智慧運算需要大量高速記憶體，推高相關記憶體產品的價格與需求",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E8%A8%98%E6%86%B6%E9%AB%94%E9%9C%80%E6%B1%82&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：華邦電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E8%8F%AF%E9%82%A6%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：〈華邦電展望〉AI一枝獨秀！擴產效益明年顯現 焦佑鈞示警「擔心下一個不景氣太晚來」",
+   "url": "https://news.cnyes.com/news/id/6652015"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：〈華邦電展望〉焦佑鈞證實員工分紅30個月 談營運「賠錢很煩、賺錢很累」",
+   "url": "https://news.cnyes.com/news/id/6651987"
+  },
+  {
+   "label": "鉅亨網 2026-11-07：〈華邦電展望〉晶圓龍頭傳跨足3D DRAM 焦佑鈞：台積追求卓越 不會做半調子",
+   "url": "https://news.cnyes.com/news/id/6651973"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：營收速報  - 華邦電(2344)10月營收293.61億元年增率高達256.96％",
+   "url": "https://news.cnyes.com/news/id/6651327"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：華邦電10月營收293.61億元年增256.96% 1—10月達2097.88億元",
+   "url": "https://news.cnyes.com/news/id/6651158"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：華邦電:公告本公司國內第五次無擔保轉換公司債之轉換價格及溢價率",
+   "url": "https://news.cnyes.com/news/id/6651483"
+  },
+  {
+   "label": "華邦電 官方網站",
+   "url": "https://WWW.WINBOND.COM"
+  }
+ ],
+ "dropped_sentences": 2,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 9,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 120.5,
+  "rev_yoy": 256.7,
+  "rev_month": "2026-09",
+  "gross": 65.49,
+  "pe": 7.76,
+  "yield": 0.41
+ },
+ "generated_at": "2026-11-09T08:33+08:00",
+ "emailed_at": "2026-11-09T09:00+08:00",
+ "line_sent_at": "2026-11-09T09:00+08:00"
+}
