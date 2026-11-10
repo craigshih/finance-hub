@@ -1,0 +1,129 @@
+{
+ "date": "2026-11-10",
+ "code": "2308",
+ "name": "台達電",
+ "market": "上市",
+ "industry": "電子零組件業",
+ "story": {
+  "title": "AI 電源需求爆增，台達電怎麼抓住機會？",
+  "one_liner": "台達電從磁性元件起家，成為全球電源與散熱解決方案領導者。",
+  "industry": "台達電是電源管理與散熱解決方案的主要供應商，提供開關電源、UPS、液冷模組等。上游包括半導體與磁性材料供應商，下游涵蓋資料中心、工業自動化、電動車等客戶，競爭對手有 Lite-on、Artesyn、MEAN WELL 等。",
+  "history": [
+   {
+    "when": "1971",
+    "what": "鄭崇華在新北新莊創立台達電，首產電視線圈與磁性元件。"
+   },
+   {
+    "when": "1975",
+    "what": "改組為股份有限公司，開始布局電源管理。"
+   },
+   {
+    "when": "2021",
+    "what": "加入 RE100，承諾 2030 前全公司使用再生能源。"
+   },
+   {
+    "when": "2024",
+    "what": "啟用百萬瓦級水電解製氫平台，進軍氫能產業。"
+   }
+  ],
+  "now": [
+   "10 月營收 746.66 億元，年增 30.12%，創單月新高。",
+   "AI 電源需求持續強勁，台達電正推出 800V 高壓產品以切入新市場。"
+  ],
+  "opportunities": [
+   "800V 新產品可服務 AI 伺服器與資料中心，提升毛利率。",
+   "氫能平台與台電、中鋼合作，開拓綠能儲能市場。",
+   "持續擴大 RE100 目標，吸引 ESG 投資者。"
+  ],
+  "risks": [
+   "高壓電源研發成本高，若需求未如預期會影響營收。",
+   "氫能產業尚在早期階段，政策與技術變數大。",
+   "全球供應鏈緊張，關鍵元件價格波動可能壓縮毛利。"
+  ],
+  "watch": [
+   "800V 產品出貨量與客戶回饋。",
+   "氫能平台商業化里程碑與合作進度。",
+   "年度 ESG 報告與再生能源使用比例。"
+  ],
+  "terms": [
+   {
+    "term": "RE100",
+    "plain": "全球企業承諾使用 100% 再生能源的倡議，台達電於 2021 年加入。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=RE100&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "800V 電源",
+    "plain": "高電壓開關電源，適用於 AI 伺服器等高功率設備，可提升效率與降低能耗。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=800V%20%E9%9B%BB%E6%BA%90&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "氫燃料電池測試平台",
+    "plain": "用於研發氫能製造與儲存的設施，台達電於 2024 年在南科建置，支援未來綠能應用。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%B0%AB%E7%87%83%E6%96%99%E9%9B%BB%E6%B1%A0%E6%B8%AC%E8%A9%A6%E5%B9%B3%E5%8F%B0&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：台達電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%8F%B0%E9%81%94%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：AI電源需求強勁，台達電、光寶科營收卻僅略優預期！下一波成長看800V新產品出貨",
+   "url": "https://news.cnyes.com/news/id/6655027"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：台達電10月營收746.66億元年增30.12% 1—10月達6143.34億元",
+   "url": "https://news.cnyes.com/news/id/6654024"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：台達電10月營收746億元月增14% 改寫單月歷史新高",
+   "url": "https://news.cnyes.com/news/id/6653646"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：營收速報  - 台達電(2308)10月營收746.66億元年增率高達30.12％",
+   "url": "https://news.cnyes.com/news/id/6653659"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：台達電:本公司受邀參加元大證券法人說明會之日期、地點更新",
+   "url": "https://news.cnyes.com/news/id/6653751"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：台達電:發布本公司115年10月份業績資料",
+   "url": "https://news.cnyes.com/news/id/6653750"
+  },
+  {
+   "label": "鉅亨網 2025-03-21：",
+   "url": "https://news.cnyes.com/news/id/5908550"
+  },
+  {
+   "label": "台達電 官方網站",
+   "url": "https://www.deltaww.com/zh-TW/index"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 9,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 1160.0,
+  "rev_yoy": null,
+  "rev_month": null,
+  "gross": 35.47,
+  "pe": 34.83,
+  "yield": 1.0
+ },
+ "generated_at": "2026-11-10T08:32+08:00",
+ "emailed_at": "2026-11-10T09:00+08:00",
+ "line_sent_at": "2026-11-10T09:00+08:00"
+}
