@@ -1,0 +1,116 @@
+{
+ "date": "2026-11-11",
+ "code": "2368",
+ "name": "金像電",
+ "market": "上市",
+ "industry": "電子零組件業",
+ "story": {
+  "title": "金像電怎麼從小 PCB 廠變成全製程王？",
+  "one_liner": "金像電是台灣領先的 PCB 供應商，客戶遍及雲端與 AI 伺服器。",
+  "industry": "金像電屬於電子零組件業，主要製造高階印刷電路板（PCB），供應給雲端、AI 伺服器等上游晶圓廠與下游系統整合商，客戶包括 Amazon AWS、各大伺服器 OEM，競爭對手有健鼎與高技。",
+  "history": [
+   {
+    "when": "1981",
+    "what": "金像電在桃園成立，開始製造一般印刷電路板。"
+   },
+   {
+    "when": "2025",
+    "what": "成為 Amazon AWS Trainium 伺服器 PCB 供應商，拓展高階伺服器市場。"
+   }
+  ],
+  "now": [
+   "Q3 每股純益 28.41 元，居全製程 PCB 廠之冠，顯示獲利能力領先。",
+   "受邀參加元大證券法人說明會，持續與投資人溝通未來布局。"
+  ],
+  "opportunities": [
+   "持續供應 Amazon AWS Trainium 伺服器 PCB，受惠 AI 伺服器需求擴大。",
+   "子公司在泰國與蘇州取得土地與設備，擴大產能以因應國際訂單。",
+   "高毛利率的高階 PCB 市場成長，提升公司營收與獲利。"
+  ],
+  "risks": [
+   "全球半導體供應鏈波動可能影響 PCB 原料成本。",
+   "客戶集中於少數大型雲端廠商，需求變化風險較高。",
+   "新興競爭者在低成本區域布局，可能壓縮價格空間。"
+  ],
+  "watch": [
+   "子公司 GCE(Thailand) 與蘇州金像的產能擴建進度。",
+   "與 Amazon AWS 的供應合約續簽與新產品開發情形。"
+  ],
+  "terms": [
+   {
+    "term": "PCB",
+    "plain": "印刷電路板，用於連接電子元件的基板，是電子產品的核心結構。",
+    "url": "https://zh.wikipedia.org/zh-tw/PCB",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "AWS Trainium",
+    "plain": "Amazon 自家設計的 AI 加速晶片，需高效能 PCB 來支援運算。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AWS%20Trainium&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "全製程 PCB",
+    "plain": "從設計、製造到測試全流程自行完成的印刷電路板，提升品質與交期控制。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E5%85%A8%E8%A3%BD%E7%A8%8B%20PCB&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：金像電(2368)10月營收年增76%接單增加、單月重返近百億元",
+   "url": "https://news.cnyes.com/news/id/6657735"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：PCB廠金像電1-3季每股純益28.41元居全製程廠之冠 健鼎居次",
+   "url": "https://news.cnyes.com/news/id/6655952"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：金像電:本公司受邀參加元大證券舉辦之法人說明會",
+   "url": "https://news.cnyes.com/news/id/6656075"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：金像電:(更正3/10公告)代子公司GCE(Thailand)公告董事會決議向關係人Crystalrock Enterprise Co., Ltd.取得土地",
+   "url": "https://news.cnyes.com/news/id/6656069"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：金像電:本公司依公開發行公司資金貸與及背書保證處理準則第二十五條第一項第四款規定公告",
+   "url": "https://news.cnyes.com/news/id/6656074"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：金像電:代子公司蘇州金像電子公告取得設備",
+   "url": "https://news.cnyes.com/news/id/6656073"
+  },
+  {
+   "label": "優分析 2025-02-18：【PCB】金像電(2368)-這三大成長動能支撐未來營運!",
+   "url": "https://uanalyze.com.tw/articles/2010710638"
+  },
+  {
+   "label": "金像電 官方網站",
+   "url": "http://www.gce.com.tw/"
+  }
+ ],
+ "dropped_sentences": 4,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 10,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 983.0,
+  "rev_yoy": 55.5,
+  "rev_month": "2026-09",
+  "gross": null,
+  "pe": 35.28,
+  "yield": 1.0
+ },
+ "generated_at": "2026-11-11T08:32+08:00",
+ "emailed_at": "2026-11-11T09:00+08:00",
+ "line_sent_at": "2026-11-11T09:00+08:00"
+}
