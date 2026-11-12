@@ -1,0 +1,129 @@
+{
+ "date": "2026-11-12",
+ "code": "2327",
+ "name": "國巨",
+ "market": "上市",
+ "industry": "電子零組件業",
+ "story": {
+  "title": "國巨營收狂增55%，背後是什麼推手？",
+  "one_liner": "從被動元件起家到AI伺服器供應商，國巨的成長路徑全揭密。",
+  "industry": "國巨是被動元件（如MLCC、鉭質電容、晶片電阻）製造商，供應鏈上游是原材料供應商，下游客戶包括AI伺服器廠商（如NVIDIA）與各類電子品牌，主要競爭對手有華新科、禾伸堂等。",
+  "history": [
+   {
+    "when": "1977年7月",
+    "what": "成立國巨，首批生產自動焊接機與碳膜電阻"
+   },
+   {
+    "when": "1993年10月",
+    "what": "在台灣證券交易所正式上市，成為首家被動元件上市公司"
+   },
+   {
+    "when": "2021年",
+    "what": "成為全球第一大晶片電阻與鉭質電容製造商，第三大MLCC供應商"
+   },
+   {
+    "when": "2026年10月",
+    "what": "10月營收175.97億元，年增55%創單月新高"
+   }
+  ],
+  "now": [
+   "受邀參加J.P. Morgan舉辦的APAC Technology, Innovation and Growth Conference，展示最新AI伺服器被動元件。",
+   "10月營收達175.97億元，年增55%，創下單月營收新高。",
+   "董事會決議捐贈財團法人國巨基金會，展現企業社會責任。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續成長，國巨已供應最新代AI伺服器的被動元件。",
+   "全球多點布局（台灣、美國、墨西哥、歐洲）提升供應彈性與市場佔有率。",
+   "電動車與5G基礎建設擴大，帶動對高頻率電容與電阻的需求。"
+  ],
+  "risks": [
+   "被動元件市場競爭激烈，價格與技術創新壓力大。",
+   "營收高度依賴少數大客戶，客戶需求變動可能衝擊業績。",
+   "原材料價格波動可能侵蝕毛利率。"
+  ],
+  "watch": [
+   "AI相關營收比重，目標約5%是否提升。",
+   "新產品開發進度與大型客戶簽約情況。"
+  ],
+  "terms": [
+   {
+    "term": "MLCC",
+    "plain": "積層陶瓷電容器，常用於手機、電腦等高頻電路的儲能元件。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=MLCC&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "鉭質電容",
+    "plain": "以鉭金屬為陽極的電容，具高容值與穩定性，常見於軍事與航太電子。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E9%89%AD%E8%B3%AA%E9%9B%BB%E5%AE%B9%E5%99%A8",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "晶片電阻",
+    "plain": "尺寸極小的電阻，適合高密度封裝的手機與IoT設備。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%99%B6%E7%89%87%E9%9B%BB%E9%98%BB&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：國巨",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%9C%8B%E5%B7%A8"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：大中:公告本公司董事會決議捐贈財團法人國巨基金會",
+   "url": "https://news.cnyes.com/news/id/6659013"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：國巨*:本公司受邀參加由J.P. Morgan舉辦之\"APAC Technology, Innovation and Growth Conference\"",
+   "url": "https://news.cnyes.com/news/id/6658493"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：茂達:公告本公司董事會決議捐贈財團法人國巨基金會",
+   "url": "https://news.cnyes.com/news/id/6658528"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：國巨*10月營收175.97億元年增55.01% 1—10月達1497.51億元",
+   "url": "https://news.cnyes.com/news/id/6656993"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：營收速報  - 國巨(2327)10月營收175.97億元年增率高達55.01％",
+   "url": "https://news.cnyes.com/news/id/6655933"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：〈台股盤前要聞〉10月進出口創單月新高連36紅、台達電及國巨10月營收同寫新猷",
+   "url": "https://news.cnyes.com/news/id/6654744"
+  },
+  {
+   "label": "鉅亨網 2024-09-26：國巨陳泰銘：AI營收比重約5% 產品已供應最新一代AI伺服器",
+   "url": "https://anuenews.cnyes.com/news/id/5725076"
+  },
+  {
+   "label": "國巨 官方網站",
+   "url": "https://WWW.YAGEO.COM"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 10,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 424.5,
+  "rev_yoy": 55.0,
+  "rev_month": "2026-10",
+  "gross": null,
+  "pe": 28.59,
+  "yield": 1.41
+ },
+ "generated_at": "2026-11-12T08:32+08:00",
+ "emailed_at": "2026-11-12T09:00+08:00",
+ "line_sent_at": "2026-11-12T09:00+08:00"
+}
