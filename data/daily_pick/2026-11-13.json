@@ -1,0 +1,146 @@
+{
+ "date": "2026-11-13",
+ "code": "2382",
+ "name": "廣達",
+ "market": "上市",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "廣達AI伺服器營收要翻倍，背後是什麼力量？",
+  "one_liner": "從筆電代工起家到AI伺服器領航，廣達正轉型雲端與AI硬體。",
+  "industry": "廣達是ODM／OEM代工廠，主要製造筆電、平板、伺服器與工業電腦。上游供應商包括Alphabet、Amazon、Meta等提供AI伺服器零件；下游客戶有華碩、宏碁、IBM、HP、戴爾、蘋果、聯想等。競爭對手以鴻海、緯創、英業達為主，QCT品牌在全球前50大雲端資料中心市占超過50%。",
+  "history": [
+   {
+    "when": "1988",
+    "what": "廣達在台北士林創立，開始代工筆記型電腦。"
+   },
+   {
+    "when": "1999",
+    "what": "遷至桃園龜山，正式在台灣證交所上市。"
+   },
+   {
+    "when": "2000",
+    "what": "開始把產線搬到中國大陸，擴大製造規模。"
+   },
+   {
+    "when": "2006",
+    "what": "在龜山華亞科技園區建成研發中心，聚集千名工程師。"
+   },
+   {
+    "when": "2010",
+    "what": "營收突破新台幣1兆元，成為全球大型雲端資料中心主要供應商。"
+   }
+  ],
+  "now": [
+   "AI伺服器營收預計2027年年增雙位數，客戶改以供料模式提升毛利率。",
+   "2027年資本支出將增至400至450億，重點投資電力設施與新世代機櫃零件。",
+   "AI機櫃出貨量下降，但單價提升，使營收仍持續成長。"
+  ],
+  "opportunities": [
+   "非NVIDIA平台占比將升至兩位數，提供多樣化AI硬體選擇。",
+   "雲端資料中心需求持續擴大，QCT可抓住全球大型資料中心的成長。",
+   "AI零件供料模式可提升毛利率，降低營收認列波動。"
+  ],
+  "risks": [
+   "AI機櫃出貨量下降，若單價無法持續提升將影響營收。",
+   "資本支出大幅增加，若電力設施投資回報不及預期，會壓縮獲利。",
+   "供應鏈依賴美國大廠，政策或技術變動可能衝擊零件取得。"
+  ],
+  "watch": [
+   "2027年QCT AI伺服器營收成長率。",
+   "資本支出進度與電力設施建設完成情形。",
+   "非NVIDIA平台出貨比率與毛利率變化。"
+  ],
+  "terms": [
+   {
+    "term": "ODM",
+    "plain": "Original Design Manufacturer，代工廠自行設計並製造產品給品牌客戶。",
+    "url": "https://zh.wikipedia.org/zh-tw/ODM",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "OEM",
+    "plain": "Original Equipment Manufacturer，根據品牌客戶的設計規格製造產品。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E4%BB%A3%E5%B7%A5%E7%94%9F%E4%BA%A7",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "QCT",
+    "plain": "Quanta Cloud Technology，廣達的雲端硬體整合品牌，提供伺服器、儲存與網通設備。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=QCT&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AI伺服器",
+    "plain": "專為人工智慧運算設計的高效能伺服器，通常搭配GPU或加速卡。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E4%BC%BA%E6%9C%8D%E5%99%A8&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "供料模式",
+    "plain": "客戶自行提供零件，代工廠只負責組裝，提升毛利率。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E4%BE%9B%E6%96%99%E6%A8%A1%E5%BC%8F&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：廣達電腦",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%BB%A3%E9%81%94%E9%9B%BB%E8%85%A6"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：鉅亨速報 - Factset 最新調查：廣達(2382-TW)目標價調降至410元，幅度約5.2%",
+   "url": "https://news.cnyes.com/news/id/6659952"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：〈台股盤前要聞〉廣達明年AI伺服器營收年增高雙位數、中信金前10月加計FVOCI股票狂賺1488億元",
+   "url": "https://news.cnyes.com/news/id/6659644"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：廣達(2382) 2027 年資本支出 400 億到 450 億元！增幅收斂，經費轉向電力設施",
+   "url": "https://news.cnyes.com/news/id/6659663"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：廣達(2382) 更多 AI 專案改由客戶供料！拿到的是毛利率，讓掉的是營收認列",
+   "url": "https://news.cnyes.com/news/id/6659661"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：廣達(2382) AI 機櫃出貨變少、營收仍成長！成長動能換成單價",
+   "url": "https://news.cnyes.com/news/id/6659660"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：廣達(2382) 197 億元買廠案終止！AI 產能改由海外租廠接手",
+   "url": "https://news.cnyes.com/news/id/6659662"
+  },
+  {
+   "label": "中央社 2024-04-02：AI需求強 廣達股價衝今年新高領漲伺服器族群",
+   "url": "https://www.cna.com.tw/news/afe/202404020047.aspx"
+  },
+  {
+   "label": "廣達 官方網站",
+   "url": "https://www.quantatw.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 15,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 278.5,
+  "rev_yoy": 104.0,
+  "rev_month": "2026-10",
+  "gross": 4.86,
+  "pe": 11.36,
+  "yield": 5.6
+ },
+ "generated_at": "2026-11-13T08:32+08:00",
+ "emailed_at": "2026-11-13T09:00+08:00",
+ "line_sent_at": "2026-11-13T09:00+08:00"
+}
