@@ -1943,5 +1943,54 @@
 "figi_name": "Wave Life Sciences Ltd",
 "type": null,
 "via": "sec-name"
+},
+"00214Q724": {
+"ticker": "ARKY",
+"figi_name": "ARK ACTIVE AUTOCALL INC ETF",
+"type": "Mutual Fund"
+},
+"35661P100": {
+"ticker": "FRNM",
+"figi_name": "FREENOME INC",
+"type": "Common Stock"
+},
+"36118L106": {
+"ticker": "FUTU",
+"figi_name": "FUTU HOLDINGS LTD-ADR",
+"type": "Depositary Receipt"
+},
+"811033109": {
+"ticker": "SCTX",
+"figi_name": "SCRIBE THERAPEUTICS INC",
+"type": "Common Stock"
+},
+"81517B101": {
+"ticker": "SECZ",
+"figi_name": "SECURITIZE CORP",
+"type": "Common Stock"
+},
+"M84116108": {
+"ticker": "SILC",
+"figi_name": "Silicom Ltd",
+"type": null,
+"via": "sec-name"
+},
+"M8694L137": {
+"ticker": "SLGL",
+"figi_name": "Sol-Gel Technologies Ltd",
+"type": null,
+"via": "sec-name"
+},
+"M8769Q102": {
+"ticker": "TEVA",
+"figi_name": "Teva Pharmaceutical Industries",
+"type": null,
+"via": "sec-name"
+},
+"M8T80P204": {
+"ticker": "NEXN",
+"figi_name": "Nexxen International Ltd",
+"type": null,
+"via": "sec-name"
 }
 }
