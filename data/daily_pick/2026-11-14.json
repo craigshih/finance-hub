@@ -1,0 +1,121 @@
+{
+ "date": "2026-11-14",
+ "code": "3231",
+ "name": "緯創",
+ "market": "上市",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "緯創為什麼要大幅擴充AI伺服器產能？",
+  "one_liner": "",
+  "industry": "緯創是電腦及週邊設備業的代工廠，主要組裝伺服器、筆電與AI加速卡。上游供應商包括NVIDIA（GPU基板）與Microsoft（雲端伺服器），下游客戶多為全球大型雲端與AI公司。主要競爭者有鴻海、廣達與英業達。",
+  "history": [
+   {
+    "when": "2001",
+    "what": "緯創資通於新竹成立，開始代工電腦主機板。"
+   },
+   {
+    "when": "2023",
+    "what": "獲得NVIDIA與Microsoft供應商資格，承接AI伺服器訂單。"
+   },
+   {
+    "when": "2026-11-11",
+    "what": "公布新增134.23億資本支出，擴充台灣與墨西哥AI伺服器產能。"
+   }
+  ],
+  "now": [
+   "2026-11-11：董事會批准134.23億資本支出，擴大AI伺服器產能，布局台灣與墨西哥兩地。",
+   "2026-11-11：子公司WIMX公告建築物改良，提升生產設施。",
+   "2026-11-11：公司計畫取得多項不動產使用權，支援產能擴張。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續成長，可帶動營收與毛利提升。",
+   "與NVIDIA、Microsoft的合作深化，提升高階晶片代工能力。",
+   "墨西哥新廠投產後，降低美洲客戶的供應鏈成本與交期。"
+  ],
+  "risks": [
+   "AI伺服器市場競爭激烈，鴻海等大廠可能爭奪同樣客戶。",
+   "資本支出大幅增加，若產能利用率未達預期，會壓縮獲利。",
+   "全球半導體供應緊張，GPU基板等關鍵零件可能出現短缺。"
+  ],
+  "watch": [
+   "新建墨西哥產線的投產進度與產能利用率。",
+   "與NVIDIA、Microsoft的訂單量變化。"
+  ],
+  "terms": [
+   {
+    "term": "AI伺服器",
+    "plain": "搭載人工智慧加速晶片的高效能伺服器，用於深度學習與大數據運算。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E4%BC%BA%E6%9C%8D%E5%99%A8&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "GPU基板",
+    "plain": "顯示卡核心晶片的載板，負責連接與散熱，是AI運算的關鍵硬體。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=GPU%E5%9F%BA%E6%9D%BF&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "資本支出",
+    "plain": "公司為擴充產能或購置設備所投入的長期投資金額。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E8%B3%87%E6%9C%AC%E6%94%AF%E5%87%BA",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-11-13：鉅亨速報 - Factset 最新調查：緯創(3231-TW)EPS預估上修至18.38元，預估目標價為283元",
+   "url": "https://news.cnyes.com/news/id/6661569"
+  },
+  {
+   "label": "鉅亨網 2026-11-13：鉅亨速報 - Factset 最新調查：緯創(3231-TW)EPS預估上修至18.24元，預估目標價為289.5元",
+   "url": "https://news.cnyes.com/news/id/6661233"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：鉅亨速報 - Factset 最新調查：緯創(3231-TW)EPS預估上修至17.56元，預估目標價為284元",
+   "url": "https://news.cnyes.com/news/id/6659956"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：緯創前三季獲利428億元EPS 13.54元 加碼資本支出再擴充伺服器產能",
+   "url": "https://news.cnyes.com/news/id/6659550"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：緯創:代子公司Wistron InfoComm Mexico S.A. de C.V. (簡稱WIMX)公告擬進行建築物改良",
+   "url": "https://news.cnyes.com/news/id/6659247"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：緯創:公告本公司擬向普生(股)公司取得不動產使用權資產",
+   "url": "https://news.cnyes.com/news/id/6659246"
+  },
+  {
+   "label": "數位時代 2023-10-03：緯創入手Nvidia新訂單，明年首季顯著出貨！一窺拿下輝達AI伺服器大單的秘密",
+   "url": "https://www.bnext.com.tw/article/76027/wistron-ai-server"
+  },
+  {
+   "label": "緯創 官方網站",
+   "url": "https://www.wistron.com"
+  }
+ ],
+ "dropped_sentences": 4,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 13,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 171.0,
+  "rev_yoy": 117.6,
+  "rev_month": "2026-10",
+  "gross": 5.62,
+  "pe": 11.49,
+  "yield": 3.22
+ },
+ "generated_at": "2026-11-14T08:32+08:00",
+ "emailed_at": "2026-11-14T09:00+08:00",
+ "line_sent_at": "2026-11-14T09:00+08:00"
+}
