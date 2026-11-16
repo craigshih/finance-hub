@@ -1,0 +1,134 @@
+{
+ "date": "2026-11-16",
+ "code": "2357",
+ "name": "華碩",
+ "market": "上市",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "華碩AI伺服器要雙位數成長，背後是什麼力量？",
+  "one_liner": "華碩從主機板起家，現在把AI伺服器當成新成長引擎。",
+  "industry": "華碩是電腦及週邊設備業的品牌公司，主要產品包括筆記型電腦、主機板、顯示卡、AI伺服器等。上游供應商有NVIDIA等晶片廠，合作採用NVIDIA GB300平台；下游客戶涵蓋企業、雲端服務商與個人消費者，競爭對手以技嘉、微星為主。",
+  "history": [
+   {
+    "when": "1989",
+    "what": "成立華碩電腦有限公司，開始研發主機板。"
+   },
+   {
+    "when": "1995",
+    "what": "成為全球主機板領導品牌。"
+   },
+   {
+    "when": "2008",
+    "what": "分割品牌與代工，專注品牌業務。"
+   },
+   {
+    "when": "2014",
+    "what": "推出首款智慧型手機ZenFone，進軍行動裝置。"
+   },
+   {
+    "when": "2026-11-09",
+    "what": "10月營收1076.2億元，年增62.25%。"
+   }
+  ],
+  "now": [
+   "AI伺服器營收Q4季增150%、年增280%，目標2027年雙位數成長。",
+   "RTX Spark系列首波貨量全數預訂，ProArt P14/P16市佔逾30%。",
+   "PC業務年增逾25%，全球市佔升至8.7%，AI PC營收年增超100%。"
+  ],
+  "opportunities": [
+   "AI伺服器需求持續上升，預計2027年成為高雙位數成長動能。",
+   "高價值產品占比提升至65%，提升毛利與營業利潤。",
+   "與NVIDIA合作的GB300平台可加速AI運算，擴大企業客戶基礎。"
+  ],
+  "risks": [
+   "記憶體價格上漲，成本難以100%轉嫁，可能壓縮部分機種毛利。",
+   "全球PC市場預估2027年年減10%至15%，整體需求下降。",
+   "AI伺服器競爭激烈，需持續投入研發與資本支出。"
+  ],
+  "watch": [
+   "2027年第一季伺服器營收季增與年增目標達成情況",
+   "新一代RTX Spark與GB300平台出貨量",
+   "公司法說會上對AI PC與高價值產品的營收預估"
+  ],
+  "terms": [
+   {
+    "term": "AI伺服器",
+    "plain": "以人工智慧運算為主的伺服器，搭載GPU或加速卡，提供雲端AI服務。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E4%BC%BA%E6%9C%8D%E5%99%A8&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "RTX Spark",
+    "plain": "華碩自有品牌的高階顯示卡，主打AI與圖形運算效能。",
+    "url": "https://zh.wikipedia.org/zh-tw/Nvidia%20RTX%20Spark",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "GB300平台",
+    "plain": "華碩與NVIDIA合作的伺服器平台，使用NVIDIA GPU加速AI工作負載。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=GB300%E5%B9%B3%E5%8F%B0&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：華碩",
+   "url": "https://zh.wikipedia.org/zh-tw/%E8%8F%AF%E7%A2%A9"
+  },
+  {
+   "label": "鉅亨網 2026-11-15：AI伺服器成PC大廠2027年成長動能 華碩拚高雙位數增長、技嘉擴產搶市",
+   "url": "https://news.cnyes.com/news/id/6661406"
+  },
+  {
+   "label": "鉅亨網 2026-11-13：鉅亨速報 - Factset 最新調查：華碩(2357-TW)EPS預估上修至82.77元，預估目標價為1100元",
+   "url": "https://news.cnyes.com/news/id/6661567"
+  },
+  {
+   "label": "鉅亨網 2026-11-13：鉅亨速報 - Factset 最新調查：華碩(2357-TW)EPS預估上修至78.03元，預估目標價為1100元",
+   "url": "https://news.cnyes.com/news/id/6661229"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：〈華碩法說〉AI重點筆記2026/11/12",
+   "url": "https://news.cnyes.com/news/id/6660660"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：〈華碩法說〉記憶體大漲難100%轉嫁 靠高階RTX Spark搶攻3成市占",
+   "url": "https://news.cnyes.com/news/id/6660648"
+  },
+  {
+   "label": "鉅亨網 2026-11-12：〈華碩法說〉看Q4伺服器營收狂飆季增150% 明年高雙位數成長在望",
+   "url": "https://news.cnyes.com/news/id/6660655"
+  },
+  {
+   "label": "科技新報 2025-08-15：華碩預告 GB300 伺服器、桌上型 AI 超級電腦第三季出貨",
+   "url": "https://finance.technews.tw/2025/08/15/asus-2025-q2-earnings/"
+  },
+  {
+   "label": "華碩 官方網站",
+   "url": "https://www.asus.com"
+  }
+ ],
+ "dropped_sentences": 0,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 10,
+  "weekly": false,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 882.0,
+  "rev_yoy": 62.2,
+  "rev_month": "2026-10",
+  "gross": 16.26,
+  "pe": 10.59,
+  "yield": 4.76
+ },
+ "generated_at": "2026-11-16T08:32+08:00",
+ "emailed_at": "2026-11-16T09:00+08:00",
+ "line_sent_at": "2026-11-16T09:00+08:00"
+}
