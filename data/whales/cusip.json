@@ -1992,5 +1992,104 @@
 "figi_name": "Nexxen International Ltd",
 "type": null,
 "via": "sec-name"
+},
+"008474108": {
+"ticker": "AEM",
+"figi_name": "AGNICO EAGLE MINES LTD",
+"type": "Common Stock"
+},
+"038222105": {
+"ticker": "AMAT",
+"figi_name": "APPLIED MATERIALS INC",
+"type": "Common Stock"
+},
+"03831W108": {
+"ticker": "APP",
+"figi_name": "APPLOVIN CORP-CLASS A",
+"type": "Common Stock"
+},
+"06849F108": {
+"ticker": "B",
+"figi_name": "BARRICK MINING CORP",
+"type": "Common Stock"
+},
+"19240Q201": {
+"ticker": "COGT",
+"figi_name": "COGENT BIOSCIENCES INC",
+"type": "Common Stock"
+},
+"23255M303": {
+"ticker": "KRSA",
+"figi_name": "KORSANA BIOSCIENCES INC",
+"type": "Common Stock"
+},
+"256746108": {
+"ticker": "DLTR",
+"figi_name": "DOLLAR TREE INC",
+"type": "Common Stock"
+},
+"45765U103": {
+"ticker": "NSIT",
+"figi_name": "INSIGHT ENTERPRISES INC",
+"type": "Common Stock"
+},
+"55306N104": {
+"ticker": "MKSI",
+"figi_name": "MKS INC",
+"type": "Common Stock"
+},
+"607828100": {
+"ticker": "MOD",
+"figi_name": "MODINE MANUFACTURING CO",
+"type": "Common Stock"
+},
+"61559X104": {
+"ticker": "MLTX",
+"figi_name": "MOONLAKE IMMUNOTHERAPEUTICS",
+"type": "Common Stock"
+},
+"651639106": {
+"ticker": "NEM",
+"figi_name": "NEWMONT CORP",
+"type": "Common Stock"
+},
+"68389X105": {
+"ticker": "ORCL",
+"figi_name": "ORACLE CORP",
+"type": "Common Stock"
+},
+"69331C108": {
+"ticker": "PCG",
+"figi_name": "P G & E CORP",
+"type": "Common Stock"
+},
+"87162W100": {
+"ticker": "SNX",
+"figi_name": "TD SYNNEX CORP",
+"type": "Common Stock"
+},
+"87305R109": {
+"ticker": "TTMI",
+"figi_name": "TTM TECHNOLOGIES",
+"type": "Common Stock"
+},
+"88023U101": {
+"ticker": "SGI",
+"figi_name": "SOMNIGROUP INTERNATIONAL INC",
+"type": "Common Stock"
+},
+"94352A104": {
+"ticker": "WVE",
+"figi_name": "WAVE LIFE SCIENCES INC",
+"type": "Common Stock"
+},
+"958102105": {
+"ticker": "WDC",
+"figi_name": "WESTERN DIGITAL CORP",
+"type": "Common Stock"
+},
+"T19377109": {
+"ticker": null,
+"tries": 1
 }
 }
