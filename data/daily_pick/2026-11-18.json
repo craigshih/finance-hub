@@ -1,0 +1,122 @@
+{
+ "date": "2026-11-18",
+ "code": "8299",
+ "name": "群聯",
+ "market": "上櫃",
+ "industry": "半導體業",
+ "story": {
+  "title": "群聯怎麼從小廠變成 SSD 控制晶片大玩家？",
+  "one_liner": "從 2000 年創立到現在，群聯是 NAND 快閃記憶體控制晶片的領頭羊。",
+  "industry": "群聯屬半導體業，主要設計與銷售 NAND 快閃記憶體控制晶片，應用在隨身碟、記憶卡與 SSD。上游是 NAND 記憶體製造商，下游則是 PC、手機與資料中心廠商，主要客戶包括各大 OEM，競爭對手有美光、三星等。",
+  "history": [
+   {
+    "when": "2000",
+    "what": "群聯電子在苗栗成立，開始研發 NAND 控制晶片。"
+   },
+   {
+    "when": "2026-11-16",
+    "what": "公告回購庫藏股超過 3 億元。"
+   },
+   {
+    "when": "2026-11-17",
+    "what": "公布 115 年上半年度現金股利除息基準日。"
+   }
+  ],
+  "now": [
+   "持續回購庫藏股，金額超過三億元，顯示公司對資金運用的信心。",
+   "公告 115 年上半年度現金股利除息基準日，維持股東回饋。",
+   "受邀參加多場投資論壇，提升市場能見度。"
+  ],
+  "opportunities": [
+   "全球 SSD 需求持續成長，帶動控制晶片需求上升。",
+   "NAND 記憶體價格回升，可提升群聯毛利率。",
+   "擴大與資料中心供應鏈合作，開發高效能 NVMe 解決方案。"
+  ],
+  "risks": [
+   "NAND 記憶體價格波動，可能壓縮毛利。",
+   "競爭對手技術升級，市場份額可能被侵蝕。",
+   "供應鏈緊張或晶圓代工產能不足，影響交付。"
+  ],
+  "watch": [
+   "每季營收與毛利率變化。",
+   "公司法說會與新產品發布進度。",
+   "庫藏股回購完成比例。"
+  ],
+  "terms": [
+   {
+    "term": "NAND 快閃記憶體",
+    "plain": "一種非揮發性儲存技術，用於 USB 隨身碟、SSD 等裝置。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=NAND%20%E5%BF%AB%E9%96%83%E8%A8%98%E6%86%B6%E9%AB%94&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "控制晶片",
+    "plain": "管理記憶體讀寫的 IC，決定儲存裝置的效能與穩定性。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%8E%A7%E5%88%B6%E6%99%B6%E7%89%87&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "SSD",
+    "plain": "固態硬碟，以 NAND 記憶體取代傳統磁碟，提高速度與耐用度。",
+    "url": "https://zh.wikipedia.org/zh-tw/SSD",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O"
+  },
+  {
+   "label": "維基百科：群聯電子",
+   "url": "https://zh.wikipedia.org/zh-tw/%E7%BE%A4%E8%81%AF%E9%9B%BB%E5%AD%90"
+  },
+  {
+   "label": "鉅亨網 2026-11-17：鉅亨速報 - Factset 最新調查：群聯(8299-TW)EPS預估下修至429.62元，預估目標價為2150元",
+   "url": "https://news.cnyes.com/news/id/6665502"
+  },
+  {
+   "label": "鉅亨網 2026-11-17：群聯:公告本公司115年上半年度股東現金股利除息基準日及發放日期相關事宜",
+   "url": "https://news.cnyes.com/news/id/6665080"
+  },
+  {
+   "label": "鉅亨網 2026-11-16：群聯:公告本公司本次買回庫藏股金額達新台幣三億元以上",
+   "url": "https://news.cnyes.com/news/id/6664193"
+  },
+  {
+   "label": "鉅亨網 2026-11-16：群聯:公告本公司本次買回庫藏股金額達新台幣三億元以上",
+   "url": "https://news.cnyes.com/news/id/6663931"
+  },
+  {
+   "label": "鉅亨網 2026-11-11：群聯:公告本公司本次買回庫藏股金額達新台幣三億元以上",
+   "url": "https://news.cnyes.com/news/id/6659096"
+  },
+  {
+   "label": "鉅亨網 2026-11-10：群聯:公告本公司本次買回庫藏股金額達新台幣三億元以上",
+   "url": "https://news.cnyes.com/news/id/6656645"
+  },
+  {
+   "label": "群聯 官方網站",
+   "url": "https://www.phison.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 5,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 1535.0,
+  "rev_yoy": 346.3,
+  "rev_month": "2026-10",
+  "gross": 61.99,
+  "pe": 4.43,
+  "yield": 1.51
+ },
+ "generated_at": "2026-11-18T08:33+08:00",
+ "emailed_at": "2026-11-18T09:00+08:00",
+ "line_sent_at": "2026-11-18T09:00+08:00"
+}
