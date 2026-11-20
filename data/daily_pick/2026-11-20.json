@@ -1,0 +1,116 @@
+{
+ "date": "2026-11-20",
+ "code": "6515",
+ "name": "穎崴",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "穎崴怎麼從測試座躍升AI晶片供應鏈？",
+  "one_liner": "從2001年起家測試座，到供應NVIDIA、AMD AI晶片，持續成長的半導體測試專家。",
+  "industry": "穎崴提供AI晶片測試座（測試用的插槽與介面），上游是晶圓代工與IC設計，下游主要客戶為NVIDIA、AMD等AI晶片大廠，競爭者包括旺矽、精測等同業。產品屬高階測試設備，屬於半導體測試服務產業。",
+  "history": [
+   {
+    "when": "2001",
+    "what": "公司於4月10日成立，專注半導體測試座開發。"
+   },
+   {
+    "when": "2026-07",
+    "what": "被鏡週刊報導為NVIDIA、AMD AI晶片測試座供應商。"
+   },
+   {
+    "when": "2026-11-19",
+    "what": "受邀參加凱基證券法人說明會，說明最新營運與策略。"
+   }
+  ],
+  "now": [
+   "受邀參加凱基證券法人說明會，分享營運亮點與未來布局。",
+   "股價在近期出現跌停與漲停波動，顯示市場對其業績預期波動大。"
+  ],
+  "opportunities": [
+   "AI晶片需求持續擴大，測試座需求同步成長。",
+   "毛利率已達40.5%，顯示產品具高附加價值。",
+   "與NVIDIA、AMD的供應關係可帶來穩定訂單。"
+  ],
+  "risks": [
+   "過度依賴少數大型客戶，客戶需求變化風險高。",
+   "股價波動劇烈，投資者情緒易受短期消息影響。"
+  ],
+  "watch": [
+   "每月營收表現，特別是AI測試座的出貨量。",
+   "下一季法說會，觀察毛利率與營運指引。",
+   "新產品開發進度，是否能擴大至其他AI晶片廠商。"
+  ],
+  "terms": [
+   {
+    "term": "AI晶片測試座",
+    "plain": "用於測試AI專用晶片的插槽與介面，確保晶片功能正常。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AI%E6%99%B6%E7%89%87%E6%B8%AC%E8%A9%A6%E5%BA%A7&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "本益比",
+    "plain": "股價除以每股盈餘的比率，衡量股票相對估值高低。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%B8%82%E7%9B%88%E7%8E%87",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "毛利率",
+    "plain": "營業收入扣除直接成本後的比例，反映產品獲利能力。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E6%AF%9B%E5%88%A9%E7%8E%87",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "鉅亨網 2026-11-19：穎崴:本公司受邀參加凱基證券舉辦之法人說明會",
+   "url": "https://news.cnyes.com/news/id/6667635"
+  },
+  {
+   "label": "鉅亨網 2026-11-19：盤中速報 - 穎崴(6515)股價殺至跌停，跌停價3205.0元，成交201張",
+   "url": "https://news.cnyes.com/news/id/6667157"
+  },
+  {
+   "label": "鉅亨網 2026-11-18：鉅亨速報 - Factset 最新調查：穎崴(6515-TW)EPS預估下修至90.14元，預估目標價為8100元",
+   "url": "https://news.cnyes.com/news/id/6666060"
+  },
+  {
+   "label": "鉅亨網 2026-11-16：盤中速報 - 穎崴(6515)股價殺至跌停，跌停價3705.0元，成交323張",
+   "url": "https://news.cnyes.com/news/id/6663637"
+  },
+  {
+   "label": "鉅亨網 2026-11-13：盤中速報 - 穎崴(6515)股價拉至漲停，漲停價4370.0元，成交200張",
+   "url": "https://news.cnyes.com/news/id/6661527"
+  },
+  {
+   "label": "鏡週刊 2026-07-19：",
+   "url": "https://www.mirrormedia.mg/story/20260714fin001"
+  },
+  {
+   "label": "穎崴 官方網站",
+   "url": "https://www.winwayglobal.com/"
+  }
+ ],
+ "dropped_sentences": 2,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 5,
+  "weekly": true,
+  "supply": true
+ },
+ "snapshot": {
+  "close": 3205.0,
+  "rev_yoy": 62.6,
+  "rev_month": "2026-10",
+  "gross": 40.5,
+  "pe": 40.48,
+  "yield": 1.54
+ },
+ "generated_at": "2026-11-20T08:32+08:00",
+ "emailed_at": "2026-11-20T09:00+08:00",
+ "line_sent_at": "2026-11-20T09:00+08:00"
+}
