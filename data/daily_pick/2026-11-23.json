@@ -1,0 +1,134 @@
+{
+ "date": "2026-11-23",
+ "code": "5289",
+ "name": "宜鼎",
+ "market": "上櫃",
+ "industry": "電腦及週邊設備業",
+ "story": {
+  "title": "宜鼎從嵌入式儲存到AI記憶體，怎樣一路成長？",
+  "one_liner": "",
+  "industry": "宜鼎屬於電腦及週邊設備業，提供工業級嵌入式SSD、DRAM、AI運算平台、視覺感測相機模組等。上游主要是半導體晶圓與記憶體芯片供應商，下游客戶涵蓋自動化設備、工業機器人、資料中心與智慧製造系統，競爭者包括其他工業記憶體廠商與AI硬體供應商。",
+  "history": [
+   {
+    "when": "2005年3月",
+    "what": "宜鼎在新北汐止成立，主打嵌入式儲存與DRAM模組。"
+   },
+   {
+    "when": "2012年8月",
+    "what": "首次公開發行股票，登錄興櫃。"
+   },
+   {
+    "when": "2013年11月",
+    "what": "股票掛牌上櫃，正式成為上櫃公司。"
+   },
+   {
+    "when": "2018年5月",
+    "what": "宜蘭研發製造中心落成，擴大本土產能。"
+   },
+   {
+    "when": "2024年7月",
+    "what": "啟用宜蘭全球研發製造中心二期，深化AI與視覺感測研發。"
+   },
+   {
+    "when": "2026年11月",
+    "what": "10月營收77.5億元，年增454.6%，毛利率57.2%。"
+   }
+  ],
+  "now": [
+   "2026-11-04：擴充AI記憶體產品線，開始向資料中心提供SSD樣機。",
+   "2026-11-09：10月營收77.5億元，年增率達454.58%。",
+   "2026-11-18：完成註銷限制員工權利新股的減資變更登記。"
+  ],
+  "opportunities": [
+   "AI與邊緣運算需求持續成長，可帶動AI記憶體與平台營收。",
+   "全球工業自動化升級，對耐高溫、抗震動的嵌入式儲存需求上升。",
+   "資料中心擴容需要高可靠性SSD，宜鼎的工業級SSD有機會切入。"
+  ],
+  "risks": [
+   "半導體原料價格波動可能壓縮毛利率。",
+   "AI硬體市場競爭激烈，技術更新速度快。",
+   "減資與股權變動可能影響投資人信心。"
+  ],
+  "watch": [
+   "2026年全年營收與毛利率走勢。",
+   "新AI記憶體產品量產進度與客戶簽約情形。",
+   "公司法說會與未來減資或股東會決議。"
+  ],
+  "terms": [
+   {
+    "term": "嵌入式SSD",
+    "plain": "內建於設備內的固態硬碟，具備抗震、防塵等工業級特性。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E5%B5%8C%E5%85%A5%E5%BC%8FSSD&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "邊緣AI",
+    "plain": "在設備或工廠現場即時處理AI運算，降低傳輸延遲。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E9%82%8A%E7%B7%A3AI&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "減資",
+    "plain": "公司縮減資本額，常用於調整股本結構或回收資金。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=%E6%B8%9B%E8%B3%87&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O"
+  },
+  {
+   "label": "維基百科：宜鼎國際",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%AE%9C%E9%BC%8E%E5%9C%8B%E9%9A%9B"
+  },
+  {
+   "label": "鉅亨網 2026-11-18：宜鼎:公告本公司註銷收回之限制員工權利新股辦理減資變更登記完成",
+   "url": "https://news.cnyes.com/news/id/6666484"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：宜鼎10月營收77.50億元年增454.58% 1—10月達692.64億元",
+   "url": "https://news.cnyes.com/news/id/6654267"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：營收速報  - 宜鼎(5289)10月營收77.50億元年增率高達454.58％",
+   "url": "https://news.cnyes.com/news/id/6652629"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：宜鼎:公告本公司董事會決議註銷限制員工權利新股暨訂定減資基準日。",
+   "url": "https://news.cnyes.com/news/id/6651496"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：宜鼎:本公司董事會通過115年第3季合併財務報告",
+   "url": "https://news.cnyes.com/news/id/6651495"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：盤中速報 - 宜鼎(5289)股價殺至跌停，跌停價851.0元，成交225張",
+   "url": "https://news.cnyes.com/news/id/6649563"
+  },
+  {
+   "label": "宜鼎 官方網站",
+   "url": "https://www.innodisk.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 1,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 706.0,
+  "rev_yoy": 454.6,
+  "rev_month": "2026-10",
+  "gross": 57.2,
+  "pe": 2.7,
+  "yield": 2.41
+ },
+ "generated_at": "2026-11-23T08:33+08:00",
+ "emailed_at": "2026-11-23T09:00+08:00",
+ "line_sent_at": "2026-11-23T09:00+08:00"
+}
