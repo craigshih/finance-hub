@@ -1,0 +1,97 @@
+{
+ "date": "2026-11-24",
+ "code": "3167",
+ "name": "大量",
+ "market": "上市",
+ "industry": "電機機械",
+ "story": {
+  "title": "大量科技為什麼能在電機機械裡持續成長？",
+  "one_liner": "",
+  "industry": "大量科技屬電機機械產業，主要提供自動化機構與精密零組件，上游是鋼材與電子元件供應商，下游客戶包括大型設備製造商與OEM廠商，競爭者以同業自動化零件公司為主。",
+  "history": [
+   {
+    "when": "1980-12-26",
+    "what": "公司在桃園成立，開始製造機械零件。"
+   }
+  ],
+  "now": [
+   "近期股價觸及漲停，顯示市場對其營運表現關注度提升。",
+   "公司被報導涉及個資外流事件，正加強資安防護措施。"
+  ],
+  "opportunities": [
+   "持續擴大海外自動化設備需求，營收有望再成長。",
+   "新產品開發聚焦智慧製造，可提升毛利率。",
+   "資安強化提升客戶信任，可能開拓新合作機會。"
+  ],
+  "risks": [
+   "全球供應鏈波動可能影響原料成本。",
+   "資安事件若處理不當，會損害品牌形象。",
+   "產業競爭加劇，價格壓力可能侵蝕毛利。"
+  ],
+  "watch": [
+   "下季營收與毛利率走勢。",
+   "資安防護新措施的實施成效。",
+   "大型設備客戶的訂單動向。"
+  ],
+  "terms": [
+   {
+    "term": "電機機械",
+    "plain": "製造與電氣相關的機械設備，涵蓋自動化、控制系統等領域。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E9%9B%BB%E6%A9%9F%E6%A9%9F%E6%A2%B0",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "毛利率",
+    "plain": "營業收入扣除直接成本後的比例，反映產品獲利能力。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E6%AF%9B%E5%88%A9%E7%8E%87",
+    "url_label": "維基百科"
+   },
+   {
+    "term": "本益比",
+    "plain": "股價除以每股盈餘的指標，用來評估股票相對估值。",
+    "url": "https://zh.wikipedia.org/zh-tw/%E5%B8%82%E7%9B%88%E7%8E%87",
+    "url_label": "維基百科"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：大量生產",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%A4%A7%E9%87%8F%E7%94%9F%E7%94%A2"
+  },
+  {
+   "label": "鉅亨網 2026-11-23：盤中速報 - 大量(3167)股價拉至漲停，漲停價559.0元，成交7,553張",
+   "url": "https://news.cnyes.com/news/id/6670075"
+  },
+  {
+   "label": "鉅亨網 2026-11-23：中國國家安全部：境外「社工庫」利用虛擬貨幣結算資金，大量公民個人資訊被違規轉移出境",
+   "url": "https://news.cnyes.com/news/id/6669896"
+  },
+  {
+   "label": "大量 官方網站",
+   "url": "https://www.taliang.com"
+  }
+ ],
+ "dropped_sentences": 3,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 2,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 559.0,
+  "rev_yoy": 174.9,
+  "rev_month": "2026-10",
+  "gross": 46.36,
+  "pe": 25.75,
+  "yield": 0.7
+ },
+ "generated_at": "2026-11-24T08:32+08:00",
+ "emailed_at": "2026-11-24T09:00+08:00",
+ "line_sent_at": "2026-11-24T09:00+08:00"
+}
