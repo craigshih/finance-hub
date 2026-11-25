@@ -1,0 +1,133 @@
+{
+ "date": "2026-11-25",
+ "code": "2451",
+ "name": "創見",
+ "market": "上市",
+ "industry": "半導體業",
+ "story": {
+  "title": "創見記憶體缺貨紅利還能撐多久？",
+  "one_liner": "從雷射印表機驅動到工業級 SSD，創見一路走來的儲存王者。",
+  "industry": "創見是半導體記憶體與儲存解決方案供應商，主要產品包括工業級 SSD、嵌入式 DRAM 模組、USB 隨身碟與外接硬碟。上游是 DRAM、NAND 晶圓代工廠；下游客戶涵蓋工業自動化、醫療設備、車載系統與消費電子。競爭對手有金士頓、三星等國際大廠。",
+  "history": [
+   {
+    "when": "1989",
+    "what": "束崇萬創立創見，先研發雷射印表機中文驅動與記憶體產品。"
+   },
+   {
+    "when": "1997",
+    "what": "取得 ISO 9001 品質管理認證，導入國際品質制度。"
+   },
+   {
+    "when": "2001",
+    "what": "於臺灣證券交易所掛牌上市（代號 2451），擴大產品線。"
+   },
+   {
+    "when": "2002",
+    "what": "推出 JetFlash USB 隨身碟，正式進入快閃記憶體市場。"
+   },
+   {
+    "when": "2018",
+    "what": "開始量產 3D NAND、PCIe、DDR5 等高效能儲存產品，佈局工業與 AI 應用。"
+   },
+   {
+    "when": "2024",
+    "what": "成為台灣首家取得 AEO 認證的記憶體模組製造商。"
+   }
+  ],
+  "now": [
+   "2026-11-09 報導指出，創見因工控與 DDR5 記憶體需求旺盛，營收年增 191.6%，毛利率維持 70% 以上。",
+   "2026-11-06 董座束崇萬表示，記憶體價格已趨於高檔，第四季營運將回到穩定常態。",
+   "2026-11-06 公司收購宜蘭頭城阿拉伯宮，規劃打造私人美術館，顯示多元投資布局。"
+  ],
+  "opportunities": [
+   "持續推動 3D NAND 與 PCIe SSD，可受益於資料中心與 AI 邊緣運算需求。",
+   "工業級嵌入式儲存進入醫療與車載市場，提供高可靠性產品，成長空間大。",
+   "AEO 認證提升供應鏈安全與通關效率，助攻國際大客戶採購。"
+  ],
+  "risks": [
+   "全球 DRAM 與 NAND 供應緊張緩解後，記憶體價格可能回落，毛利受壓。",
+   "高價位產品若無持續創新，易被三星、金士頓等大廠奪走市場份額。",
+   "匯率波動與國際貿易政策變化，可能影響出口營收。"
+  ],
+  "watch": [
+   "10 月營收與年增率（已公布 50.25 億）持續追蹤。",
+   "AEO 認證後的出口量與主要客戶訂單變化。"
+  ],
+  "terms": [
+   {
+    "term": "3D NAND",
+    "plain": "堆疊多層 NAND 記憶體晶片，提高單位容量與寫入速度的技術。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=3D%20NAND&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "PCIe SSD",
+    "plain": "使用 PCI Express 介面直接連接主機板的固態硬碟，傳輸速率遠高於傳統 SATA SSD。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=PCIe%20SSD&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   },
+   {
+    "term": "AEO",
+    "plain": "Authorized Economic Operator，海關認證的優質企業，具備供應鏈安全與通關便利。",
+    "url": "https://zh.wikipedia.org/w/index.php?search=AEO&variant=zh-tw",
+    "url_label": "維基百科搜尋"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "label": "證交所／櫃買中心公司基本資料（OpenAPI）",
+   "url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+  },
+  {
+   "label": "維基百科：創見資訊",
+   "url": "https://zh.wikipedia.org/zh-tw/%E5%89%B5%E8%A6%8B%E8%B3%87%E8%A8%8A"
+  },
+  {
+   "label": "鉅亨網 2026-11-24：盤中速報 - 創見(2451)股價拉至漲停，漲停價255.0元，成交1,547張",
+   "url": "https://news.cnyes.com/news/id/6670563"
+  },
+  {
+   "label": "鉅亨網 2026-11-23：盤中速報 - 創見(2451)股價拉至漲停，漲停價232.0元，成交4,607張",
+   "url": "https://news.cnyes.com/news/id/6670001"
+  },
+  {
+   "label": "鉅亨網 2026-11-09：創見(2451)2026年獲利暴增後動能降溫！工控、DDR5接棒，記憶體缺貨紅利能延續多久？",
+   "url": "https://news.cnyes.com/news/id/6652846"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：創見董座：記憶體進一步漲價空間有限 模組廠營運回歸穩定常態",
+   "url": "https://news.cnyes.com/news/id/6650122"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：創見束家買下頭城阿拉伯宮 董座束崇萬透露朝「這方向」改造",
+   "url": "https://news.cnyes.com/news/id/6650009"
+  },
+  {
+   "label": "鉅亨網 2026-11-06：盤中速報 - 創見(2451)股價殺至跌停，跌停價229.5元，成交1,344張",
+   "url": "https://news.cnyes.com/news/id/6649685"
+  },
+  {
+   "label": "創見 官方網站",
+   "url": "http://www.transcend-info.com"
+  }
+ ],
+ "dropped_sentences": 1,
+ "why": {
+  "digest_mentions": 0,
+  "news_7d": 2,
+  "weekly": true,
+  "supply": false
+ },
+ "snapshot": {
+  "close": 255.0,
+  "rev_yoy": 191.6,
+  "rev_month": "2026-10",
+  "gross": 70.05,
+  "pe": 3.64,
+  "yield": 4.62
+ },
+ "generated_at": "2026-11-25T08:34+08:00",
+ "emailed_at": "2026-11-25T09:00+08:00",
+ "line_sent_at": "2026-11-25T09:00+08:00"
+}
